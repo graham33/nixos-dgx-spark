@@ -4,7 +4,6 @@
   # Use the latest Linux kernel
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  # ARM64-specific optimizations with NVIDIA support
   boot.kernelParams = [
     "console=tty1"          # VGA console
   ];
@@ -21,9 +20,7 @@
     package = config.boot.kernelPackages.nvidiaPackages.production;
   };
 
-  # Additional hardware support
   hardware.enableRedistributableFirmware = true;
   
-  # Allow unfree firmware if needed
   nixpkgs.config.allowUnfree = true;
 }
