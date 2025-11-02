@@ -3,9 +3,7 @@
 NixOS configuration for NVIDIA DGX Spark systems. Provides a simple USB image
 and a NixOS module to add some settings required for DGX Spark systems.
 
-## Usage
-
-### Building and writing the USB boot image
+## Building and writing the USB boot image
 
 ```bash
 nix build .#usb-image
@@ -34,6 +32,10 @@ Other projects can import this flake and use the DGX Spark module:
   };
 }
 ```
+
+## NixOS Usage
+
+See https://nixos.wiki/wiki/CUDA for caching details.
 
 ## License
 
