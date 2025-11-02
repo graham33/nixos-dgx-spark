@@ -44,6 +44,7 @@ in {
   hardware.nvidia = {
     modesetting.enable = true;
     open = true;  # Use the open-source NVIDIA driver
+    nvidiaPersistenced = true;
     nvidiaSettings = true;
     package = config.boot.kernelPackages.nvidiaPackages.production;
   };
