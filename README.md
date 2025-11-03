@@ -16,6 +16,8 @@ You can then following the installation instructions in the NixOS manual: https:
 
 ### Using the DGX Spark module
 
+This module includes a custom kernel build optimized for NVIDIA DGX Spark systems. The kernel configuration is generated from NVIDIA's Debian annotations using `scripts/generate-dgx-config.py` and compared with NixOS defaults using `scripts/compare-configs.py` to ensure compatibility.
+
 Other projects can import this flake and use the DGX Spark module:
 
 ```nix
