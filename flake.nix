@@ -7,9 +7,10 @@
       url = "github:nix-community/nixos-generators";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, nixos-generators }: {
+  outputs = { self, nixpkgs, nixos-generators, flake-utils }: {
     # Expose the DGX Spark module for other projects
     nixosModules.dgx-spark = import ./modules/dgx-spark.nix;
     nixosConfigurations.usb-image = nixpkgs.lib.nixosSystem {
@@ -49,5 +50,28 @@
     # Default package
     packages.aarch64-linux.default = self.packages.aarch64-linux.usb-image;
     packages.x86_64-linux.default = self.packages.x86_64-linux.usb-image;
-  };
+
+  } // flake-utils.lib.eachDefaultSystem (system:
+    let
+      cuda-overlay = final: prev: {
+        cudaPackages = prev.cudaPackages_13;
+      };
+      pkgs = import nixpkgs {
+        inherit system;
+        config = {
+          allowUnfree = true;
+          cudaSupport = true;
+        };
+        overlays = [
+          cuda-overlay
+        ];
+      };
+    in {
+      # Dev shells
+      devShells.default = pkgs.mkShell {
+        packages = with pkgs; [
+          cudaPackages.cuda_nvcc
+        ];
+      };
+  });
 }
