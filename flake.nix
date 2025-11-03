@@ -10,9 +10,16 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, nixos-generators, flake-utils }: {
+  outputs = { self, nixpkgs, nixos-generators, flake-utils }: let
+    cuda13Overlay = final: prev: {
+      cudaPackages = prev.cudaPackages_13;
+    };
+  in {
     # Expose the DGX Spark module for other projects
     nixosModules.dgx-spark = import ./modules/dgx-spark.nix;
+
+    overlays.cuda-13 = cuda13Overlay;
+
     nixosConfigurations.usb-image = nixpkgs.lib.nixosSystem {
       system = "aarch64-linux";
       modules = [
@@ -53,9 +60,6 @@
 
   } // flake-utils.lib.eachDefaultSystem (system:
     let
-      cuda-overlay = final: prev: {
-        cudaPackages = prev.cudaPackages_13;
-      };
       pkgs = import nixpkgs {
         inherit system;
         config = {
@@ -63,7 +67,7 @@
           cudaSupport = true;
         };
         overlays = [
-          cuda-overlay
+          cuda13Overlay
         ];
       };
     in {
