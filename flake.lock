@@ -56,16 +56,16 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1762111121,
-        "narHash": "sha256-4vhDuZ7OZaZmKKrnDpxLZZpGIJvAeMtK6FKLJYUtAdw=",
-        "owner": "NixOS",
+        "lastModified": 1762211954,
+        "narHash": "sha256-b+AN7/2rxjmw5qtOJ3n/CGxrQy90JjhfhW5LjaSl9mc=",
+        "owner": "GaetanLepage",
         "repo": "nixpkgs",
-        "rev": "b3d51a0365f6695e7dd5cdf3e180604530ed33b4",
+        "rev": "37716a9cdd58344b48b82d5db1c16f9370640fe0",
         "type": "github"
       },
       "original": {
-        "owner": "NixOS",
-        "ref": "nixos-unstable",
+        "owner": "GaetanLepage",
+        "ref": "nccl-patch",
         "repo": "nixpkgs",
         "type": "github"
       }
