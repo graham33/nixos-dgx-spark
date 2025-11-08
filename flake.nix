@@ -14,6 +14,16 @@
   outputs = { self, nixpkgs, nixos-generators, flake-utils }: let
     cuda13Overlay = final: prev: {
       cudaPackages = prev.cudaPackages_13;
+
+      magma = prev.magma.overrideAttrs (oldAttrs: {
+        patches = (oldAttrs.patches or []) ++ [
+          (final.fetchpatch {
+            name = "magma-fix-cuda-version-detection.patch";
+            url = "https://github.com/icl-utk-edu/magma/commit/235aefb7b064954fce09d035c69907ba8a87cbcd.patch";
+            hash = "sha256-i9InbxD5HtfonB/GyF9nQhFmok3jZ73RxGcIciGBGvU="; # Replace with actual hash
+          })
+        ];
+      });
     };
   in {
     # Expose the DGX Spark module for other projects
@@ -71,13 +81,20 @@
           cuda13Overlay
         ];
       };
+
+      pythonEnv = pkgs.python3.withPackages (ps: with ps; [
+        torch
+      ]);
     in {
       # Dev shells
       devShells.default = pkgs.mkShell {
         packages = with pkgs; [
           cudaPackages.cuda_nvcc
           # llama-cpp
+          pythonEnv
         ];
       };
+
+      packages.torch = pkgs.python3Packages.torch;
   });
 }
