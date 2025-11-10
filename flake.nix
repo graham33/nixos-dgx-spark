@@ -89,9 +89,15 @@
       devShells.default = pkgs.mkShell {
         packages = with pkgs; [
           cudaPackages.cuda_nvcc
+          cudaPackages.cuda-samples
           # llama-cpp
           pythonEnv
         ];
+
+        # Add NVIDIA driver libraries to the environment
+        shellHook = ''
+          echo "CUDA samples available at: ${pkgs.cudaPackages.cuda-samples}/bin"
+        '';
       };
 
       packages.torch = pkgs.python3Packages.torch;
