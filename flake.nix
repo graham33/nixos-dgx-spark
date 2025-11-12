@@ -88,6 +88,7 @@
       # Dev shells
       devShells.default = pkgs.mkShell {
         packages = with pkgs; [
+          cudaPackages.cuda_cuobjdump
           cudaPackages.cuda_nvcc
           cudaPackages.cuda-samples
           # llama-cpp
