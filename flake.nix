@@ -101,6 +101,7 @@
         '';
       };
 
+      packages.pkgs-for-debugging = pkgs;
       packages.torch = pkgs.python3Packages.torch;
   });
 }
