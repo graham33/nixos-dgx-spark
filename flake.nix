@@ -75,6 +75,7 @@
         config = {
           allowUnfree = true;
           cudaSupport = true;
+          cudaCapabilities = [ "12.0" ];
         };
         overlays = [
           cuda13Overlay
