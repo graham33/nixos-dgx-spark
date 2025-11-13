@@ -75,7 +75,7 @@
         config = {
           allowUnfree = true;
           cudaSupport = true;
-          cudaCapabilities = [ "12.0" "12.1" ];
+          cudaCapabilities = [ "12.0" ];
         };
         overlays = [
           cuda13Overlay
@@ -115,11 +115,16 @@
         inherit (pkgs.cudaPackages.flags) cudaCapabilities;
 
         buildPhase = let
-          gencode = pkgs.lib.concatMapStringsSep " " (cap:
+          # Generate CUBIN for each capability
+          gencodeCubin = pkgs.lib.concatMapStringsSep " " (cap:
             "--generate-code arch=compute_${pkgs.lib.replaceStrings ["."] [""] cap},code=sm_${pkgs.lib.replaceStrings ["."] [""] cap}"
           ) cudaCapabilities;
+          # Generate PTX for the highest capability (for forward compatibility)
+          highestCap = pkgs.lib.last cudaCapabilities;
+          gencodePtx = "--generate-code arch=compute_${pkgs.lib.replaceStrings ["."] [""] highestCap},code=compute_${pkgs.lib.replaceStrings ["."] [""] highestCap}";
         in ''
-          nvcc ${gencode} -o cuda-debug cuda-debug.cu -L${pkgs.cudaPackages.cuda_cudart}/lib/stubs -lcuda -lcudart
+          echo "Compiling with: ${gencodeCubin} ${gencodePtx}"
+          nvcc ${gencodeCubin} ${gencodePtx} -o cuda-debug cuda-debug.cu -L${pkgs.cudaPackages.cuda_cudart}/lib/stubs -lcuda -lcudart
         '';
 
         installPhase = ''

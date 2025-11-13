@@ -63,6 +63,16 @@ int main() {
                 int minor = (archs[i] % 100) / 10;
                 printf("  %d.%d (arch=%d)\n", major, minor, archs[i]);
             }
+
+            printf("\nGenerated code types:\n");
+            for (int i = 0; i < numArchs; i++) {
+                printf("  - CUBIN: Binary code for compute_%d.%d (sm_%d)\n",
+                       archs[i]/100, (archs[i]%100)/10, archs[i]);
+            }
+            // PTX is generated for the highest capability
+            int highestIdx = numArchs - 1;
+            printf("  - PTX: Virtual assembly for compute_%d.%d (forward compatibility)\n",
+                   archs[highestIdx]/100, (archs[highestIdx]%100)/10);
         #else
             printf("(no __CUDA_ARCH_LIST__ defined)\n");
         #endif
