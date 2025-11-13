@@ -75,7 +75,7 @@
         config = {
           allowUnfree = true;
           cudaSupport = true;
-          cudaCapabilities = [ "12.0" ];
+          cudaCapabilities = [ "12.0" "12.1" ];
         };
         overlays = [
           cuda13Overlay
@@ -104,5 +104,28 @@
 
       packages.pkgs-for-debugging = pkgs;
       packages.torch = pkgs.python3Packages.torch;
+
+      packages.cuda-debug = pkgs.stdenv.mkDerivation rec {
+        pname = "cuda-debug";
+        version = "1.0";
+        src = ./.;
+        buildInputs = [ pkgs.cudaPackages.cuda_cudart ];
+        nativeBuildInputs = [ pkgs.cudaPackages.cuda_nvcc pkgs.autoAddDriverRunpath ];
+
+        inherit (pkgs.cudaPackages.flags) cudaCapabilities;
+
+        buildPhase = let
+          gencode = pkgs.lib.concatMapStringsSep " " (cap:
+            "--generate-code arch=compute_${pkgs.lib.replaceStrings ["."] [""] cap},code=sm_${pkgs.lib.replaceStrings ["."] [""] cap}"
+          ) cudaCapabilities;
+        in ''
+          nvcc ${gencode} -o cuda-debug cuda-debug.cu -L${pkgs.cudaPackages.cuda_cudart}/lib/stubs -lcuda -lcudart
+        '';
+
+        installPhase = ''
+          mkdir -p $out/bin
+          cp cuda-debug $out/bin/
+        '';
+      };
   });
 }
