@@ -102,6 +102,16 @@
         '';
       };
 
+      devShells.pytorch-container = pkgs.mkShell {
+        packages = with pkgs; [
+          podman
+        ];
+
+        shellHook = ''
+          echo "Run: podman run --rm -it --signature-policy=$PWD/policy.json --device nvidia.com/gpu=all nvcr.io/nvidia/pytorch:25.09-py3 /bin/bash"
+        '';
+      };
+
       packages.pkgs-for-debugging = pkgs;
       packages.torch = pkgs.python3Packages.torch;
 

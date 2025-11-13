@@ -53,4 +53,13 @@ in {
   
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.cudaSupport = true;
+
+  # Set up podman for NVIDIA containers
+  virtualisation.podman = {
+    enable = true;
+    dockerCompat = true;
+    defaultNetwork.settings.dns_enabled = true;
+  };
+
+  hardware.nvidia-container-toolkit.enable = true;
 }
