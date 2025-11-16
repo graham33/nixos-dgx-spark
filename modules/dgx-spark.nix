@@ -84,7 +84,9 @@ in {
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.cudaSupport = true;
 
-  # TODO: cudaPackages_13 overlay
+  # TODO: firefox doesn't build with CUDA 13 yet (issues with cudnn-frontend and
+  # onnxruntime)
+  # nixpkgs.overlays = [ (import ../overlays/cuda-13.nix) ];
 
   # Set up podman for NVIDIA containers
   virtualisation.podman = {
