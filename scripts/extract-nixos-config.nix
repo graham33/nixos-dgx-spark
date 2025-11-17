@@ -7,8 +7,8 @@ let
     inherit lib;
     stdenv = pkgs.stdenv;
     version = pkgs.linux_6_17.version;
-    rustAvailable = false;  # Keep it simple for now
-    features = {};
+    rustAvailable = false; # Keep it simple for now
+    features = { };
   };
 
   # Use exactly the same approach as in generic.nix

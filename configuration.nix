@@ -36,7 +36,7 @@
   services.xserver.enable = true;
   services.displayManager.gdm.enable = true;
   services.desktopManager.gnome.enable = true;
-  
+
   # Auto-login for live USB environment
   services.displayManager.autoLogin.enable = true;
   services.displayManager.autoLogin.user = "nixos";
@@ -73,14 +73,14 @@
     lshw
     pciutils
     usbutils
-    
+
     # GUI applications for live environment
     firefox
     gnome-terminal
     nautilus
     gnome-text-editor
     gnome-system-monitor
-    
+
     # Live USB utilities
     gparted
     parted
@@ -89,7 +89,7 @@
     file
     unzip
     zip
-    
+
     # NixOS installer
     calamares-nixos
   ];

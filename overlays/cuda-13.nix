@@ -2,7 +2,7 @@ final: prev: {
   cudaPackages = prev.cudaPackages_13;
 
   magma = prev.magma.overrideAttrs (oldAttrs: {
-    patches = (oldAttrs.patches or []) ++ [
+    patches = (oldAttrs.patches or [ ]) ++ [
       (final.fetchpatch {
         name = "magma-fix-cuda-version-detection.patch";
         url = "https://github.com/icl-utk-edu/magma/commit/235aefb7b064954fce09d035c69907ba8a87cbcd.patch";
