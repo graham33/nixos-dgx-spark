@@ -91,6 +91,12 @@ After initializing the template, you'll need to:
    sudo nixos-rebuild switch --flake /etc/nixos#dgx-spark
    ```
 
+## Playbooks
+
+This repository includes devshells for various NVIDIA DGX Spark playbooks from https://build.nvidia.com/spark:
+
+- [vLLM Container](./playbooks/vllm-container/README.md) - Run vLLM inference server with Qwen2.5-Math-1.5B-Instruct model
+
 ## Caching
 
 Unfortunately CUDA packages are not currently cached by the NixOS default
