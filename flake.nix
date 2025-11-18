@@ -92,6 +92,8 @@
           ];
         };
 
+        devShells.vllm-container = import ./playbooks/vllm-container/shell.nix { inherit pkgs; };
+
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
 
         packages.usb-image = nixos-generators.nixosGenerate {
