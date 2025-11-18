@@ -50,7 +50,10 @@
           src = ./.;
           hooks = {
             nixpkgs-fmt.enable = true;
-            markdownlint.enable = true;
+            prettier = {
+              enable = true;
+              types_or = [ "markdown" ];
+            };
             trailing-whitespace = {
               enable = true;
               entry = "${pkgs.python3Packages.pre-commit-hooks}/bin/trailing-whitespace-fixer";
@@ -73,7 +76,7 @@
             pythonEnv
             pre-commit
             nixpkgs-fmt
-            markdownlint-cli
+            nodePackages.prettier
           ];
 
           # Add NVIDIA driver libraries to the environment

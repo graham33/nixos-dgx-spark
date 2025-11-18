@@ -49,7 +49,7 @@ Minor value differences, primarily:
 
 The DGX config provides significant additional functionality:
 
-- **NVIDIA Grace CPU support** (ARM64_ERRATUM_* fixes)
+- **NVIDIA Grace CPU support** (ARM64*ERRATUM*\* fixes)
 - **Advanced GPU management** (NVIDIA driver integration)
 - **High-performance networking** (Mellanox/InfiniBand optimization)
 - **Enterprise storage** (NVMe, SAS, advanced RAID)
