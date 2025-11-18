@@ -24,44 +24,10 @@
 
       overlays.cuda-13 = cuda13Overlay;
 
-      nixosConfigurations.usb-image = nixpkgs.lib.nixosSystem {
-        system = "aarch64-linux";
-        modules = [
-          ./configuration.nix
-          {
-            # Enable cross-compilation if building from x86_64
-            nixpkgs.crossSystem = {
-              system = "aarch64-linux";
-            };
-          }
-        ];
+      templates.dgx-spark = {
+        path = ./templates/dgx-spark;
+        description = "NixOS configuration template for DGX Spark systems";
       };
-
-      packages.aarch64-linux.usb-image = nixos-generators.nixosGenerate {
-        system = "aarch64-linux";
-        modules = [
-          ./configuration.nix
-        ];
-        format = "iso";
-      };
-
-      packages.x86_64-linux.usb-image = nixos-generators.nixosGenerate {
-        system = "aarch64-linux";
-        modules = [
-          ./configuration.nix
-          {
-            nixpkgs.crossSystem = {
-              system = "aarch64-linux";
-            };
-          }
-        ];
-        format = "iso";
-      };
-
-      # Default package
-      packages.aarch64-linux.default = self.packages.aarch64-linux.usb-image;
-      packages.x86_64-linux.default = self.packages.x86_64-linux.usb-image;
-
     } // flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
@@ -124,6 +90,20 @@
         };
 
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
+
+        packages.usb-image = nixos-generators.nixosGenerate {
+          system = "aarch64-linux";
+          modules = [
+            ./usb-configuration.nix
+          ] ++ nixpkgs.lib.optional (system == "x86_64-linux") {
+            nixpkgs.crossSystem = {
+              system = "aarch64-linux";
+            };
+          };
+          format = "iso";
+        };
+
+        packages.default = self.packages.${system}.usb-image;
 
         checks.pre-commit-check = pre-commit-check;
 
