@@ -8,6 +8,7 @@ and a NixOS module to add some settings required for DGX Spark systems.
 ```bash
 nix build .#usb-image
 sudo dd if=$(echo result/iso/*.iso) of=/dev/your_usb_disk_device bs=1M status=progress
+sync
 ```
 
 Then disable Secure Boot in the DGX Spark BIOS and boot from the USB drive.
