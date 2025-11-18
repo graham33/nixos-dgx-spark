@@ -12,9 +12,13 @@
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixified-ai = {
+      url = "github:nixified-ai/flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, nixos-generators, flake-utils, pre-commit-hooks }:
+  outputs = { self, nixpkgs, nixos-generators, flake-utils, pre-commit-hooks, nixified-ai }:
     let
       cuda13Overlay = import ./overlays/cuda-13.nix;
     in
@@ -73,6 +77,9 @@
           };
           overlays = [
             cuda13Overlay
+            nixified-ai.overlays.comfyui
+            nixified-ai.overlays.models
+            nixified-ai.overlays.fetchers
           ];
         };
 
@@ -121,6 +128,17 @@
           packages = with pkgs; [
             llama-cpp
           ];
+        };
+
+        devShells.comfyui = pkgs.mkShell {
+          packages = [
+            pkgs.comfyui
+            pkgs.python3
+          ];
+          shellHook = ''
+            echo "ComfyUI with CUDA support available"
+            echo "Run 'comfyui' to start ComfyUI"
+          '';
         };
 
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
