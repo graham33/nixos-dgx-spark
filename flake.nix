@@ -89,7 +89,7 @@
         packages.usb-image = nixos-generators.nixosGenerate {
           system = "aarch64-linux";
           modules = [
-            ./configuration.nix
+            ./usb-configuration.nix
           ] ++ nixpkgs.lib.optional (system == "x86_64-linux") {
             nixpkgs.crossSystem = {
               system = "aarch64-linux";
