@@ -23,6 +23,11 @@
       nixosModules.dgx-spark = import ./modules/dgx-spark.nix;
 
       overlays.cuda-13 = cuda13Overlay;
+
+      templates.dgx-spark = {
+        path = ./templates/dgx-spark;
+        description = "NixOS configuration template for DGX Spark systems";
+      };
     } // flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
