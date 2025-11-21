@@ -99,6 +99,18 @@
         packages.usb-image = nixos-generators.nixosGenerate {
           system = "aarch64-linux";
           modules = [
+            ./usb-configuration-standard.nix
+          ] ++ nixpkgs.lib.optional (system == "x86_64-linux") {
+            nixpkgs.crossSystem = {
+              system = "aarch64-linux";
+            };
+          };
+          format = "iso";
+        };
+
+        packages.usb-image-nvidia = nixos-generators.nixosGenerate {
+          system = "aarch64-linux";
+          modules = [
             ./usb-configuration.nix
           ] ++ nixpkgs.lib.optional (system == "x86_64-linux") {
             nixpkgs.crossSystem = {

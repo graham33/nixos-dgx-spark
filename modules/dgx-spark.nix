@@ -1,6 +1,9 @@
 { config, lib, pkgs, ... }:
 
+with lib;
+
 let
+  cfg = config.hardware.dgx-spark;
   baseKernel = pkgs.linux_6_17;
   nvidiaKernelVersion = "6.17.1";
 
@@ -59,44 +62,59 @@ let
   });
 in
 {
-  # Use the latest Linux kernel
-  boot.kernelPackages = nvidiaKernel;
+  options.hardware.dgx-spark = {
+    enable = mkEnableOption "DGX Spark hardware support";
 
-  boot.kernelParams = [
-    "console=tty1" # VGA console
-  ];
-
-  boot.blacklistedKernelModules = [
-    "nouveau" # Ensure we use the NVIDIA open driver
-    "r8169" # Use the r8127 driver in the NVIDIA kernel
-    "coresight_etm4x" # ARM CoreSight debugging (can cause overhead on DGX)
-  ];
-
-  # Enable NVIDIA open driver
-  services.xserver.videoDrivers = [ "nvidia" ];
-  hardware.nvidia = {
-    modesetting.enable = true;
-    open = true; # Use the open-source NVIDIA driver
-    nvidiaPersistenced = true;
-    nvidiaSettings = true;
-    package = config.boot.kernelPackages.nvidiaPackages.production;
+    useNvidiaKernel = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Whether to use the NVIDIA kernel instead of the standard NixOS kernel";
+    };
   };
 
-  hardware.enableRedistributableFirmware = true;
+  config = mkIf cfg.enable {
+    # Use the NVIDIA kernel if enabled, otherwise use explicit 6.17 kernel
+    boot.kernelPackages =
+      if cfg.useNvidiaKernel
+      then nvidiaKernel
+      else pkgs.linuxPackages_6_17;
 
-  nixpkgs.config.allowUnfree = true;
-  nixpkgs.config.cudaSupport = true;
+    boot.kernelParams = [
+      "console=tty1" # VGA console
+    ];
 
-  # TODO: firefox doesn't build with CUDA 13 yet (issues with cudnn-frontend and
-  # onnxruntime)
-  # nixpkgs.overlays = [ (import ../overlays/cuda-13.nix) ];
+    boot.blacklistedKernelModules = [
+      "nouveau" # Ensure we use the NVIDIA open driver
+      "r8169" # Use the r8127 driver in the NVIDIA kernel
+      "coresight_etm4x" # ARM CoreSight debugging (can cause overhead on DGX)
+    ];
 
-  # Set up podman for NVIDIA containers
-  virtualisation.podman = {
-    enable = true;
-    dockerCompat = true;
-    defaultNetwork.settings.dns_enabled = true;
+    # Enable NVIDIA open driver
+    services.xserver.videoDrivers = [ "nvidia" ];
+    hardware.nvidia = {
+      modesetting.enable = true;
+      open = true; # Use the open-source NVIDIA driver
+      nvidiaPersistenced = true;
+      nvidiaSettings = true;
+      package = config.boot.kernelPackages.nvidiaPackages.production;
+    };
+
+    hardware.enableRedistributableFirmware = true;
+
+    nixpkgs.config.allowUnfree = true;
+    nixpkgs.config.cudaSupport = true;
+
+    # TODO: firefox doesn't build with CUDA 13 yet (issues with cudnn-frontend and
+    # onnxruntime)
+    # nixpkgs.overlays = [ (import ../overlays/cuda-13.nix) ];
+
+    # Set up podman for NVIDIA containers
+    virtualisation.podman = {
+      enable = true;
+      dockerCompat = true;
+      defaultNetwork.settings.dns_enabled = true;
+    };
+
+    hardware.nvidia-container-toolkit.enable = true;
   };
-
-  hardware.nvidia-container-toolkit.enable = true;
 }

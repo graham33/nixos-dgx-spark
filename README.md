@@ -1,9 +1,13 @@
 # NixOS DGX Spark
 
-NixOS configuration for NVIDIA DGX Spark systems. Provides a simple USB image
-and a NixOS module to add some settings required for DGX Spark systems.
+NixOS configuration for NVIDIA DGX Spark systems. Provides USB images
+and a NixOS module to add settings required for DGX Spark systems.
 
-## Building and writing the USB boot image
+## USB Boot Images
+
+This project provides two USB boot image variants:
+
+### Standard USB Image (Recommended for General Use)
 
 ```bash
 nix build .#usb-image
@@ -11,16 +15,60 @@ sudo dd if=$(echo result/iso/*.iso) of=/dev/your_usb_disk_device bs=1M status=pr
 sync
 ```
 
+- Uses standard NixOS 6.17 kernel
+- Includes DGX Spark hardware support (without NVIDIA-specific kernel)
+- **Boots reliably** on DGX Spark systems
+- Suitable for installation and general system recovery
+
+### NVIDIA USB Image (Specialised)
+
+```bash
+nix build .#usb-image-nvidia
+sudo dd if=$(echo result/iso/*.iso) of=/dev/your_usb_disk_device bs=1M status=progress
+sync
+```
+
+- Uses NVIDIA's specialized kernel for DGX Spark
+- Full NVIDIA GPU support optimized for DGX hardware
+- Use when you specifically need NVIDIA kernel features in the live environment
+
+### Booting
+
 Then disable Secure Boot in the DGX Spark BIOS and boot from the USB drive.
 
 You can then following the installation instructions in the NixOS manual: https://nixos.org/manual/nixos/stable/#sec-installation-manual
 
 ## Using the DGX Spark module
 
-This module includes a custom kernel build optimized for NVIDIA DGX Spark
-systems. The kernel configuration is generated from NVIDIA's Debian annotations
-using `scripts/generate-dgx-config.py` and compared with NixOS defaults using
-`scripts/compare-configs.py` to ensure compatibility.
+This module provides configurable DGX Spark hardware support with options for kernel selection.
+
+### Module Configuration Options
+
+```nix
+hardware.dgx-spark = {
+  enable = true;                 # Enable DGX Spark hardware support
+  useNvidiaKernel = true;        # Use NVIDIA kernel (default: true)
+};
+```
+
+### Using Standard NixOS Kernel (Recommended for Most Users)
+
+```nix
+hardware.dgx-spark = {
+  enable = true;
+  useNvidiaKernel = false;       # Use standard NixOS 6.17 kernel
+};
+```
+
+### Using NVIDIA Kernel (For Specialized GPU Workloads)
+
+```nix
+hardware.dgx-spark.enable = true;  # Uses NVIDIA kernel by default
+```
+
+The NVIDIA kernel is a custom build optimized for NVIDIA DGX Spark systems. The kernel configuration is generated from NVIDIA's Debian annotations using `scripts/generate-dgx-config.py` and compared with NixOS defaults using `scripts/compare-configs.py` to ensure compatibility.
+
+### Importing in Other Projects
 
 Other projects can import this flake and use the DGX Spark module:
 
@@ -32,6 +80,11 @@ Other projects can import this flake and use the DGX Spark module:
     nixosConfigurations.mySystem = nixpkgs.lib.nixosSystem {
       modules = [
         dgx-spark.nixosModules.dgx-spark
+        {
+          # Enable DGX Spark support
+          hardware.dgx-spark.enable = true;
+          # Optionally use standard kernel: useNvidiaKernel = false;
+        }
         # your other modules
       ];
     };
