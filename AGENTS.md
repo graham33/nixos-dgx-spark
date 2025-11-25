@@ -1,5 +1,9 @@
 # Instructions for AI Agents
 
+## Writing Style
+
+Use British English spelling throughout all documentation and comments.
+
 ## Before Committing Changes
 
 Always run the following steps before creating commits:
