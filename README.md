@@ -20,7 +20,7 @@ sync
 - **Boots reliably** on DGX Spark systems
 - Suitable for installation and general system recovery
 
-### NVIDIA USB Image (Specialised)
+### NVIDIA USB Image (Recommended)
 
 ```bash
 nix build .#usb-image-nvidia
@@ -29,8 +29,9 @@ sync
 ```
 
 - Uses NVIDIA's specialized kernel for DGX Spark
+- **Now boots reliably** with USB boot fixes
 - Full NVIDIA GPU support optimized for DGX hardware
-- Use when you specifically need NVIDIA kernel features in the live environment
+- Recommended when you need NVIDIA kernel features in the live environment
 
 ### Booting
 
