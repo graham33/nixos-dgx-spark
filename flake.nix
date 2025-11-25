@@ -18,17 +18,18 @@
     let
       cuda13Overlay = import ./overlays/cuda-13.nix;
     in
-    {
-      # Expose the DGX Spark module for other projects
-      nixosModules.dgx-spark = import ./modules/dgx-spark.nix;
+    builtins.trace "Nixpkgs path: ${nixpkgs}, nixos-generator: ${nixos-generators}"
+      {
+        # Expose the DGX Spark module for other projects
+        nixosModules.dgx-spark = import ./modules/dgx-spark.nix;
 
-      overlays.cuda-13 = cuda13Overlay;
+        overlays.cuda-13 = cuda13Overlay;
 
-      templates.dgx-spark = {
-        path = ./templates/dgx-spark;
-        description = "NixOS configuration template for DGX Spark systems";
-      };
-    } // flake-utils.lib.eachDefaultSystem (system:
+        templates.dgx-spark = {
+          path = ./templates/dgx-spark;
+          description = "NixOS configuration template for DGX Spark systems";
+        };
+      } // flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
           inherit system;
@@ -97,6 +98,18 @@
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
 
         packages.usb-image = nixos-generators.nixosGenerate {
+          system = "aarch64-linux";
+          modules = [
+            ./usb-configuration-standard.nix
+          ] ++ nixpkgs.lib.optional (system == "x86_64-linux") {
+            nixpkgs.crossSystem = {
+              system = "aarch64-linux";
+            };
+          };
+          format = "iso";
+        };
+
+        packages.usb-image-nvidia = nixos-generators.nixosGenerate {
           system = "aarch64-linux";
           modules = [
             ./usb-configuration.nix
