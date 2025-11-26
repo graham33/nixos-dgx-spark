@@ -6,14 +6,6 @@
 { config, lib, pkgs, ... }:
 
 {
-  imports = [
-    # Include the results of the hardware scan.
-    ./hardware-configuration.nix
-
-    # DGX Spark hardware support
-    inputs.dgx-spark.nixosModules.dgx-spark
-  ];
-
   # Enable DGX Spark hardware support with NVIDIA kernel
   hardware.dgx-spark.enable = true;
 
