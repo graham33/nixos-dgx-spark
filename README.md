@@ -7,7 +7,19 @@ and a NixOS module to add settings required for DGX Spark systems.
 
 This project provides two USB boot image variants:
 
-### Standard USB Image (Recommended for General Use)
+### NVIDIA Kernel USB Image (Recommended)
+
+```bash
+nix build .#usb-image-nvidia
+sudo dd if=$(echo result/iso/*.iso) of=/dev/your_usb_disk_device bs=1M status=progress
+sync
+```
+
+- Uses NVIDIA's specialized kernel for DGX Spark
+- Full NVIDIA GPU support optimized for DGX hardware
+- Wired Ethernet works correctly
+
+### Standard NixOS Kernel USB Image
 
 ```bash
 nix build .#usb-image
@@ -17,21 +29,7 @@ sync
 
 - Uses standard NixOS 6.17 kernel
 - Includes DGX Spark hardware support (without NVIDIA-specific kernel)
-- **Boots reliably** on DGX Spark systems
-- Suitable for installation and general system recovery
-
-### NVIDIA USB Image (Recommended)
-
-```bash
-nix build .#usb-image-nvidia
-sudo dd if=$(echo result/iso/*.iso) of=/dev/your_usb_disk_device bs=1M status=progress
-sync
-```
-
-- Uses NVIDIA's specialized kernel for DGX Spark
-- **Now boots reliably** with USB boot fixes
-- Full NVIDIA GPU support optimized for DGX hardware
-- Recommended when you need NVIDIA kernel features in the live environment
+- Wired Ethernet has problems
 
 ### Booting
 
