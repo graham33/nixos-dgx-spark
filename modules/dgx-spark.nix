@@ -21,6 +21,14 @@ let
         hash = "sha256-lPp7RFvZcPhV5v6FOxCVIB53vpNujvvP0NAW6iRaiF8=";
       };
 
+      # Apply Rust gendwarfksyms fix patch
+      kernelPatches = [
+        {
+          name = "rust-gendwarfksyms-fix";
+          patch = ../patches/rust-gendwarfksyms-fix.patch;
+        }
+      ];
+
       version = "${nvidiaKernelVersion}-nvidia";
       modDirVersion = nvidiaKernelVersion;
       enableCommonConfig = true; # Enable NixOS defaults for dependency resolution
