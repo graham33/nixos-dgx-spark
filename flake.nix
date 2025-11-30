@@ -12,11 +12,17 @@
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixified-ai = {
+      url = "github:nixified-ai/flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, nixos-generators, flake-utils, pre-commit-hooks }:
+  outputs = { self, nixpkgs, nixos-generators, flake-utils, pre-commit-hooks, nixified-ai }:
     let
+      cudaSbsaOverlay = import ./overlays/cuda-sbsa.nix;
       cuda13Overlay = import ./overlays/cuda-13.nix;
+      korniaRsOverlay = import ./overlays/kornia-rs.nix;
     in
     {
       # Expose the DGX Spark module for other projects
@@ -30,14 +36,18 @@
       };
     } // flake-utils.lib.eachDefaultSystem (system:
       let
+        commonConfig = {
+          allowUnfree = true;
+          allowUnsupportedSystem = true;
+          cudaSupport = true;
+          cudaCapabilities = [ "12.0" ]; # TODO: try 12.1
+        };
+
         pkgs = import nixpkgs {
           inherit system;
-          config = {
-            allowUnfree = true;
-            cudaSupport = true;
-            cudaCapabilities = [ "12.0" ]; # TODO: try 12.1
-          };
+          config = commonConfig;
           overlays = [
+            cudaSbsaOverlay
             cuda13Overlay
           ];
         };
@@ -45,6 +55,19 @@
         pythonEnv = pkgs.python3.withPackages (ps: with ps; [
           torch
         ]);
+
+        # Separate pkgs for ComfyUI using CUDA 12 (opencv not compatible with CUDA 13)
+        pkgsCuda12 = import nixpkgs {
+          inherit system;
+          config = commonConfig;
+          overlays = [
+            cudaSbsaOverlay
+            korniaRsOverlay
+            nixified-ai.overlays.comfyui
+            nixified-ai.overlays.models
+            nixified-ai.overlays.fetchers
+          ];
+        };
 
         pre-commit-check = pre-commit-hooks.lib.${system}.run {
           src = ./.;
@@ -62,6 +85,7 @@
               entry = "${pkgs.python3Packages.pre-commit-hooks}/bin/trailing-whitespace-fixer";
               excludes = [
                 "^patches/"
+                "^vendor/"
               ];
             };
             end-of-file-fixer = {
@@ -69,6 +93,7 @@
               entry = "${pkgs.python3Packages.pre-commit-hooks}/bin/end-of-file-fixer";
               excludes = [
                 "^patches/"
+                "^vendor/"
               ];
             };
           };
@@ -112,6 +137,12 @@
         devShells.llama-cpp = pkgs.mkShell {
           packages = with pkgs; [
             llama-cpp
+          ];
+        };
+
+        devShells.comfyui = pkgsCuda12.mkShell {
+          packages = [
+            pkgsCuda12.comfyuiPackages.comfyui
           ];
         };
 
