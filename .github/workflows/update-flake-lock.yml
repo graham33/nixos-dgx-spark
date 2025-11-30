@@ -1,0 +1,19 @@
+name: Update flake.lock
+
+on:
+  schedule:
+    - cron: "0 0 * * 0" # Weekly on Sunday at midnight
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@main
+
+      - uses: DeterminateSystems/update-flake-lock@main
+        with:
+          pr-title: "chore: update flake.lock"
+          pr-labels: dependencies
