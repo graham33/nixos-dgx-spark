@@ -1,6 +1,8 @@
 # NixOS DGX Spark
 
 [![CI](https://github.com/graham33/nixos-dgx-spark/actions/workflows/ci.yml/badge.svg)](https://github.com/graham33/nixos-dgx-spark/actions/workflows/ci.yml)
+[![Cachix](https://img.shields.io/badge/cachix-graham33-blue.svg)](https://graham33.cachix.org)
+[![License](https://img.shields.io/github/license/graham33/nixos-dgx-spark)](LICENSE)
 
 NixOS configuration for NVIDIA DGX Spark systems. Provides USB images
 and a NixOS module to add settings required for DGX Spark systems.
