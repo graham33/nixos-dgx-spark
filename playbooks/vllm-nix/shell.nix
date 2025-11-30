@@ -5,15 +5,16 @@ let
 in
 pkgs.mkShell {
   packages = with pkgs; [
+    curl
     hyperfine
     jq
-    podman
+    python3
+    vllm
   ];
 
   shellHook = ''
-    echo "=== vLLM NVIDIA DGX Spark Playbook ==="
-    echo "Container: nvcr.io/nvidia/vllm:25.09-py3"
-    echo "Instructions: https://build.nvidia.com/spark/vllm/instructions"
+    echo "=== vLLM Nix Playbook ==="
+    echo "Using vLLM from nixpkgs directly (no containers)"
     echo ""
     echo "To serve Qwen2.5-Math-1.5B-Instruct model:"
     echo "  vllm-serve-qwen-math"
@@ -21,23 +22,14 @@ pkgs.mkShell {
     echo "To test the model (run in a separate shell):"
     echo "  vllm-test-math \"12*17\""
     echo ""
-    echo "To pull the latest image:"
-    echo "  podman pull nvcr.io/nvidia/vllm:25.09-py3"
-    echo ""
 
     # Create vllm-serve-qwen-math command
     vllm-serve-qwen-math() {
       echo "Starting vLLM server with Qwen2.5-Math-1.5B-Instruct model..."
-      exec ${pkgs.podman}/bin/podman run --rm -it \
-        --signature-policy=${./policy.json} \
-        --device nvidia.com/gpu=all \
-        --shm-size=1g \
-        --network host \
-        -v "$PWD":/workspace \
-        -w /workspace \
-        nvcr.io/nvidia/vllm:25.09-py3 \
-        vllm serve "Qwen/Qwen2.5-Math-1.5B-Instruct" \
-          --gpu-memory-utilization 0.6
+      exec vllm serve "Qwen/Qwen2.5-Math-1.5B-Instruct" \
+        --host 0.0.0.0 \
+        --port ${vllmPort} \
+        --gpu-memory-utilization 0.6
     }
 
     # Create vllm-test-math command

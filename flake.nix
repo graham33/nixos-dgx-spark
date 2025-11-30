@@ -24,6 +24,8 @@
       cuda13Overlay = import ./overlays/cuda-13.nix;
       korniaRsOverlay = import ./overlays/kornia-rs.nix;
       comfyuiModelsOverlay = import ./overlays/comfyui-models.nix;
+      dlpackOverlay = import ./overlays/dlpack.nix;
+      vllmDepsOverlay = import ./overlays/vllm-deps.nix;
     in
     {
       # Expose the DGX Spark module for other projects
@@ -50,6 +52,8 @@
           overlays = [
             cudaSbsaOverlay
             cuda13Overlay
+            dlpackOverlay
+            vllmDepsOverlay
           ];
         };
 
@@ -57,7 +61,7 @@
           torch
         ]);
 
-        # Separate pkgs for ComfyUI using CUDA 12 (opencv not compatible with CUDA 13)
+        # Separate pkgs for CUDA 12 (opencv not compatible with CUDA 13)
         pkgsCuda12 = import nixpkgs {
           inherit system;
           config = commonConfig;
@@ -151,6 +155,7 @@
         };
 
         devShells.vllm-container = import ./playbooks/vllm-container/shell.nix { inherit pkgs; };
+        devShells.vllm-nix = import ./playbooks/vllm-nix/shell.nix { inherit pkgs; };
 
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
 
@@ -171,6 +176,7 @@
 
         # Expose pkgsCuda12 for downstream flakes to access ComfyUI packages, models, and fetchers
         legacyPackages = {
+          inherit pkgs;
           inherit pkgsCuda12;
         };
 

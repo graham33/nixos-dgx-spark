@@ -11,7 +11,20 @@ final: prev: {
     })
   ];
 
-  cudaPackages = prev.cudaPackages_13;
+  cudaPackages = prev.cudaPackages_13.overrideScope (cudaFinal: cudaPrev: {
+    # Fix cuda_cccl to include cccl subdirectory for CUTLASS compatibility
+    # The source has include/cccl/cuda/std but the build strips the cccl prefix
+    cuda_cccl = cudaPrev.cuda_cccl.overrideAttrs (oldAttrs: {
+      postInstall = (oldAttrs.postInstall or "") + ''
+        # Create cccl symlink for newer CUTLASS versions that expect cccl/ prefix
+        mkdir -p $out/include/cccl
+        ln -sf $out/include/cuda $out/include/cccl/cuda
+        ln -sf $out/include/cub $out/include/cccl/cub
+        ln -sf $out/include/thrust $out/include/cccl/thrust
+        ln -sf $out/include/nv $out/include/cccl/nv
+      '';
+    });
+  });
 
   magma = prev.magma.overrideAttrs (oldAttrs: {
     patches = (oldAttrs.patches or [ ]) ++ [
