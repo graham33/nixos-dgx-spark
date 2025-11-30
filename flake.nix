@@ -151,8 +151,10 @@
         };
 
         devShells.vllm-container = import ./playbooks/vllm-container/shell.nix { inherit pkgs; };
+        devShells.vllm-nix = import ./playbooks/vllm-nix/shell.nix { pkgs = pkgsCuda12; };
 
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
+        packages.pkgs = pkgs; # Expose pkgs for easy access to individual packages
 
         packages.usb-image = nixos-generators.nixosGenerate {
           system = "aarch64-linux";
