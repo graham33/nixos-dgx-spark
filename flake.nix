@@ -57,10 +57,16 @@
             trailing-whitespace = {
               enable = true;
               entry = "${pkgs.python3Packages.pre-commit-hooks}/bin/trailing-whitespace-fixer";
+              excludes = [
+                "^patches/"
+              ];
             };
             end-of-file-fixer = {
               enable = true;
               entry = "${pkgs.python3Packages.pre-commit-hooks}/bin/end-of-file-fixer";
+              excludes = [
+                "^patches/"
+              ];
             };
           };
         };
@@ -69,14 +75,22 @@
         # Dev shells
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
-            cudaPackages.cuda_cuobjdump
-            cudaPackages.cuda_nvcc
-            cudaPackages.cuda-samples
-            # llama-cpp
-            pythonEnv
             pre-commit
             nixpkgs-fmt
             nodePackages.prettier
+          ];
+
+          shellHook = ''
+            ${pre-commit-check.shellHook}
+          '';
+        };
+
+        devShells.cuda = pkgs.mkShell {
+          packages = with pkgs; [
+            cudaPackages.cuda_cuobjdump
+            cudaPackages.cuda_nvcc
+            cudaPackages.cuda-samples
+            pythonEnv
           ];
 
           # Add NVIDIA driver libraries to the environment
@@ -84,6 +98,12 @@
             echo "CUDA samples available at: ${pkgs.cudaPackages.cuda-samples}/bin"
             ${pre-commit-check.shellHook}
           '';
+        };
+
+        devShells.torch = pkgs.mkShell {
+          packages = with pkgs; [
+            pythonEnv
+          ];
         };
 
         devShells.llama-cpp = pkgs.mkShell {
