@@ -1,5 +1,7 @@
 # NixOS DGX Spark
 
+[![CI](https://github.com/graham33/nixos-dgx-spark/actions/workflows/ci.yml/badge.svg)](https://github.com/graham33/nixos-dgx-spark/actions/workflows/ci.yml)
+
 NixOS configuration for NVIDIA DGX Spark systems. Provides USB images
 and a NixOS module to add settings required for DGX Spark systems.
 
