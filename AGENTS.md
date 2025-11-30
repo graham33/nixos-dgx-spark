@@ -32,6 +32,7 @@ This repository uses the following pre-commit hooks:
 - Pre-commit must be run within the Nix devshell using `nix develop -c`
 - All hooks must pass before committing
 - The warning "Git tree is dirty" is expected when there are uncommitted changes
+- If you get a "No .pre-commit-config.yaml file was found" error when committing, run `nix develop --command true` to install the pre-commit hooks, then retry the commit
 
 ## Creating New Playbooks
 
