@@ -23,6 +23,7 @@
       cudaSbsaOverlay = import ./overlays/cuda-sbsa.nix;
       cuda13Overlay = import ./overlays/cuda-13.nix;
       korniaRsOverlay = import ./overlays/kornia-rs.nix;
+      comfyuiModelsOverlay = import ./overlays/comfyui-models.nix;
     in
     {
       # Expose the DGX Spark module for other projects
@@ -66,6 +67,7 @@
             nixified-ai.overlays.comfyui
             nixified-ai.overlays.models
             nixified-ai.overlays.fetchers
+            comfyuiModelsOverlay
           ];
         };
 
@@ -142,7 +144,9 @@
 
         devShells.comfyui = pkgsCuda12.mkShell {
           packages = [
-            pkgsCuda12.comfyuiPackages.comfyui
+            (pkgsCuda12.comfyuiPackages.comfyui.override {
+              withModels = [ pkgsCuda12.comfyuiModels.sd15-fp16 ];
+            })
           ];
         };
 
