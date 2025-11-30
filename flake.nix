@@ -18,18 +18,17 @@
     let
       cuda13Overlay = import ./overlays/cuda-13.nix;
     in
-    builtins.trace "Nixpkgs path: ${nixpkgs}, nixos-generator: ${nixos-generators}"
-      {
-        # Expose the DGX Spark module for other projects
-        nixosModules.dgx-spark = import ./modules/dgx-spark.nix;
+    {
+      # Expose the DGX Spark module for other projects
+      nixosModules.dgx-spark = import ./modules/dgx-spark.nix;
 
-        overlays.cuda-13 = cuda13Overlay;
+      overlays.cuda-13 = cuda13Overlay;
 
-        templates.dgx-spark = {
-          path = ./templates/dgx-spark;
-          description = "NixOS configuration template for DGX Spark systems";
-        };
-      } // flake-utils.lib.eachDefaultSystem (system:
+      templates.dgx-spark = {
+        path = ./templates/dgx-spark;
+        description = "NixOS configuration template for DGX Spark systems";
+      };
+    } // flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
           inherit system;
