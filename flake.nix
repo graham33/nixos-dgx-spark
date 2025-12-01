@@ -24,6 +24,8 @@
       cuda13Overlay = import ./overlays/cuda-13.nix;
       korniaRsOverlay = import ./overlays/kornia-rs.nix;
       comfyuiModelsOverlay = import ./overlays/comfyui-models.nix;
+      dlpackOverlay = import ./overlays/dlpack.nix;
+      vllmDepsOverlay = import ./overlays/vllm-deps.nix;
     in
     {
       # Expose the DGX Spark module for other projects
@@ -57,13 +59,15 @@
           torch
         ]);
 
-        # Separate pkgs for ComfyUI using CUDA 12 (opencv not compatible with CUDA 13)
+        # Separate pkgs for CUDA 12 (opencv not compatible with CUDA 13)
         pkgsCuda12 = import nixpkgs {
           inherit system;
           config = commonConfig;
           overlays = [
             cudaSbsaOverlay
             korniaRsOverlay
+            dlpackOverlay
+            vllmDepsOverlay
             nixified-ai.overlays.comfyui
             nixified-ai.overlays.models
             nixified-ai.overlays.fetchers
@@ -155,6 +159,7 @@
 
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
         packages.pkgs = pkgs; # Expose pkgs for easy access to individual packages
+        packages.pkgsCuda12 = pkgsCuda12;
 
         packages.usb-image = nixos-generators.nixosGenerate {
           system = "aarch64-linux";
