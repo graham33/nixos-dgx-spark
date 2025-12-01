@@ -3,23 +3,9 @@
 NixOS configuration for NVIDIA DGX Spark systems. Provides USB images
 and a NixOS module to add settings required for DGX Spark systems.
 
-## USB Boot Images
+## USB Boot Image
 
-This project provides two USB boot image variants:
-
-### NVIDIA Kernel USB Image (Recommended)
-
-```bash
-nix build .#usb-image-nvidia
-sudo dd if=$(echo result/iso/*.iso) of=/dev/your_usb_disk_device bs=1M status=progress
-sync
-```
-
-- Uses NVIDIA's specialized kernel for DGX Spark
-- Full NVIDIA GPU support optimized for DGX hardware
-- Wired Ethernet works correctly
-
-### Standard NixOS Kernel USB Image
+Build the USB image:
 
 ```bash
 nix build .#usb-image
@@ -27,13 +13,14 @@ sudo dd if=$(echo result/iso/*.iso) of=/dev/your_usb_disk_device bs=1M status=pr
 sync
 ```
 
-- Uses standard NixOS 6.17 kernel
-- Includes DGX Spark hardware support (without NVIDIA-specific kernel)
-- Wired Ethernet has problems
+The image includes two kernel options, selectable from the GRUB boot menu:
+
+- **NixOS** (default) - NVIDIA's specialized kernel for DGX Spark with full GPU support and working Ethernet
+- **NixOS (standard-kernel)** - Standard NixOS 6.17 kernel (Ethernet has problems)
 
 ### Booting
 
-Then disable Secure Boot in the DGX Spark BIOS and boot from the USB drive.
+Disable Secure Boot in the DGX Spark BIOS and boot from the USB drive.
 
 You can then following the installation instructions in the NixOS manual: https://nixos.org/manual/nixos/stable/#sec-installation-manual
 
