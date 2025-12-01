@@ -180,6 +180,11 @@
 
         packages.default = self.packages.${system}.usb-image;
 
+        # Expose pkgsCuda12 for downstream flakes to access ComfyUI packages, models, and fetchers
+        legacyPackages = {
+          inherit pkgsCuda12;
+        };
+
         checks.pre-commit-check = pre-commit-check;
 
         apps.pytorch-container = {
