@@ -23,6 +23,7 @@
       cudaSbsaOverlay = import ./overlays/cuda-sbsa.nix;
       cuda129Overlay = import ./overlays/cuda-12.9.nix;
       cutlass43Overlay = import ./overlays/cutlass-4.3.nix;
+      pytorchCutlass43Overlay = import ./overlays/pytorch-cutlass-4.3.nix;
       cuda13Overlay = import ./overlays/cuda-13.nix;
       korniaRsOverlay = import ./overlays/kornia-rs.nix;
       comfyuiModelsOverlay = import ./overlays/comfyui-models.nix;
@@ -69,6 +70,7 @@
             cudaSbsaOverlay
             cuda129Overlay
             cutlass43Overlay
+            pytorchCutlass43Overlay
             korniaRsOverlay
             nixified-ai.overlays.comfyui
             nixified-ai.overlays.models
