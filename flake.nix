@@ -21,6 +21,7 @@
   outputs = { self, nixpkgs, nixos-generators, flake-utils, pre-commit-hooks, nixified-ai }:
     let
       cudaSbsaOverlay = import ./overlays/cuda-sbsa.nix;
+      cuda129Overlay = import ./overlays/cuda-12.9.nix;
       cuda13Overlay = import ./overlays/cuda-13.nix;
       korniaRsOverlay = import ./overlays/kornia-rs.nix;
       comfyuiModelsOverlay = import ./overlays/comfyui-models.nix;
@@ -41,7 +42,9 @@
           allowUnfree = true;
           allowUnsupportedSystem = true;
           cudaSupport = true;
-          cudaCapabilities = [ "12.0" ]; # TODO: try 12.1
+          # Use architecture-specific features
+          # https://docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/compute-capabilities.html#architecture-specific-features
+          cudaCapabilities = [ "12.1" ];
         };
 
         pkgs = import nixpkgs {
@@ -63,6 +66,7 @@
           config = commonConfig;
           overlays = [
             cudaSbsaOverlay
+            cuda129Overlay
             korniaRsOverlay
             nixified-ai.overlays.comfyui
             nixified-ai.overlays.models
