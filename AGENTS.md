@@ -48,3 +48,30 @@ When creating new playbooks (e.g., converting container-based playbooks to nativ
 5. **Skip unnecessary env vars**: CUDA paths are typically handled automatically by Nix packages
 6. **Never fallback to CPU**: Always use GPU versions of packages when available, never fallback to CPU-only versions
 7. **Python version focus**: Focus on Python 3.12+ support, ignore Python 3.11 compatibility
+
+## CUDA Package Overlays
+
+When creating overlays that modify CUDA packages (like cutlass, cudnn, etc.):
+
+1. **Use the `_cuda.extend` pattern** to apply changes across all CUDA package sets:
+
+   ```nix
+   final: prev: {
+     _cuda = prev._cuda.extend (
+       _: prevAttrs: {
+         extensions = prevAttrs.extensions ++ [
+           (cudaFinal: cudaPrev: {
+             packageName = cudaPrev.packageName.overrideAttrs (oldAttrs: {
+               # modifications here
+             });
+           })
+         ];
+       }
+     );
+   }
+   ```
+
+2. **Examples**: See `overlays/cuda-sbsa.nix` and `overlays/cutlass-4.3.nix`
+
+3. **Do NOT** use the simple overlay pattern `final: prev: { cudaPackages = prev.cudaPackages // { ... } }`
+   - This only affects the default cudaPackages and won't propagate to cudaPackages_12, cudaPackages_13, etc.
