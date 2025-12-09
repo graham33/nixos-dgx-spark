@@ -179,7 +179,7 @@
         apps.pytorch-container = {
           type = "app";
           program = "${pkgs.writeShellScript "pytorch-container" ''
-          exec ${pkgs.podman}/bin/podman run --rm -it --signature-policy=$PWD/policy.json --device nvidia.com/gpu=all nvcr.io/nvidia/pytorch:25.09-py3 /bin/bash
+          exec ${pkgs.podman}/bin/podman run --rm -it --device nvidia.com/gpu=all nvcr.io/nvidia/pytorch:25.11-py3 /bin/bash
         ''}";
         };
       });

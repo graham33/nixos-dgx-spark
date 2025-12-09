@@ -28,7 +28,6 @@ pkgs.mkShell {
     vllm-serve-qwen-math() {
       echo "Starting vLLM server with Qwen2.5-Math-1.5B-Instruct model..."
       exec ${pkgs.podman}/bin/podman run --rm -it \
-        --signature-policy=${./policy.json} \
         --device nvidia.com/gpu=all \
         --shm-size=1g \
         --network host \
