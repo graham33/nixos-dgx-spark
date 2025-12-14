@@ -136,9 +136,9 @@
           ];
         };
 
-        devShells.comfyui = import ./playbooks/comfyui/shell.nix { inherit pkgs; };
-        devShells.vllm-container = import ./playbooks/vllm-container/shell.nix { inherit pkgs; };
-        devShells.vllm-nix = import ./playbooks/vllm-nix/shell.nix { inherit pkgs; };
+        devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { };
+        devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { };
+        devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { };
 
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
 

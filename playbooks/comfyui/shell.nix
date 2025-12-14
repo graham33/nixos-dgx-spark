@@ -1,9 +1,12 @@
-{ pkgs }:
+{ mkShell
+, comfyuiPackages
+, comfyuiModels
+}:
 
-pkgs.mkShell {
+mkShell {
   packages = [
-    (pkgs.comfyuiPackages.comfyui.override {
-      withModels = [ pkgs.comfyuiModels.sd15-fp16 ];
+    (comfyuiPackages.comfyui.override {
+      withModels = [ comfyuiModels.sd15-fp16 ];
     })
   ];
 }

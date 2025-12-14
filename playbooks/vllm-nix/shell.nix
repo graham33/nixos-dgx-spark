@@ -1,10 +1,16 @@
-{ pkgs }:
+{ mkShell
+, curl
+, hyperfine
+, jq
+, python3
+, vllm
+}:
 
 let
   vllmPort = "8000";
 in
-pkgs.mkShell {
-  packages = with pkgs; [
+mkShell {
+  packages = [
     curl
     hyperfine
     jq
