@@ -115,7 +115,6 @@
             cudaPackages.cuda_cuobjdump
             cudaPackages.cuda_nvcc
             cudaPackages.cuda-samples
-            pythonEnv
           ];
 
           # Add NVIDIA driver libraries to the environment
@@ -137,14 +136,7 @@
           ];
         };
 
-        devShells.comfyui = pkgs.mkShell {
-          packages = [
-            (pkgs.comfyuiPackages.comfyui.override {
-              withModels = [ pkgs.comfyuiModels.sd15-fp16 ];
-            })
-          ];
-        };
-
+        devShells.comfyui = import ./playbooks/comfyui/shell.nix { inherit pkgs; };
         devShells.vllm-container = import ./playbooks/vllm-container/shell.nix { inherit pkgs; };
         devShells.vllm-nix = import ./playbooks/vllm-nix/shell.nix { inherit pkgs; };
 
