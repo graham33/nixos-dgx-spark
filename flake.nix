@@ -54,19 +54,6 @@
             cuda13Overlay
             dlpackOverlay
             vllmDepsOverlay
-          ];
-        };
-
-        pythonEnv = pkgs.python3.withPackages (ps: with ps; [
-          torch
-        ]);
-
-        # Separate pkgs for CUDA 12 (opencv not compatible with CUDA 13)
-        pkgsCuda12 = import nixpkgs {
-          inherit system;
-          config = commonConfig;
-          overlays = [
-            cudaSbsaOverlay
             korniaRsOverlay
             nixified-ai.overlays.comfyui
             nixified-ai.overlays.models
@@ -74,6 +61,10 @@
             comfyuiModelsOverlay
           ];
         };
+
+        pythonEnv = pkgs.python3.withPackages (ps: with ps; [
+          torch
+        ]);
 
         pre-commit-check = pre-commit-hooks.lib.${system}.run {
           src = ./.;
@@ -146,10 +137,10 @@
           ];
         };
 
-        devShells.comfyui = pkgsCuda12.mkShell {
+        devShells.comfyui = pkgs.mkShell {
           packages = [
-            (pkgsCuda12.comfyuiPackages.comfyui.override {
-              withModels = [ pkgsCuda12.comfyuiModels.sd15-fp16 ];
+            (pkgs.comfyuiPackages.comfyui.override {
+              withModels = [ pkgs.comfyuiModels.sd15-fp16 ];
             })
           ];
         };
@@ -174,10 +165,9 @@
 
         packages.default = self.packages.${system}.usb-image;
 
-        # Expose pkgsCuda12 for downstream flakes to access ComfyUI packages, models, and fetchers
+        # Expose pkgs for downstream flakes to access ComfyUI packages, models, and fetchers
         legacyPackages = {
           inherit pkgs;
-          inherit pkgsCuda12;
         };
 
         checks.pre-commit-check = pre-commit-check;
