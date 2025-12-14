@@ -1,10 +1,14 @@
-{ pkgs }:
+{ mkShell
+, hyperfine
+, jq
+, podman
+}:
 
 let
   vllmPort = "8000";
 in
-pkgs.mkShell {
-  packages = with pkgs; [
+mkShell {
+  packages = [
     hyperfine
     jq
     podman
@@ -28,7 +32,7 @@ pkgs.mkShell {
     # Create vllm-serve-qwen-math command
     vllm-serve-qwen-math() {
       echo "Starting vLLM server with Qwen2.5-Math-1.5B-Instruct model..."
-      exec ${pkgs.podman}/bin/podman run --rm -it \
+      exec ${podman}/bin/podman run --rm -it \
         --device nvidia.com/gpu=all \
         --shm-size=1g \
         --network host \
