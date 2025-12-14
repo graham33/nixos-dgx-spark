@@ -140,6 +140,7 @@ This repository includes devshells for various NVIDIA DGX Spark playbooks from h
 
 - [ComfyUI](./playbooks/comfyui/README.md) - Run ComfyUI with Stable Diffusion 1.5 for AI image generation
 - [vLLM Container](./playbooks/vllm-container/README.md) - Run vLLM inference server with Qwen2.5-Math-1.5B-Instruct model
+- [vLLM Nix](./playbooks/vllm-nix/README.md) - Run vLLM inference server natively with Qwen2.5-Math-1.5B-Instruct model (Nix native, no containers)
 
 ## Caching
 
