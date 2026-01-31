@@ -18,8 +18,17 @@
     };
   };
 
-  outputs = { self, nixpkgs, nixos-generators, flake-utils, pre-commit-hooks, nixified-ai }:
+  outputs =
+    { self
+    , nixpkgs
+    , nixos-generators
+    , flake-utils
+    , pre-commit-hooks
+    , nixified-ai
+    ,
+    }:
     let
+      linux617Overlay = import ./overlays/linux-6.17.nix;
       cudaSbsaOverlay = import ./overlays/cuda-sbsa.nix;
       cuda13Overlay = import ./overlays/cuda-13.nix;
       korniaRsOverlay = import ./overlays/kornia-rs.nix;
@@ -37,7 +46,9 @@
         path = ./templates/dgx-spark;
         description = "NixOS configuration template for DGX Spark systems";
       };
-    } // flake-utils.lib.eachDefaultSystem (system:
+    }
+    // flake-utils.lib.eachDefaultSystem (
+      system:
       let
         commonConfig = {
           allowUnfree = true;
@@ -50,6 +61,7 @@
           inherit system;
           config = commonConfig;
           overlays = [
+            linux617Overlay
             cudaSbsaOverlay
             cuda13Overlay
             dlpackOverlay
@@ -62,9 +74,11 @@
           ];
         };
 
-        pythonEnv = pkgs.python3.withPackages (ps: with ps; [
-          torch
-        ]);
+        pythonEnv = pkgs.python3.withPackages (
+          ps: with ps; [
+            torch
+          ]
+        );
 
         pre-commit-check = pre-commit-hooks.lib.${system}.run {
           src = ./.;
@@ -147,7 +161,8 @@
           system = "aarch64-linux";
           modules = [
             ./usb-configuration.nix
-          ] ++ nixpkgs.lib.optional (system == "x86_64-linux") {
+          ]
+          ++ nixpkgs.lib.optional (system == "x86_64-linux") {
             nixpkgs.crossSystem = {
               system = "aarch64-linux";
             };
@@ -167,8 +182,9 @@
         apps.pytorch-container = {
           type = "app";
           program = "${pkgs.writeShellScript "pytorch-container" ''
-          exec ${pkgs.podman}/bin/podman run --rm -it --device nvidia.com/gpu=all nvcr.io/nvidia/pytorch:25.11-py3 /bin/bash
-        ''}";
+            exec ${pkgs.podman}/bin/podman run --rm -it --device nvidia.com/gpu=all nvcr.io/nvidia/pytorch:25.11-py3 /bin/bash
+          ''}";
         };
-      });
+      }
+    );
 }

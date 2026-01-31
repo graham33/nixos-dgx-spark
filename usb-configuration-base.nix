@@ -1,4 +1,8 @@
-{ config, pkgs, lib, ... }:
+{ config
+, pkgs
+, lib
+, ...
+}:
 
 {
   # Enable systemd in the initial ramdisk
@@ -25,7 +29,12 @@
   ];
 
   # USB storage support
-  boot.supportedFilesystems = [ "vfat" "ext4" "ntfs" "iso9660" ];
+  boot.supportedFilesystems = [
+    "vfat"
+    "ext4"
+    "ntfs"
+    "iso9660"
+  ];
 
   # Boot loader configuration for USB
   boot.loader.grub = {
@@ -64,7 +73,10 @@
   # User configuration
   users.users.nixos = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" ];
+    extraGroups = [
+      "wheel"
+      "networkmanager"
+    ];
     initialPassword = "nixos";
   };
 
@@ -115,7 +127,10 @@
   };
 
   # Enable Flakes and the new command-line tool
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   # Automatically optimize the Nix store
   nix.settings.auto-optimise-store = true;
