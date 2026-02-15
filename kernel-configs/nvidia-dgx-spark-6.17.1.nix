@@ -1,6 +1,6 @@
 # Generated NVIDIA DGX Spark kernel configuration (terse)
 # Kernel Version: 6.17.1
-# Generated: 2026-02-15 18:56:44 UTC
+# Generated: 2026-02-15 19:05:19 UTC
 #
 # This file contains only options that differ from NixOS defaults.
 # Options matching NixOS defaults are omitted for clarity.
@@ -35,7 +35,7 @@
   AHCI_QORIQ = lib.mkForce module;
   AHCI_SUNXI = lib.mkForce no;
   AHCI_XGENE = lib.mkForce module;
-  AIC7XXX_CMDS_PER_DEVICE = lib.mkForce freeform "8";
+  AIC7XXX_CMDS_PER_DEVICE = lib.mkForce (freeform "8");
   AIROHA_CPU_PM_DOMAIN = lib.mkForce module;
   AIX_PARTITION = lib.mkForce yes;
   AL_FIC = lib.mkForce yes;
@@ -46,7 +46,7 @@
   AMIGA_PARTITION = lib.mkForce yes;
   AMLOGIC_THERMAL = lib.mkForce module;
   ANDROID_BINDERFS = lib.mkForce module;
-  ANDROID_BINDER_DEVICES = lib.mkForce freeform "";
+  ANDROID_BINDER_DEVICES = lib.mkForce (freeform "");
   ANDROID_BINDER_IPC = lib.mkForce module;
   ANON_VMA_NAME = lib.mkForce yes;
   APPLE_M1_CPU_PMU = lib.mkForce yes;
@@ -59,8 +59,8 @@
   ARCH_BCM = lib.mkForce no;
   ARCH_BITMAIN = lib.mkForce yes;
   ARCH_EXYNOS = lib.mkForce no;
-  ARCH_MMAP_RND_BITS = lib.mkForce freeform "33";
-  ARCH_MMAP_RND_COMPAT_BITS = lib.mkForce freeform "16";
+  ARCH_MMAP_RND_BITS = lib.mkForce (freeform "33");
+  ARCH_MMAP_RND_COMPAT_BITS = lib.mkForce (freeform "16");
   ARCH_MMP = lib.mkForce yes;
   ARCH_PENSANDO = lib.mkForce yes;
   ARCH_UNIPHIER = lib.mkForce no;
@@ -71,12 +71,12 @@
   ARM64_ERRATUM_2441007 = lib.mkForce yes;
   ARM64_ERRATUM_2441009 = lib.mkForce yes;
   ARM64_ERRATUM_834220 = lib.mkForce yes;
-  ARM64_PA_BITS = lib.mkForce freeform "48";
+  ARM64_PA_BITS = lib.mkForce (freeform "48");
   ARM64_PA_BITS_48 = lib.mkForce yes;
   ARM64_PSEUDO_NMI = lib.mkForce yes;
   ARM64_RELOC_TEST = lib.mkForce no;
   ARM64_SW_TTBR0_PAN = lib.mkForce yes;
-  ARM64_VA_BITS = lib.mkForce freeform "48";
+  ARM64_VA_BITS = lib.mkForce (freeform "48");
   ARM64_VA_BITS_48 = lib.mkForce yes;
   ARM64_VA_BITS_52 = lib.mkForce no;
   ARM_AIROHA_SOC_CPUFREQ = lib.mkForce module;
@@ -115,7 +115,7 @@
   ASN1_ENCODER = lib.mkForce yes;
   ASYNC_RAID6_TEST = lib.mkForce no;
   ASYNC_TX_DMA = lib.mkForce yes;
-  AS_VERSION = lib.mkForce freeform "24200";
+  AS_VERSION = lib.mkForce (freeform "24200");
   AT803X_PHY = lib.mkForce module;
   ATARI_PARTITION = lib.mkForce yes;
   ATH10K_AHB = lib.mkForce yes;
@@ -192,7 +192,7 @@
   BLK_CGROUP_IOPRIO = lib.mkForce yes;
   BLK_DEV_IO_TRACE = lib.mkForce yes;
   BLK_DEV_MD = lib.mkForce yes;
-  BLK_DEV_RAM_SIZE = lib.mkForce freeform "65536";
+  BLK_DEV_RAM_SIZE = lib.mkForce (freeform "65536");
   BLK_DEV_SR = lib.mkForce yes;
   BNXT_DCB = lib.mkForce yes;
   BOOTTIME_TRACING = lib.mkForce yes;
@@ -235,7 +235,7 @@
   CARL9170_HWRNG = lib.mkForce yes;
   CC_CAN_LINK = lib.mkForce yes;
   CC_HAS_UBSAN_BOUNDS_STRICT = lib.mkForce yes;
-  CC_VERSION_TEXT = lib.mkForce freeform "aarch64-linux-gnu-gcc-13 (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0";
+  CC_VERSION_TEXT = lib.mkForce (freeform "aarch64-linux-gnu-gcc-13 (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0");
   CDROM = lib.mkForce yes;
   CDX_BUS = lib.mkForce yes;
   CDX_CONTROLLER = lib.mkForce module;
@@ -273,9 +273,9 @@
   CLK_X1E80100_GCC = lib.mkForce module;
   CLK_X1E80100_TCSRCC = lib.mkForce module;
   CLS_U32_PERF = lib.mkForce no;
-  CMA_AREAS = lib.mkForce freeform "7";
+  CMA_AREAS = lib.mkForce (freeform "7");
   CMA_DEBUGFS = lib.mkForce no;
-  CMDLINE = lib.mkForce freeform "console=ttyAMA0";
+  CMDLINE = lib.mkForce (freeform "console=ttyAMA0");
   CMDLINE_FORCE = lib.mkForce no;
   CMDLINE_FROM_BOOTLOADER = lib.mkForce yes;
   CMDLINE_PARTITION = lib.mkForce yes;
@@ -439,7 +439,7 @@
   COMMON_RESET_HI3660 = lib.mkForce module;
   COMMON_RESET_HI6220 = lib.mkForce module;
   COMPAT_ALIGNMENT_FIXUPS = lib.mkForce no;
-  CONSOLE_LOGLEVEL_QUIET = lib.mkForce freeform "3";
+  CONSOLE_LOGLEVEL_QUIET = lib.mkForce (freeform "3");
   CONSOLE_POLL = lib.mkForce yes;
   CORESIGHT_DUMMY = lib.mkForce no;
   CORESIGHT_TPDA = lib.mkForce no;
@@ -472,8 +472,8 @@
   CRYPTO_DEV_CCP_DD = lib.mkForce module;
   CRYPTO_DEV_CCP_DEBUGFS = lib.mkForce no;
   CRYPTO_DEV_FSL_CAAM_INTC = lib.mkForce yes;
-  CRYPTO_DEV_FSL_CAAM_INTC_COUNT_THLD = lib.mkForce freeform "255";
-  CRYPTO_DEV_FSL_CAAM_INTC_TIME_THLD = lib.mkForce freeform "2048";
+  CRYPTO_DEV_FSL_CAAM_INTC_COUNT_THLD = lib.mkForce (freeform "255");
+  CRYPTO_DEV_FSL_CAAM_INTC_TIME_THLD = lib.mkForce (freeform "2048");
   CRYPTO_DEV_KEEMBAY_OCS_AES_SM4_CTS = lib.mkForce yes;
   CRYPTO_DEV_KEEMBAY_OCS_AES_SM4_ECB = lib.mkForce yes;
   CRYPTO_DEV_KEEMBAY_OCS_HCU_HMAC_SHA224 = lib.mkForce yes;
@@ -512,7 +512,7 @@
   DAX = lib.mkForce yes;
   DA_MON_EVENTS_ID = lib.mkForce yes;
   DE2104X = lib.mkForce module;
-  DE2104X_DSL = lib.mkForce freeform "0";
+  DE2104X_DSL = lib.mkForce (freeform "0");
   DEBUG_INFO_COMPRESSED_ZSTD = lib.mkForce no;
   DEBUG_INFO_DWARF5 = lib.mkForce yes;
   DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT = lib.mkForce no;
@@ -553,8 +553,8 @@
   DRM_HISI_HIBMC = lib.mkForce no;
   DRM_NOUVEAU = lib.mkForce no;
   DRM_PANEL_BOE_TV101WUM_LL2 = lib.mkForce no;
-  DRM_PANIC_BACKGROUND_COLOR = lib.mkForce freeform "0x5e2750";
-  DRM_PANIC_SCREEN = lib.mkForce freeform "user";
+  DRM_PANIC_BACKGROUND_COLOR = lib.mkForce (freeform "0x5e2750");
+  DRM_PANIC_SCREEN = lib.mkForce (freeform "user");
   DRM_TEGRA_STAGING = lib.mkForce yes;
   DRM_ZYNQMP_DPSUB_AUDIO = lib.mkForce yes;
   DTPM = lib.mkForce yes;
@@ -562,7 +562,7 @@
   DTPM_DEVFREQ = lib.mkForce no;
   DVB_BT8XX = lib.mkForce module;
   DVB_DUMMY_FE = lib.mkForce module;
-  DVB_MAX_ADAPTERS = lib.mkForce freeform "8";
+  DVB_MAX_ADAPTERS = lib.mkForce (freeform "8");
   DVB_NET = lib.mkForce yes;
   DVB_PLATFORM_DRIVERS = lib.mkForce yes;
   DVB_TEST_DRIVERS = lib.mkForce no;
@@ -638,7 +638,7 @@
   FPGA_M10_BMC_SEC_UPDATE = lib.mkForce no;
   FPROBE = lib.mkForce yes;
   FPROBE_EVENTS = lib.mkForce yes;
-  FRAME_WARN = lib.mkForce freeform "1024";
+  FRAME_WARN = lib.mkForce (freeform "1024");
   FSL_BMAN_TEST_API = lib.mkForce no;
   FSL_DPAA2_ETH = lib.mkForce module;
   FSL_DPAA2_ETH_DCB = lib.mkForce yes;
@@ -778,7 +778,7 @@
   HW_RANDOM_STM32 = lib.mkForce module;
   HW_RANDOM_VIRTIO = lib.mkForce module;
   HW_RANDOM_XGENE = lib.mkForce module;
-  HZ = lib.mkForce freeform "1000";
+  HZ = lib.mkForce (freeform "1000");
   HZ_1000 = lib.mkForce yes;
   HZ_250 = lib.mkForce no;
   I2C_ALGOBIT = lib.mkForce module;
@@ -824,19 +824,19 @@
   IMA_APPRAISE_MODSIG = lib.mkForce yes;
   IMA_ARCH_POLICY = lib.mkForce yes;
   IMA_BLACKLIST_KEYRING = lib.mkForce no;
-  IMA_DEFAULT_HASH = lib.mkForce freeform "sha256";
+  IMA_DEFAULT_HASH = lib.mkForce (freeform "sha256");
   IMA_DEFAULT_HASH_SHA1 = lib.mkForce no;
   IMA_DEFAULT_HASH_SHA256 = lib.mkForce yes;
   IMA_DEFAULT_HASH_SHA512 = lib.mkForce no;
-  IMA_DEFAULT_TEMPLATE = lib.mkForce freeform "ima-ng";
+  IMA_DEFAULT_TEMPLATE = lib.mkForce (freeform "ima-ng");
   IMA_DISABLE_HTABLE = lib.mkForce no;
   IMA_KEXEC = lib.mkForce yes;
-  IMA_KEXEC_EXTRA_MEMORY_KB = lib.mkForce freeform "0";
+  IMA_KEXEC_EXTRA_MEMORY_KB = lib.mkForce (freeform "0");
   IMA_KEYRINGS_PERMIT_SIGNED_BY_BUILTIN_OR_SECONDARY = lib.mkForce no;
   IMA_LOAD_X509 = lib.mkForce no;
   IMA_LSM_RULES = lib.mkForce yes;
   IMA_MEASURE_ASYMMETRIC_KEYS = lib.mkForce yes;
-  IMA_MEASURE_PCR_IDX = lib.mkForce freeform "10";
+  IMA_MEASURE_PCR_IDX = lib.mkForce (freeform "10");
   IMA_NG_TEMPLATE = lib.mkForce yes;
   IMA_QUEUE_EARLY_BOOT_KEYS = lib.mkForce yes;
   IMA_READ_POLICY = lib.mkForce no;
@@ -982,8 +982,8 @@
   JOLIET = lib.mkForce yes;
   K3_DMA = lib.mkForce module;
   KARMA_PARTITION = lib.mkForce yes;
-  KDB_CONTINUE_CATASTROPHIC = lib.mkForce freeform "0";
-  KDB_DEFAULT_ENABLE = lib.mkForce freeform "0x1";
+  KDB_CONTINUE_CATASTROPHIC = lib.mkForce (freeform "0");
+  KDB_DEFAULT_ENABLE = lib.mkForce (freeform "0x1");
   KDB_KEYBOARD = lib.mkForce yes;
   KEXEC_IMAGE_VERIFY_SIG = lib.mkForce yes;
   KEXEC_SIG = lib.mkForce yes;
@@ -995,7 +995,7 @@
   KEYBOARD_TC3589X = lib.mkForce module;
   KEYBOARD_TWL4030 = lib.mkForce module;
   KEY_NOTIFICATIONS = lib.mkForce yes;
-  KFENCE_SAMPLE_INTERVAL = lib.mkForce freeform "0";
+  KFENCE_SAMPLE_INTERVAL = lib.mkForce (freeform "0");
   KGDB = lib.mkForce yes;
   KGDB_HONOUR_BLOCKLIST = lib.mkForce yes;
   KGDB_KDB = lib.mkForce yes;
@@ -1022,7 +1022,7 @@
   LEDS_TRIGGER_TIMER = lib.mkForce module;
   LEDS_WM831X_STATUS = lib.mkForce module;
   LEDS_WM8350 = lib.mkForce module;
-  LEGACY_PTY_COUNT = lib.mkForce freeform "0";
+  LEGACY_PTY_COUNT = lib.mkForce (freeform "0");
   LIBERTAS_MESH = lib.mkForce yes;
   LIBNVDIMM = lib.mkForce yes;
   LIST_HARDENED = lib.mkForce no;
@@ -1034,14 +1034,14 @@
   LOCK_DOWN_KERNEL_FORCE_CONFIDENTIALITY = lib.mkForce no;
   LOCK_DOWN_KERNEL_FORCE_INTEGRITY = lib.mkForce no;
   LOCK_DOWN_KERNEL_FORCE_NONE = lib.mkForce yes;
-  LOG_BUF_SHIFT = lib.mkForce freeform "18";
+  LOG_BUF_SHIFT = lib.mkForce (freeform "18");
   LP8788_ADC = lib.mkForce module;
-  LSM = lib.mkForce freeform "landlock,lockdown,yama,integrity,apparmor";
-  LSM_MMAP_MIN_ADDR = lib.mkForce freeform "0";
+  LSM = lib.mkForce (freeform "landlock,lockdown,yama,integrity,apparmor");
+  LSM_MMAP_MIN_ADDR = lib.mkForce (freeform "0");
   MAC80211_MESSAGE_TRACING = lib.mkForce yes;
   MACB = lib.mkForce module;
   MAC_PARTITION = lib.mkForce yes;
-  MAGIC_SYSRQ_DEFAULT_ENABLE = lib.mkForce freeform "0x01b6";
+  MAGIC_SYSRQ_DEFAULT_ENABLE = lib.mkForce (freeform "0x01b6");
   MARVELL_10G_PHY = lib.mkForce module;
   MARVELL_88Q2XXX_PHY = lib.mkForce module;
   MAX8925_POWER = lib.mkForce module;
@@ -1173,7 +1173,7 @@
   MLXREG_LC = lib.mkForce module;
   MLX_PLATFORM = lib.mkForce module;
   MLX_WDT = lib.mkForce module;
-  MMC_BLOCK_MINORS = lib.mkForce freeform "8";
+  MMC_BLOCK_MINORS = lib.mkForce (freeform "8");
   MMC_CQHCI = lib.mkForce module;
   MMC_CRYPTO = lib.mkForce yes;
   MMC_DW = lib.mkForce module;
@@ -1218,7 +1218,7 @@
   MODULE_SIG_ALL = lib.mkForce yes;
   MODULE_SIG_FORCE = lib.mkForce no;
   MODULE_SIG_FORMAT = lib.mkForce yes;
-  MODULE_SIG_HASH = lib.mkForce freeform "sha512";
+  MODULE_SIG_HASH = lib.mkForce (freeform "sha512");
   MODULE_SIG_KEY_TYPE_ECDSA = lib.mkForce no;
   MODULE_SIG_KEY_TYPE_RSA = lib.mkForce yes;
   MODULE_SIG_SHA1 = lib.mkForce no;
@@ -1329,7 +1329,7 @@
   NET_EMATCH_IPT = lib.mkForce module;
   NET_EMATCH_META = lib.mkForce module;
   NET_EMATCH_NBYTE = lib.mkForce module;
-  NET_EMATCH_STACK = lib.mkForce freeform "32";
+  NET_EMATCH_STACK = lib.mkForce (freeform "32");
   NET_EMATCH_TEXT = lib.mkForce module;
   NET_EMATCH_U32 = lib.mkForce module;
   NET_IPGRE_BROADCAST = lib.mkForce yes;
@@ -1361,11 +1361,11 @@
   NF_CONNTRACK_SECMARK = lib.mkForce yes;
   NF_FLOW_TABLE_PROCFS = lib.mkForce no;
   NLS_CODEPAGE_437 = lib.mkForce yes;
-  NODES_SHIFT = lib.mkForce freeform "6";
+  NODES_SHIFT = lib.mkForce (freeform "6");
   NOP_USB_XCEIV = lib.mkForce module;
   NOTIFIER_ERROR_INJECTION = lib.mkForce module;
   NO_HZ = lib.mkForce yes;
-  NR_CPUS = lib.mkForce freeform "512";
+  NR_CPUS = lib.mkForce (freeform "512");
   NTB_MSI = lib.mkForce yes;
   NTB_MSI_TEST = lib.mkForce no;
   NVIDIA_FFA_EC = lib.mkForce yes;
@@ -1454,7 +1454,7 @@
   PCMCIA = lib.mkForce no;
   PCMCIA_XIRCOM = lib.mkForce module;
   PERCPU_TEST = lib.mkForce no;
-  PGTABLE_LEVELS = lib.mkForce freeform "4";
+  PGTABLE_LEVELS = lib.mkForce (freeform "4");
   PHY_FSL_IMX8M_PCIE = lib.mkForce module;
   PHY_HI6220_USB = lib.mkForce module;
   PHY_HISI_INNO_USB2 = lib.mkForce module;
@@ -1687,7 +1687,7 @@
   RCAR_GEN3_THERMAL = lib.mkForce module;
   RCAR_THERMAL = lib.mkForce module;
   RCU_CPU_STALL_CPUTIME = lib.mkForce yes;
-  RCU_CPU_STALL_TIMEOUT = lib.mkForce freeform "60";
+  RCU_CPU_STALL_TIMEOUT = lib.mkForce (freeform "60");
   RCU_LAZY_DEFAULT_OFF = lib.mkForce yes;
   RCU_REF_SCALE_TEST = lib.mkForce no;
   RCU_TRACE = lib.mkForce no;
@@ -1828,7 +1828,7 @@
   RV_MON_MAINTENANCE_EVENTS = lib.mkForce yes;
   RV_MON_RTAPP = lib.mkForce no;
   RV_MON_WWNR = lib.mkForce yes;
-  RV_PER_TASK_MONITORS = lib.mkForce freeform "2";
+  RV_PER_TASK_MONITORS = lib.mkForce (freeform "2");
   RV_REACTORS = lib.mkForce yes;
   RV_REACT_PANIC = lib.mkForce yes;
   RV_REACT_PRINTK = lib.mkForce yes;
@@ -1919,19 +1919,19 @@
   SECURITY_SELINUX_BOOTPARAM = lib.mkForce yes;
   SECURITY_SELINUX_DEBUG = lib.mkForce no;
   SECURITY_SELINUX_DEVELOP = lib.mkForce yes;
-  SECURITY_SELINUX_SID2STR_CACHE_SIZE = lib.mkForce freeform "256";
-  SECURITY_SELINUX_SIDTAB_HASH_BITS = lib.mkForce freeform "9";
+  SECURITY_SELINUX_SID2STR_CACHE_SIZE = lib.mkForce (freeform "256");
+  SECURITY_SELINUX_SIDTAB_HASH_BITS = lib.mkForce (freeform "9");
   SECURITY_SMACK = lib.mkForce yes;
   SECURITY_SMACK_APPEND_SIGNALS = lib.mkForce yes;
   SECURITY_SMACK_BRINGUP = lib.mkForce no;
   SECURITY_SMACK_NETFILTER = lib.mkForce yes;
   SECURITY_TOMOYO = lib.mkForce yes;
-  SECURITY_TOMOYO_ACTIVATION_TRIGGER = lib.mkForce freeform "/sbin/init";
+  SECURITY_TOMOYO_ACTIVATION_TRIGGER = lib.mkForce (freeform "/sbin/init");
   SECURITY_TOMOYO_INSECURE_BUILTIN_SETTING = lib.mkForce no;
-  SECURITY_TOMOYO_MAX_ACCEPT_ENTRY = lib.mkForce freeform "2048";
-  SECURITY_TOMOYO_MAX_AUDIT_LOG = lib.mkForce freeform "1024";
+  SECURITY_TOMOYO_MAX_ACCEPT_ENTRY = lib.mkForce (freeform "2048");
+  SECURITY_TOMOYO_MAX_AUDIT_LOG = lib.mkForce (freeform "1024");
   SECURITY_TOMOYO_OMIT_USERSPACE_LOADER = lib.mkForce no;
-  SECURITY_TOMOYO_POLICY_LOADER = lib.mkForce freeform "/sbin/tomoyo-init";
+  SECURITY_TOMOYO_POLICY_LOADER = lib.mkForce (freeform "/sbin/tomoyo-init");
   SENSORS_ADP1050_REGULATOR = lib.mkForce yes;
   SENSORS_ARM_SCMI = lib.mkForce module;
   SENSORS_ARM_SCPI = lib.mkForce module;
@@ -1957,12 +1957,12 @@
   SERIAL_8250_EXAR = lib.mkForce module;
   SERIAL_8250_FINTEK = lib.mkForce yes;
   SERIAL_8250_MANY_PORTS = lib.mkForce yes;
-  SERIAL_8250_NR_UARTS = lib.mkForce freeform "48";
+  SERIAL_8250_NR_UARTS = lib.mkForce (freeform "48");
   SERIAL_8250_PERICOM = lib.mkForce module;
   SERIAL_8250_PXA = lib.mkForce yes;
   SERIAL_8250_RSA = lib.mkForce yes;
   SERIAL_8250_RT288X = lib.mkForce yes;
-  SERIAL_8250_RUNTIME_UARTS = lib.mkForce freeform "32";
+  SERIAL_8250_RUNTIME_UARTS = lib.mkForce (freeform "32");
   SERIAL_EARLYCON_SEMIHOST = lib.mkForce yes;
   SERIAL_FSL_LINFLEXUART = lib.mkForce module;
   SERIAL_FSL_LPUART = lib.mkForce module;
@@ -2010,15 +2010,15 @@
   SM_TCSRCC_8550 = lib.mkForce module;
   SM_TCSRCC_8650 = lib.mkForce module;
   SM_VIDEOCC_8250 = lib.mkForce module;
-  SND_AC97_POWER_SAVE_DEFAULT = lib.mkForce freeform "0";
+  SND_AC97_POWER_SAVE_DEFAULT = lib.mkForce (freeform "0");
   SND_CTL_FAST_LOOKUP = lib.mkForce no;
   SND_DESIGNWARE_PCM = lib.mkForce yes;
   SND_ES1968_INPUT = lib.mkForce yes;
   SND_ES1968_RADIO = lib.mkForce yes;
   SND_FM801_TEA575X_BOOL = lib.mkForce yes;
   SND_HDA_HWDEP = lib.mkForce yes;
-  SND_HDA_INPUT_BEEP_MODE = lib.mkForce freeform "0";
-  SND_HDA_POWER_SAVE_DEFAULT = lib.mkForce freeform "1";
+  SND_HDA_INPUT_BEEP_MODE = lib.mkForce (freeform "0");
+  SND_HDA_POWER_SAVE_DEFAULT = lib.mkForce (freeform "1");
   SND_MAESTRO3_INPUT = lib.mkForce yes;
   SND_MMP_SOC_SSPA = lib.mkForce module;
   SND_PCM_OSS = lib.mkForce no;
@@ -2107,7 +2107,7 @@
   SYSTEM_BLACKLIST_AUTH_UPDATE = lib.mkForce no;
   SYSTEM_BLACKLIST_KEYRING = lib.mkForce yes;
   SYSTEM_EXTRA_CERTIFICATE = lib.mkForce yes;
-  SYSTEM_EXTRA_CERTIFICATE_SIZE = lib.mkForce freeform "4096";
+  SYSTEM_EXTRA_CERTIFICATE_SIZE = lib.mkForce (freeform "4096");
   SYSTEM_REVOCATION_LIST = lib.mkForce yes;
   SYSV68_PARTITION = lib.mkForce yes;
   TABLET_SERIAL_WACOM4 = lib.mkForce module;
@@ -2220,7 +2220,7 @@
   UCC_FAST = lib.mkForce yes;
   UCC_SLOW = lib.mkForce yes;
   UEVENT_HELPER = lib.mkForce yes;
-  UEVENT_HELPER_PATH = lib.mkForce freeform "";
+  UEVENT_HELPER_PATH = lib.mkForce (freeform "");
   ULI526X = lib.mkForce module;
   ULTRASOC_SMB = lib.mkForce no;
   ULTRIX_PARTITION = lib.mkForce yes;
@@ -2349,7 +2349,7 @@
   VIDEO_VISL = lib.mkForce module;
   VIDEO_VIVID = lib.mkForce module;
   VIDEO_VIVID_CEC = lib.mkForce yes;
-  VIDEO_VIVID_MAX_DEVS = lib.mkForce freeform "64";
+  VIDEO_VIVID_MAX_DEVS = lib.mkForce (freeform "64");
   VIDEO_VIVID_OSD = lib.mkForce yes;
   VIDEO_ZORAN = lib.mkForce no;
   VIRTIO_IOMMU = lib.mkForce yes;
@@ -2399,13 +2399,13 @@
   XZ_DEC_TEST = lib.mkForce module;
   ZERO_CALL_USED_REGS = lib.mkForce yes;
   ZISOFS = lib.mkForce yes;
-  ZRAM_DEF_COMP = lib.mkForce freeform "lzo-rle";
+  ZRAM_DEF_COMP = lib.mkForce (freeform "lzo-rle");
   ZRAM_DEF_COMP_LZORLE = lib.mkForce yes;
   ZRAM_DEF_COMP_ZSTD = lib.mkForce no;
   ZRAM_MEMORY_TRACKING = lib.mkForce yes;
   ZRAM_MULTI_COMP = lib.mkForce no;
   ZRAM_TRACK_ENTRY_ACTIME = lib.mkForce yes;
-  ZSWAP_COMPRESSOR_DEFAULT = lib.mkForce freeform "lzo";
+  ZSWAP_COMPRESSOR_DEFAULT = lib.mkForce (freeform "lzo");
   ZSWAP_COMPRESSOR_DEFAULT_LZO = lib.mkForce yes;
   ZSWAP_COMPRESSOR_DEFAULT_ZSTD = lib.mkForce no;
   ZSWAP_SHRINKER_DEFAULT_ON = lib.mkForce yes;
