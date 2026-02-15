@@ -181,18 +181,12 @@
 
         checks.pre-commit-check = pre-commit-check;
 
-        checks.kernel-config-tests =
-          pkgs.runCommand "kernel-config-tests"
-            {
-              buildInputs = [ pythonForKernelConfig ];
-              src = ./.;
-            }
-            ''
-              set -e
-              cd $src/tests
-              python3 -m pytest test_generate_config.py -v
-              touch $out
-            '';
+        checks.kernel-config-tests = pkgs.runCommand "kernel-config-tests" { src = ./.; } ''
+          set -e
+          cd $src/tests
+          ${pythonForKernelConfig}/bin/python3 -m pytest test_generate_config.py -v
+          touch $out
+        '';
 
         apps.pytorch-container = {
           type = "app";
