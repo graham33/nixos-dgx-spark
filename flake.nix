@@ -80,6 +80,8 @@
           ]
         );
 
+        pythonForKernelConfig = pkgs.python3.withPackages (ps: [ ps.pytest ]);
+
         pre-commit-check = pre-commit-hooks.lib.${system}.run {
           src = ./.;
           hooks = {
@@ -182,10 +184,7 @@
         checks.kernel-config-tests =
           pkgs.runCommand "kernel-config-tests"
             {
-              buildInputs = [
-                pkgs.python3
-                pkgs.python3Packages.pytest
-              ];
+              buildInputs = [ pythonForKernelConfig ];
               src = ./.;
             }
             ''
@@ -204,16 +203,9 @@
 
         apps.generate-kernel-config = {
           type = "app";
-          program = builtins.toString (
-            pkgs.writeShellScript "generate-kernel-config" ''
-              set -e
-              if [ ! -f "scripts/generate-terse-dgx-config.py" ]; then
-                echo "Error: Please run this command from the nixos-dgx-spark project root directory"
-                exit 1
-              fi
-              exec ${pkgs.python3}/bin/python3 "$PWD/scripts/generate-terse-dgx-config.py" "$@"
-            ''
-          );
+          program = "${pkgs.writeShellScript "generate-kernel-config" ''
+            exec ${pythonForKernelConfig}/bin/python3 ${./scripts/generate-terse-dgx-config.py} "$@"
+          ''}";
         };
       }
     );
