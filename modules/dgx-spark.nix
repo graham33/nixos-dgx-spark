@@ -12,7 +12,11 @@ let
   kernelSource = import ../kernel-configs/nvidia-kernel-source.nix;
   baseKernel = pkgs.linux_6_17;
 
-  dgxKernelConfig = import ../kernel-configs/nvidia-dgx-spark-6.17.1.nix { inherit lib; };
+  dgxKernelConfig = import
+    (
+      ../kernel-configs + "/nvidia-dgx-spark-${kernelSource.nvidiaKernelVersion}.nix"
+    )
+    { inherit lib; };
 
   nvidiaKernelPatches = [
     {
