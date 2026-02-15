@@ -7,6 +7,9 @@
 NixOS configuration for NVIDIA DGX Spark systems. Provides USB images
 and a NixOS module to add settings required for DGX Spark systems.
 
+This works on the NVIDIA DGX Spark itself, and has also been reported to work
+on the Asus Ascent GX10.
+
 ## USB Boot Image
 
 Build the USB image:
