@@ -59,7 +59,35 @@ hardware.dgx-spark = {
 hardware.dgx-spark.enable = true;  # Uses NVIDIA kernel by default
 ```
 
-The NVIDIA kernel is a custom build optimized for NVIDIA DGX Spark systems. The kernel configuration is generated from NVIDIA's Debian annotations using `scripts/generate-dgx-config.py` and compared with NixOS defaults using `scripts/compare-configs.py` to ensure compatibility.
+The NVIDIA kernel is a custom build optimized for NVIDIA DGX Spark systems. The kernel configuration is generated from NVIDIA's Debian annotations and compared with NixOS defaults to produce a minimal, maintainable configuration.
+
+### Kernel Configuration Management
+
+The kernel configuration is generated from NVIDIA's Debian annotations and stored in `kernel-configs/nvidia-dgx-spark-<version>.nix`. This terse configuration only contains options that differ from NixOS defaults, reducing verbosity by ~82%.
+
+To regenerate the kernel configuration:
+
+```bash
+nix run .#generate-kernel-config
+```
+
+This will:
+
+1. Fetch the NVIDIA kernel source from GitHub
+2. Build the NixOS baseline kernel config
+3. Compare NVIDIA's annotations with NixOS defaults
+4. Generate a terse config file with only the differences
+
+Regeneration is needed when:
+
+- NVIDIA kernel version changes (update `kernel-configs/nvidia-kernel-source.nix`)
+- NixOS common-config changes (nixpkgs update)
+
+You can also use a local kernel source for development:
+
+```bash
+nix run .#generate-kernel-config -- --kernel-source /path/to/NV-Kernels
+```
 
 ### Importing in Other Projects
 

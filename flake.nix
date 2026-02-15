@@ -185,6 +185,20 @@
             exec ${pkgs.podman}/bin/podman run --rm -it --device nvidia.com/gpu=all nvcr.io/nvidia/pytorch:25.11-py3 /bin/bash
           ''}";
         };
+
+        apps.generate-kernel-config = {
+          type = "app";
+          program = builtins.toString (
+            pkgs.writeShellScript "generate-kernel-config" ''
+              set -e
+              if [ ! -f "scripts/generate-terse-dgx-config.py" ]; then
+                echo "Error: Please run this command from the nixos-dgx-spark project root directory"
+                exit 1
+              fi
+              exec ${pkgs.python3}/bin/python3 "$PWD/scripts/generate-terse-dgx-config.py" "$@"
+            ''
+          );
+        };
       }
     );
 }
