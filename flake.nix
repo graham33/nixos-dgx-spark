@@ -179,6 +179,25 @@
 
         checks.pre-commit-check = pre-commit-check;
 
+        checks.kernel-config-tests =
+          pkgs.runCommand "kernel-config-tests"
+            {
+              buildInputs = [
+                pkgs.python3
+                pkgs.python3Packages.pytest
+              ];
+            }
+            ''
+              set -e
+              mkdir -p work/tests work/scripts
+              cp ${./tests/test_generate_config.py} work/tests/test_generate_config.py
+              cp ${./scripts/generate-terse-dgx-config.py} work/scripts/generate-terse-dgx-config.py
+              cd work/tests
+              export PYTHONPATH="$PWD/../scripts:$PYTHONPATH"
+              python3 -m pytest test_generate_config.py -v
+              touch $out
+            '';
+
         apps.pytorch-container = {
           type = "app";
           program = "${pkgs.writeShellScript "pytorch-container" ''
