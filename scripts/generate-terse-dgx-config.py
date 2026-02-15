@@ -27,6 +27,7 @@ Regeneration is needed when:
 """
 
 import argparse
+import json
 import os
 import re
 import subprocess
@@ -50,26 +51,12 @@ def run_command(cmd, cwd=None, check=True, capture=True):
     return result
 
 
-def parse_nix_kernel_source(nix_file: Path) -> Dict[str, str]:
-    """Parse nvidia-kernel-source.nix to extract version info."""
-    with open(nix_file, 'r') as f:
-        content = f.read()
+def eval_nix_kernel_source(nix_file: Path) -> Dict[str, str]:
+    """Evaluate nvidia-kernel-source.nix using nix eval to extract version info."""
+    nix_expr = f'let src = import {nix_file}; in {{ version = src.nvidiaKernelVersion; rev = src.nvidiaKernelRev; hash = src.nvidiaKernelHash; }}'
+    result = run_command(f'nix eval --impure --expr \'{nix_expr}\' --json')
 
-    info = {}
-
-    match = re.search(r'nvidiaKernelVersion\s*=\s*"([^"]+)"', content)
-    if match:
-        info['version'] = match.group(1)
-
-    match = re.search(r'nvidiaKernelRev\s*=\s*"([^"]+)"', content)
-    if match:
-        info['rev'] = match.group(1)
-
-    match = re.search(r'nvidiaKernelHash\s*=\s*"([^"]+)"', content)
-    if match:
-        info['hash'] = match.group(1)
-
-    return info
+    return json.loads(result.stdout)
 
 
 def parse_kernel_config(config_text: str) -> Dict[str, str]:
@@ -274,7 +261,7 @@ def main():
     script_dir = Path(__file__).parent
     project_root = script_dir.parent
 
-    kernel_source_info = parse_nix_kernel_source(
+    kernel_source_info = eval_nix_kernel_source(
         project_root / "kernel-configs" / "nvidia-kernel-source.nix"
     )
 

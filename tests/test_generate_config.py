@@ -7,6 +7,7 @@ avoiding the need to fetch actual NVIDIA kernel sources.
 """
 
 import importlib.util
+import shutil
 import sys
 from pathlib import Path
 
@@ -18,41 +19,49 @@ gen = importlib.util.module_from_spec(spec)
 sys.modules["gen"] = gen
 spec.loader.exec_module(gen)
 
+nix_available = shutil.which("nix") is not None
 
-class TestParseNixKernelSource:
-    """Tests for parsing nvidia-kernel-source.nix."""
 
-    def test_parse_basic_info(self, tmp_path):
+class TestEvalNixKernelSource:
+    """Tests for evaluating nvidia-kernel-source.nix using nix eval."""
+
+    @pytest.mark.skipif(not nix_available, reason="nix command not available")
+    def test_eval_basic_info(self, tmp_path):
         nix_content = '''
 let
   nvidiaKernelRev = "abc123";
   nvidiaKernelHash = "sha256-xxxxxxxx";
   nvidiaKernelVersion = "6.17.1";
 in
-{}
+{
+  inherit nvidiaKernelRev nvidiaKernelHash nvidiaKernelVersion;
+}
 '''
         nix_file = tmp_path / "test.nix"
         nix_file.write_text(nix_content)
 
-        info = gen.parse_nix_kernel_source(nix_file)
+        info = gen.eval_nix_kernel_source(nix_file)
 
         assert info["version"] == "6.17.1"
         assert info["rev"] == "abc123"
         assert info["hash"] == "sha256-xxxxxxxx"
 
-    def test_parse_missing_version(self, tmp_path):
+    @pytest.mark.skipif(not nix_available, reason="nix command not available")
+    def test_eval_missing_version(self, tmp_path):
         nix_content = '''
 let
   nvidiaKernelRev = "abc123";
+  nvidiaKernelHash = "sha256-xxx";
 in
-{}
+{
+  inherit nvidiaKernelRev nvidiaKernelHash;
+}
 '''
         nix_file = tmp_path / "test.nix"
         nix_file.write_text(nix_content)
 
-        info = gen.parse_nix_kernel_source(nix_file)
-
-        assert "version" not in info
+        with pytest.raises(Exception):
+            gen.eval_nix_kernel_source(nix_file)
 
 
 class TestParseKernelConfig:
