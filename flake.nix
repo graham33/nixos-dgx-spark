@@ -186,14 +186,11 @@
                 pkgs.python3
                 pkgs.python3Packages.pytest
               ];
+              src = ./.;
             }
             ''
               set -e
-              mkdir -p work/tests work/scripts
-              cp ${./tests/test_generate_config.py} work/tests/test_generate_config.py
-              cp ${./scripts/generate-terse-dgx-config.py} work/scripts/generate-terse-dgx-config.py
-              cd work/tests
-              export PYTHONPATH="$PWD/../scripts:$PYTHONPATH"
+              cd $src/tests
               python3 -m pytest test_generate_config.py -v
               touch $out
             '';
