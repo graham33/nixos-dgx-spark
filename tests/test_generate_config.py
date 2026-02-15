@@ -126,13 +126,13 @@ class TestValueToNix:
         assert gen.value_to_nix("m") == "module"
 
     def test_string_to_nix(self):
-        assert gen.value_to_nix('"test"') == 'freeform "test"'
+        assert gen.value_to_nix('"test"') == '(freeform "test")'
 
     def test_numeric_to_nix(self):
-        assert gen.value_to_nix("42") == 'freeform "42"'
+        assert gen.value_to_nix("42") == '(freeform "42")'
 
     def test_other_to_nix(self):
-        assert gen.value_to_nix("some_value") == 'freeform "some_value"'
+        assert gen.value_to_nix("some_value") == '(freeform "some_value")'
 
 
 class TestCompareConfigs:
@@ -254,8 +254,8 @@ class TestGenerateTerseNix:
 
         assert count == 2
         content = output_file.read_text()
-        assert "STRING = lib.mkForce freeform" in content
-        assert "NUMBER = lib.mkForce freeform" in content
+        assert "STRING = lib.mkForce (freeform" in content
+        assert "NUMBER = lib.mkForce (freeform" in content
 
 
 if __name__ == "__main__":

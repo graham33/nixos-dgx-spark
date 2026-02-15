@@ -14,13 +14,20 @@ let
 
   dgxKernelConfig = import ../kernel-configs/nvidia-dgx-spark-6.17.1.nix { inherit lib; };
 
+  nvidiaKernelPatches = [
+    {
+      name = "rust-gendwarfksyms-fix";
+      patch = ../patches/rust-gendwarfksyms-fix.patch;
+    }
+  ];
+
   nvidiaKernel = pkgs.linuxPackagesFor (
     baseKernel.override {
       argsOverride = {
         src = kernelSource.mkNvidiaKernelSource pkgs;
         version = "${kernelSource.nvidiaKernelVersion}-nvidia";
         modDirVersion = kernelSource.nvidiaKernelVersion;
-        kernelPatches = kernelSource.mkNvidiaKernelPatches ../..;
+        kernelPatches = nvidiaKernelPatches;
       };
 
       enableCommonConfig = true;

@@ -14,11 +14,4 @@ in
       rev = nvidiaKernelRev;
       hash = nvidiaKernelHash;
     };
-
-  mkNvidiaKernelPatches = baseDir: [
-    {
-      name = "rust-gendwarfksyms-fix";
-      patch = baseDir + /patches/rust-gendwarfksyms-fix.patch;
-    }
-  ];
 }

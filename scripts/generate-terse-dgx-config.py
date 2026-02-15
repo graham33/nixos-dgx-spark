@@ -195,11 +195,11 @@ def value_to_nix(value: str) -> str:
     elif value == 'm':
         return 'module'
     elif value.startswith('"') and value.endswith('"'):
-        return f'freeform {value}'
+        return f'(freeform {value})'
     elif value.isdigit():
-        return f'freeform "{value}"'
+        return f'(freeform "{value}")'
     else:
-        return f'freeform "{value}"'
+        return f'(freeform "{value}")'
 
 
 def generate_terse_nix(
