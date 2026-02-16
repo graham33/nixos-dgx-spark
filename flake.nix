@@ -201,6 +201,7 @@
           program = "${pkgs.writeShellScript "pytorch-container" ''
             exec ${pkgs.podman}/bin/podman run --rm -it --device nvidia.com/gpu=all nvcr.io/nvidia/pytorch:25.11-py3 /bin/bash
           ''}";
+          meta.description = "Run NVIDIA PyTorch container with GPU support";
         };
 
         apps.generate-kernel-config = {
@@ -208,6 +209,7 @@
           program = "${pkgs.writeShellScript "generate-kernel-config" ''
             exec ${pythonForKernelConfig}/bin/python3 ${./scripts/generate-terse-dgx-config.py} "$@"
           ''}";
+          meta.description = "Generate terse DGX kernel configuration";
         };
       }
     );
