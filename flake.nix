@@ -3,10 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs";
-    nixos-generators = {
-      url = "github:nix-community/nixos-generators";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     flake-utils.url = "github:numtide/flake-utils";
     pre-commit-hooks = {
       url = "github:cachix/pre-commit-hooks.nix";
@@ -21,7 +17,6 @@
   outputs =
     { self
     , nixpkgs
-    , nixos-generators
     , flake-utils
     , pre-commit-hooks
     , nixified-ai
@@ -158,19 +153,32 @@
 
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
 
-        # USB image with NVIDIA kernel (default) and standard kernel specialisation
-        packages.usb-image = nixos-generators.nixosGenerate {
-          system = "aarch64-linux";
-          modules = [
-            ./usb-configuration.nix
-          ]
-          ++ nixpkgs.lib.optional (system == "x86_64-linux") {
-            nixpkgs.crossSystem = {
-              system = "aarch64-linux";
+        packages.usb-image =
+          let
+            targetSystem = "aarch64-linux";
+            crossConfig = nixpkgs.lib.optionalAttrs (system != targetSystem) {
+              nixpkgs.crossSystem = {
+                system = targetSystem;
+              };
             };
-          };
-          format = "iso";
-        };
+          in
+          (nixpkgs.lib.nixosSystem (
+            crossConfig
+            // {
+              system = targetSystem;
+              modules = [
+                ./usb-configuration.nix
+                (
+                  { modulesPath, ... }:
+                  {
+                    imports = [ "${modulesPath}/installer/cd-dvd/iso-image.nix" ];
+                    isoImage.makeEfiBootable = true;
+                    isoImage.makeUsbBootable = true;
+                  }
+                )
+              ];
+            }
+          )).config.system.build.isoImage;
 
         packages.default = self.packages.${system}.usb-image;
 
