@@ -156,29 +156,29 @@
         packages.usb-image =
           let
             targetSystem = "aarch64-linux";
-            crossConfig = nixpkgs.lib.optionalAttrs (system != targetSystem) {
-              nixpkgs.crossSystem = {
-                system = targetSystem;
-              };
-            };
           in
-          (nixpkgs.lib.nixosSystem (
-            crossConfig
-            // {
-              system = targetSystem;
-              modules = [
-                ./usb-configuration.nix
-                (
-                  { modulesPath, ... }:
-                  {
-                    imports = [ "${modulesPath}/installer/cd-dvd/iso-image.nix" ];
-                    isoImage.makeEfiBootable = true;
-                    isoImage.makeUsbBootable = true;
-                  }
-                )
-              ];
-            }
-          )).config.system.build.isoImage;
+          (nixpkgs.lib.nixosSystem {
+            system = targetSystem;
+            modules = [
+              ./usb-configuration.nix
+              (
+                { modulesPath, ... }:
+                {
+                  imports = [ "${modulesPath}/installer/cd-dvd/iso-image.nix" ];
+                  isoImage.makeEfiBootable = true;
+                  isoImage.makeUsbBootable = true;
+                }
+              )
+              (
+                { lib, ... }:
+                {
+                  nixpkgs.buildPlatform = lib.mkIf (system != targetSystem) {
+                    system = system;
+                  };
+                }
+              )
+            ];
+          }).config.system.build.isoImage;
 
         packages.default = self.packages.${system}.usb-image;
 
