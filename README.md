@@ -44,7 +44,15 @@ hardware.dgx-spark = {
 };
 ```
 
-### Using Standard NixOS Kernel (Recommended for Most Users)
+### Using NVIDIA Kernel
+
+```nix
+hardware.dgx-spark.enable = true;  # Uses NVIDIA kernel by default
+```
+
+The NVIDIA kernel is a custom build optimized for NVIDIA DGX Spark systems. The kernel configuration is generated from NVIDIA's Debian annotations and compared with NixOS defaults to produce a minimal, maintainable configuration.
+
+### Using Standard NixOS Kernel (has some issues with networking)
 
 ```nix
 hardware.dgx-spark = {
@@ -52,14 +60,6 @@ hardware.dgx-spark = {
   useNvidiaKernel = false;       # Use standard NixOS 6.17 kernel
 };
 ```
-
-### Using NVIDIA Kernel (For Specialized GPU Workloads)
-
-```nix
-hardware.dgx-spark.enable = true;  # Uses NVIDIA kernel by default
-```
-
-The NVIDIA kernel is a custom build optimized for NVIDIA DGX Spark systems. The kernel configuration is generated from NVIDIA's Debian annotations and compared with NixOS defaults to produce a minimal, maintainable configuration.
 
 ### Kernel Configuration Management
 
