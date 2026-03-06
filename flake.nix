@@ -148,6 +148,7 @@
         };
 
         devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { };
+        devShells.txt2kg = pkgs.callPackage ./playbooks/text-to-knowledge-graph/shell.nix { };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { };
 
@@ -210,6 +211,31 @@
             exec ${pythonForKernelConfig}/bin/python3 ${./scripts/generate-terse-dgx-config.py} "$@"
           ''}";
           meta.description = "Generate terse DGX kernel configuration";
+        };
+
+        apps.text-to-knowledge-graph-container = {
+          type = "app";
+          program = "${pkgs.writeShellScript "text-to-knowledge-graph-container" ''
+            set -euo pipefail
+            REPO_DIR="''${XDG_CACHE_HOME:-$HOME/.cache}/dgx-spark-playbooks"
+            ASSETS_DIR="$REPO_DIR/nvidia/txt2kg/assets"
+            if [ ! -d "$ASSETS_DIR" ]; then
+              echo "Cloning NVIDIA DGX Spark playbooks..."
+              ${pkgs.git}/bin/git clone --depth 1 https://github.com/NVIDIA/dgx-spark-playbooks.git "$REPO_DIR"
+            fi
+            cd "$ASSETS_DIR"
+            echo "Starting text-to-knowledge-graph services..."
+            ${pkgs.podman-compose}/bin/podman-compose -f deploy/compose/docker-compose.yml up -d
+            echo ""
+            echo "Services running:"
+            echo "  Web UI:     http://localhost:3001"
+            echo "  ArangoDB:   http://localhost:8529"
+            echo "  Ollama API: http://localhost:11434"
+            echo ""
+            echo "Next: pull a model with"
+            echo "  podman exec ollama-compose ollama pull llama3.1:8b"
+          ''}";
+          meta.description = "Run GPU-accelerated text-to-knowledge-graph pipeline with Ollama and ArangoDB";
         };
       }
     );
