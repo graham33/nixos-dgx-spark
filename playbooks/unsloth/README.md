@@ -14,7 +14,7 @@ the DGX Spark.
 2. Launch the Unsloth container:
 
    ```bash
-   nix run .#unsloth-container
+   unsloth-start
    ```
 
    This pulls the `nvcr.io/nvidia/pytorch:25.11-py3` image, installs Unsloth
