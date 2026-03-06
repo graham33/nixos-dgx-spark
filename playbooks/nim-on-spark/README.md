@@ -6,10 +6,17 @@ inference for LLMs on the DGX Spark.
 ## Usage
 
 ```bash
-nix run .#nim-on-spark-container
+nix develop /path/to/playbooks#nim-on-spark
+nim-start
 ```
 
 OpenAI-compatible API at **http://localhost:8000/v1**.
+
+### Environment Variables
+
+- `NGC_API_KEY` (required): Your NVIDIA NGC API key from https://org.ngc.nvidia.com/
+- `NIM_CACHE` (optional): Path for NIM model cache (default: `~/.cache/nim`)
+- `NIM_WORKSPACE` (optional): Path for NIM workspace (default: `~/.local/share/nim/workspace`)
 
 ### Testing
 
