@@ -169,6 +169,7 @@
         devShells.nccl-two-sparks = pkgs.callPackage ./playbooks/nccl-two-sparks/shell.nix {
           inherit nixglhost;
         };
+        devShells.open-webui = pkgs.callPackage ./playbooks/open-webui/shell.nix { inherit nixglhost; };
 
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
         packages.dgx-dashboard = pkgs.callPackage ./packages/dgx-dashboard { };
@@ -230,6 +231,20 @@
             exec ${pythonForKernelConfig}/bin/python3 ${./scripts/generate-terse-dgx-config.py} "$@"
           ''}";
           meta.description = "Generate terse DGX kernel configuration";
+        };
+
+        apps.open-webui-container = {
+          type = "app";
+          program = "${pkgs.writeShellScript "open-webui-container" ''
+            exec ${pkgs.podman}/bin/podman run --rm -it \
+              --device nvidia.com/gpu=all \
+              -p 8080:8080 \
+              -v open-webui:/app/backend/data \
+              -v open-webui-ollama:/root/.ollama \
+              --name open-webui \
+              ghcr.io/open-webui/open-webui:ollama
+          ''}";
+          meta.description = "Run Open WebUI with Ollama for local LLM chat";
         };
       }
     );
