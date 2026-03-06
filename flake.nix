@@ -148,6 +148,7 @@
         };
 
         devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { };
+        devShells.multimodal-inference = pkgs.callPackage ./playbooks/multimodal-inference/shell.nix { };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { };
 
@@ -195,6 +196,20 @@
           ${pythonForKernelConfig}/bin/python3 -m pytest test_generate_config.py -v
           touch $out
         '';
+
+        apps.multimodal-inference-container = {
+          type = "app";
+          program = "${pkgs.writeShellScript "multimodal-inference-container" ''
+            exec ${pkgs.podman}/bin/podman run --rm -it \
+              --device nvidia.com/gpu=all \
+              --ipc=host \
+              --ulimit memlock=-1 \
+              --ulimit stack=67108864 \
+              -v "$HOME/.cache/huggingface:/root/.cache/huggingface" \
+              nvcr.io/nvidia/pytorch:25.11-py3 /bin/bash
+          ''}";
+          meta.description = "Run multi-modal inference container with GPU support";
+        };
 
         apps.pytorch-container = {
           type = "app";
