@@ -162,6 +162,7 @@
         devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { inherit nixglhost; };
         devShells.flux-dreambooth = pkgs.callPackage ./playbooks/flux-dreambooth/shell.nix { inherit nixglhost; };
         devShells.multimodal-inference = pkgs.callPackage ./playbooks/multimodal-inference/shell.nix { inherit nixglhost; };
+        devShells.portfolio-optimization = pkgs.callPackage ./playbooks/portfolio-optimization/shell.nix { inherit nixglhost; };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { inherit nixglhost; };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { inherit nixglhost; };
         devShells.speculative-decoding = pkgs.callPackage ./playbooks/speculative-decoding/shell.nix { inherit nixglhost; };
@@ -215,6 +216,20 @@
           ${pythonForKernelConfig}/bin/python3 -m pytest test_generate_config.py -v
           touch $out
         '';
+
+        apps.portfolio-optimization-container = {
+          type = "app";
+          program = "${pkgs.writeShellScript "portfolio-optimization-container" ''
+            exec ${pkgs.podman}/bin/podman run --rm -it \
+              --device nvidia.com/gpu=all \
+              --shm-size=1g \
+              -p 8888:8888 \
+              -p 8787:8787 \
+              -p 8786:8786 \
+              nvcr.io/nvidia/rapidsai/notebooks:25.10-cuda13-py3.13
+          ''}";
+          meta.description = "GPU-accelerated portfolio optimisation with NVIDIA RAPIDS";
+        };
 
         apps.pytorch-container = {
           type = "app";
