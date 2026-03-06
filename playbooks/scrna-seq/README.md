@@ -14,7 +14,7 @@ DGX Spark.
 2. Launch the RAPIDS notebook container:
 
    ```bash
-   nix run .#scrna-seq-container
+   scrna-seq-start
    ```
 
 3. Access JupyterLab at **http://localhost:8888**.
