@@ -6,7 +6,8 @@ QLoRA, and full fine-tuning with a Gradio WebUI on the DGX Spark.
 ## Usage
 
 ```bash
-nix run .#llama-factory-container
+nix develop /home/graham/playbooks#llama-factory
+llama-factory-start
 ```
 
 Access the WebUI at **http://localhost:7860**.
