@@ -13,11 +13,11 @@ Access the WebUI at **http://localhost:7860**.
 
 ### Fine-tuning Methods
 
-| Method | VRAM Required | Speed |
-|---|---|---|
-| LoRA | Low | Fast |
-| QLoRA | Very low | Moderate |
-| Full | High | Slow |
+| Method | VRAM Required | Speed    |
+| ------ | ------------- | -------- |
+| LoRA   | Low           | Fast     |
+| QLoRA  | Very low      | Moderate |
+| Full   | High          | Slow     |
 
 ### Supported Models
 
