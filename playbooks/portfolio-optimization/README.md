@@ -21,12 +21,6 @@ entirely on the GPU.
 3. Open JupyterLab at **http://localhost:8888** and select the
    "Portfolio Optimization" kernel.
 
-Alternatively, run the container directly:
-
-```bash
-nix run .#portfolio-optimization-container
-```
-
 ## Available Commands
 
 - `portfolio-start` - Launch the RAPIDS notebook container with GPU support
