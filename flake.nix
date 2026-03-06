@@ -148,6 +148,7 @@
         };
 
         devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { };
+        devShells.flux-dreambooth = pkgs.callPackage ./playbooks/flux-dreambooth/shell.nix { };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { };
 
@@ -202,6 +203,25 @@
             exec ${pkgs.podman}/bin/podman run --rm -it --device nvidia.com/gpu=all nvcr.io/nvidia/pytorch:25.11-py3 /bin/bash
           ''}";
           meta.description = "Run NVIDIA PyTorch container with GPU support";
+        };
+
+        apps.flux-dreambooth-container = {
+          type = "app";
+          program = "${pkgs.writeShellScript "flux-dreambooth-container" ''
+            WORKSPACE="''${FLUX_WORKSPACE:-$PWD/flux-workspace}"
+            mkdir -p "$WORKSPACE"/{models/{vae,loras,checkpoints,text_encoders},flux_data,workflows,outputs}
+            exec ${pkgs.podman}/bin/podman run --rm -it \
+              --device nvidia.com/gpu=all \
+              --ipc=host \
+              --network host \
+              --shm-size=8g \
+              --ulimit memlock=-1 \
+              --ulimit stack=67108864 \
+              -v "$HOME/.cache/huggingface":/root/.cache/huggingface \
+              -v "$WORKSPACE":/workspace \
+              nvcr.io/nvidia/pytorch:25.09-py3 /bin/bash
+          ''}";
+          meta.description = "Run FLUX.1 Dreambooth LoRA fine-tuning container with GPU support";
         };
 
         apps.generate-kernel-config = {
