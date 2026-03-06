@@ -212,7 +212,6 @@
           ''}";
           meta.description = "Generate terse DGX kernel configuration";
         };
-
       }
     );
 }
