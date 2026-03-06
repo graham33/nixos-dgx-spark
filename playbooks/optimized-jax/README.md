@@ -7,7 +7,8 @@ GPU-optimised JAX for high-performance machine learning on the DGX Spark.
 ### Container
 
 ```bash
-nix run .#optimized-jax-container
+nix develop .#optimized-jax
+jax-container
 ```
 
 ### Nix-native
