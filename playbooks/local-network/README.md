@@ -24,6 +24,27 @@ avahi-browse -art
 nmap -sn 192.168.1.0/24
 ```
 
+The `nmap` scan will list discovered hosts. Your Spark should appear with its
+hostname and IP address, for example:
+
+```
+Nmap scan report for spark-abcd.local (192.168.1.42)
+Host is up (0.0042s latency).
+```
+
+You can also verify mDNS resolution directly:
+
+```bash
+ping spark-abcd.local
+```
+
+Expected output:
+
+```
+PING spark-abcd.local (192.168.1.42): 56 data bytes
+64 bytes from 192.168.1.42: icmp_seq=0 ttl=64 time=6.902 ms
+```
+
 ### Connecting via SSH
 
 ```bash
@@ -32,6 +53,21 @@ ssh <user>@<hostname>.local
 
 # Port forwarding for web UIs (e.g. model serving endpoints)
 ssh -L 11000:localhost:11000 <user>@<hostname>.local
+```
+
+On first connection, accept the host fingerprint prompt by typing `yes`. You
+can then verify the connection:
+
+```bash
+hostname
+uname -a
+```
+
+Expected output:
+
+```
+spark-abcd
+Linux spark-abcd 6.x.y-nvidia-... #1 SMP ... aarch64 GNU/Linux
 ```
 
 Port forwarding maps a port on your local machine to a service running on the
