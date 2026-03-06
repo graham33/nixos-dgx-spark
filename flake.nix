@@ -215,25 +215,6 @@
           touch $out
         '';
 
-        apps.optimized-jax-container = {
-          type = "app";
-          program = "${pkgs.writeShellScript "optimized-jax-container" ''
-            set -euo pipefail
-            WORKDIR="$(mktemp -d)"
-            trap 'rm -rf "$WORKDIR"' EXIT
-            ${pkgs.git}/bin/git clone --depth 1 https://github.com/NVIDIA/dgx-spark-playbooks "$WORKDIR/playbooks"
-            ${pkgs.podman}/bin/podman build -t jax-on-spark "$WORKDIR/playbooks/nvidia/jax/assets"
-            exec ${pkgs.podman}/bin/podman run --rm -it \
-              --device nvidia.com/gpu=all \
-              --shm-size=1g \
-              --ulimit memlock=-1 \
-              --ulimit stack=67108864 \
-              -p 8080:8080 \
-              jax-on-spark
-          ''}";
-          meta.description = "Build and run NVIDIA optimised JAX container with GPU support";
-        };
-
         apps.pytorch-container = {
           type = "app";
           program = "${pkgs.writeShellScript "pytorch-container" ''
