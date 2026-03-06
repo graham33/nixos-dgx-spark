@@ -197,19 +197,6 @@
           touch $out
         '';
 
-        apps.cuda-x-data-science-container = {
-          type = "app";
-          program = "${pkgs.writeShellScript "cuda-x-data-science-container" ''
-            exec ${pkgs.podman}/bin/podman run --rm -it \
-              --device nvidia.com/gpu=all \
-              -p 8888:8888 \
-              -v "$PWD":/workspace \
-              -w /workspace \
-              docker.io/rapidsai/notebooks:25.12-cuda13-py3.12
-          ''}";
-          meta.description = "Run NVIDIA RAPIDS notebooks container with GPU-accelerated data science libraries";
-        };
-
         apps.pytorch-container = {
           type = "app";
           program = "${pkgs.writeShellScript "pytorch-container" ''

@@ -14,7 +14,7 @@ Spark.
 2. Launch the RAPIDS notebooks container:
 
    ```bash
-   nix run .#cuda-x-data-science-container
+   cuda-x-start
    ```
 
 3. Access JupyterLab at **http://localhost:8888**.
