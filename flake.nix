@@ -148,6 +148,7 @@
         };
 
         devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { };
+        devShells.live-vlm-webui = pkgs.callPackage ./playbooks/live-vlm-webui/shell.nix { };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { };
 
