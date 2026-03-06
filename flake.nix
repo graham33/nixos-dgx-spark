@@ -159,6 +159,7 @@
         };
 
         devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { inherit nixglhost; };
+        devShells.cuda-x-data-science = pkgs.callPackage ./playbooks/cuda-x-data-science/shell.nix { inherit nixglhost; };
         devShells.flux-dreambooth = pkgs.callPackage ./playbooks/flux-dreambooth/shell.nix { inherit nixglhost; };
         devShells.multimodal-inference = pkgs.callPackage ./playbooks/multimodal-inference/shell.nix { inherit nixglhost; };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { inherit nixglhost; };
@@ -213,6 +214,19 @@
           ${pythonForKernelConfig}/bin/python3 -m pytest test_generate_config.py -v
           touch $out
         '';
+
+        apps.cuda-x-data-science-container = {
+          type = "app";
+          program = "${pkgs.writeShellScript "cuda-x-data-science-container" ''
+            exec ${pkgs.podman}/bin/podman run --rm -it \
+              --device nvidia.com/gpu=all \
+              -p 8888:8888 \
+              -v "$PWD":/workspace \
+              -w /workspace \
+              docker.io/rapidsai/notebooks:25.12-cuda13-py3.12
+          ''}";
+          meta.description = "Run NVIDIA RAPIDS notebooks container with GPU-accelerated data science libraries";
+        };
 
         apps.pytorch-container = {
           type = "app";
