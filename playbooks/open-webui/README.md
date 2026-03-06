@@ -6,7 +6,8 @@ via Ollama on the NVIDIA DGX Spark.
 ## Usage
 
 ```bash
-nix run .#open-webui-container
+nix develop .#open-webui
+open-webui-start
 ```
 
 Then open your browser at **http://localhost:8080**.
