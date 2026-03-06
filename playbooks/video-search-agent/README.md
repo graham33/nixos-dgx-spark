@@ -26,7 +26,7 @@ on the DGX Spark.
 3. Start the VSS Event Reviewer (fully local):
 
    ```bash
-   nix run .#video-search-agent-container
+   vss-start [path/to/compose/dir]
    ```
 
 4. Access the UIs:
