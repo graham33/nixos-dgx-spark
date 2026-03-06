@@ -10,7 +10,7 @@ training) on the DGX Spark for robotics development.
 Run Isaac Sim in headless mode:
 
 ```bash
-nix run .#isaac-sim-container
+isaac-sim-container
 ```
 
 For GUI mode with X11 display:
@@ -18,7 +18,7 @@ For GUI mode with X11 display:
 ```bash
 export DISPLAY=:0
 xhost +local:
-nix run .#isaac-sim-container
+isaac-sim-container
 ```
 
 ### Build from Source (recommended for DGX Spark)
