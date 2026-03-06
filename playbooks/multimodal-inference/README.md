@@ -44,11 +44,11 @@ TensorRT Diffusion demos inside the PyTorch container.
 
 ## Supported Models
 
-| Model          | Script                  | Notes                          |
-| -------------- | ----------------------- | ------------------------------ |
-| Flux.1 Dev     | `demo_txt2img_flux.py`  | Default; BF16 or FP8           |
-| Flux.1 Schnell | `demo_txt2img_flux.py`  | `--version="flux.1-schnell"`   |
-| SDXL (xl-1.0)  | `demo_txt2img_xl.py`    | `--version xl-1.0`             |
+| Model          | Script                 | Notes                        |
+| -------------- | ---------------------- | ---------------------------- |
+| Flux.1 Dev     | `demo_txt2img_flux.py` | Default; BF16 or FP8         |
+| Flux.1 Schnell | `demo_txt2img_flux.py` | `--version="flux.1-schnell"` |
+| SDXL (xl-1.0)  | `demo_txt2img_xl.py`   | `--version xl-1.0`           |
 
 > **Note:** FP16 Flux.1 Schnell requires more than 48 GB VRAM for native export.
 
