@@ -21,10 +21,10 @@ using TensorRT-LLM.
 
    ```bash
    # EAGLE-3: built-in drafting head with openai/gpt-oss-120b
-   nix run .#speculative-decoding-eagle3
+   spec-eagle3
 
    # Draft-Target: Llama-3.1-8B drafts for Llama-3.3-70B
-   nix run .#speculative-decoding-draft-target
+   spec-draft-target
    ```
 
 3. In a separate terminal, test the server:
@@ -63,10 +63,12 @@ verifies in parallel.
 
 ## Available Commands
 
-- `nix run .#speculative-decoding-eagle3` - Start EAGLE-3 speculative decoding server
-- `nix run .#speculative-decoding-draft-target` - Start Draft-Target speculative decoding server
-- `nix run .#speculative-decoding-container` - Interactive TensorRT-LLM container shell
-- `spec-test-completions <model> [prompt]` - Test the running server (available in devshell)
+All commands are available inside `nix develop .#speculative-decoding`:
+
+- `spec-eagle3` - Start EAGLE-3 speculative decoding server
+- `spec-draft-target` - Start Draft-Target speculative decoding server
+- `spec-shell` - Interactive TensorRT-LLM container shell
+- `spec-test-completions <model> [prompt]` - Test the running server
 
 ## References
 
