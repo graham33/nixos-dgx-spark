@@ -170,6 +170,9 @@ After initializing the template, you'll need to:
 This repository includes devshells for various NVIDIA DGX Spark playbooks from https://build.nvidia.com/spark:
 
 - [ComfyUI](./playbooks/comfyui/README.md) - Run ComfyUI with Stable Diffusion 1.5 for AI image generation
+- [NeMo Fine-tuning](./playbooks/nemo-finetune/README.md) - Fine-tune models with NVIDIA NeMo framework
+- [PyTorch Fine-tuning](./playbooks/pytorch-finetune/README.md) - Fine-tune models with PyTorch on DGX Spark
+- [RAG Workbench](./playbooks/rag-workbench/README.md) - RAG application using NVIDIA AI Workbench
 - [vLLM Container](./playbooks/vllm-container/README.md) - Run vLLM inference server with Qwen2.5-Math-1.5B-Instruct model
 - [vLLM Nix](./playbooks/vllm-nix/README.md) - Run vLLM inference server natively with Qwen2.5-Math-1.5B-Instruct model (Nix native, no containers)
 
