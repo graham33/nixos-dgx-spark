@@ -150,6 +150,7 @@
         devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { };
+        devShells.rag-workbench = pkgs.callPackage ./playbooks/rag-workbench/shell.nix { };
 
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
 
@@ -202,6 +203,30 @@
             exec ${pkgs.podman}/bin/podman run --rm -it --device nvidia.com/gpu=all nvcr.io/nvidia/pytorch:25.11-py3 /bin/bash
           ''}";
           meta.description = "Run NVIDIA PyTorch container with GPU support";
+        };
+
+        apps.rag-workbench-container = {
+          type = "app";
+          program = "${pkgs.writeShellScript "rag-workbench-container" ''
+            if [ -z "$NVIDIA_API_KEY" ]; then
+              echo "Error: NVIDIA_API_KEY is not set."
+              echo "Generate one at https://org.ngc.nvidia.com/setup/api-keys"
+              exit 1
+            fi
+            if [ -z "$TAVILY_API_KEY" ]; then
+              echo "Error: TAVILY_API_KEY is not set."
+              echo "Generate one at https://tavily.com"
+              exit 1
+            fi
+            exec ${pkgs.podman}/bin/podman run --rm -it \
+              --device nvidia.com/gpu=all \
+              --shm-size=1g \
+              --network host \
+              -e NVIDIA_API_KEY="$NVIDIA_API_KEY" \
+              -e TAVILY_API_KEY="$TAVILY_API_KEY" \
+              nvcr.io/nvidia/ai-workbench/python-basic:1.0.8 /bin/bash
+          ''}";
+          meta.description = "Run NVIDIA AI Workbench RAG container with GPU support";
         };
 
         apps.generate-kernel-config = {
