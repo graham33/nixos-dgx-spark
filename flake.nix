@@ -205,18 +205,6 @@
           meta.description = "Run NVIDIA PyTorch container with GPU support";
         };
 
-        apps.vibe-coding-container = {
-          type = "app";
-          program = "${pkgs.writeShellScript "vibe-coding-container" ''
-            exec ${pkgs.podman}/bin/podman run --rm -it \
-              --device nvidia.com/gpu=all \
-              --network host \
-              -v ollama-data:/root/.ollama \
-              docker.io/ollama/ollama
-          ''}";
-          meta.description = "Ollama backend for AI-assisted vibe coding on DGX Spark";
-        };
-
         apps.generate-kernel-config = {
           type = "app";
           program = "${pkgs.writeShellScript "generate-kernel-config" ''

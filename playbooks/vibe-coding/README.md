@@ -8,7 +8,7 @@ VS Code, via the Continue.dev extension and Ollama.
 Start the Ollama backend:
 
 ```bash
-nix run .#vibe-coding-container
+vibe-coding-start
 ```
 
 This pulls and serves the `gpt-oss:120b` model (or `gpt-oss:20b` for less VRAM) via
