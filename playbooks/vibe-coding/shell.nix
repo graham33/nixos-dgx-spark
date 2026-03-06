@@ -2,6 +2,7 @@
 , podman
 , curl
 , jq
+, vscode
 }:
 
 mkShell {
@@ -9,6 +10,7 @@ mkShell {
     podman
     curl
     jq
+    vscode
   ];
 
   shellHook = ''
