@@ -55,6 +55,10 @@ ssh -L 11000:localhost:11000 -L <JUPYTER_PORT>:localhost:<JUPYTER_PORT> user@dgx
 > **Note:** DGX Spark hardware with DGX OS is required. The dashboard is
 > pre-installed and does not require a separate container.
 
+> **Future work:** This playbook currently only supports DGX OS. Packaging the
+> DGX Dashboard as a Nix derivation so it can run on NixOS is tracked in
+> [issue #105](https://github.com/graham33/nixos-dgx-spark/issues/105).
+
 ## Reference
 
 - [NVIDIA DGX Dashboard instructions](https://build.nvidia.com/spark/dgx-dashboard/instructions)
