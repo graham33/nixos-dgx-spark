@@ -150,6 +150,7 @@
         devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { };
+        devShells.trt-llm = pkgs.callPackage ./playbooks/trt-llm/shell.nix { };
 
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
 
@@ -202,6 +203,20 @@
             exec ${pkgs.podman}/bin/podman run --rm -it --device nvidia.com/gpu=all nvcr.io/nvidia/pytorch:25.11-py3 /bin/bash
           ''}";
           meta.description = "Run NVIDIA PyTorch container with GPU support";
+        };
+
+        apps.trt-llm-container = {
+          type = "app";
+          program = "${pkgs.writeShellScript "trt-llm-container" ''
+            exec ${pkgs.podman}/bin/podman run --rm -it \
+              --device nvidia.com/gpu=all \
+              --ipc=host \
+              --network host \
+              -e HF_TOKEN="''${HF_TOKEN:-}" \
+              -v "$HOME/.cache/huggingface/:/root/.cache/huggingface/" \
+              nvcr.io/nvidia/tensorrt-llm/release:1.2.0rc6 /bin/bash
+          ''}";
+          meta.description = "Run NVIDIA TensorRT-LLM container with GPU support";
         };
 
         apps.generate-kernel-config = {
