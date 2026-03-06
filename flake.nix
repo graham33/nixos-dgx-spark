@@ -150,6 +150,7 @@
         devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { };
+        devShells.video-search-agent = pkgs.callPackage ./playbooks/video-search-agent/shell.nix { };
 
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
 
@@ -210,6 +211,36 @@
             exec ${pythonForKernelConfig}/bin/python3 ${./scripts/generate-terse-dgx-config.py} "$@"
           ''}";
           meta.description = "Generate terse DGX kernel configuration";
+        };
+
+        apps.video-search-agent-container = {
+          type = "app";
+          program = "${pkgs.writeShellScript "video-search-agent-container" ''
+            set -euo pipefail
+
+            COMPOSE_DIR="''${1:-.}"
+
+            if [ ! -f "$COMPOSE_DIR/docker-compose.yml" ] && [ ! -f "$COMPOSE_DIR/compose.yaml" ]; then
+              echo "Error: No docker-compose.yml or compose.yaml found in $COMPOSE_DIR"
+              echo "Clone the VSS repository first — see the playbook README for details."
+              exit 1
+            fi
+
+            export IS_SBSA=1
+            export VLM_DEFAULT_NUM_FRAMES_PER_CHUNK=8
+            export ALERT_REVIEW_MEDIA_BASE_DIR="''${ALERT_REVIEW_MEDIA_BASE_DIR:-/tmp/alert-media-dir}"
+
+            echo "=== Video Search and Summarisation Agent ==="
+            echo "Starting VSS Event Reviewer (fully local)..."
+            echo ""
+            echo "UIs available after startup:"
+            echo "  CV UI:              http://localhost:7862"
+            echo "  Alert Inspector UI: http://localhost:7860"
+            echo ""
+
+            exec ${pkgs.podman-compose}/bin/podman-compose -f "$COMPOSE_DIR/docker-compose.yml" up
+          ''}";
+          meta.description = "Run VSS Event Reviewer containers with GPU support";
         };
       }
     );
