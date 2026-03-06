@@ -150,6 +150,7 @@
         devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { };
+        devShells.vibe-coding = pkgs.callPackage ./playbooks/vibe-coding/shell.nix { };
 
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
 
@@ -202,6 +203,18 @@
             exec ${pkgs.podman}/bin/podman run --rm -it --device nvidia.com/gpu=all nvcr.io/nvidia/pytorch:25.11-py3 /bin/bash
           ''}";
           meta.description = "Run NVIDIA PyTorch container with GPU support";
+        };
+
+        apps.vibe-coding-container = {
+          type = "app";
+          program = "${pkgs.writeShellScript "vibe-coding-container" ''
+            exec ${pkgs.podman}/bin/podman run --rm -it \
+              --device nvidia.com/gpu=all \
+              --network host \
+              -v ollama-data:/root/.ollama \
+              docker.io/ollama/ollama
+          ''}";
+          meta.description = "Ollama backend for AI-assisted vibe coding on DGX Spark";
         };
 
         apps.generate-kernel-config = {
