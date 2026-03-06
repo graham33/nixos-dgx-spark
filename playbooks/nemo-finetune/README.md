@@ -13,7 +13,7 @@ Fine-tune LLMs using the NVIDIA NeMo Automodel framework on the DGX Spark.
 2. Launch the container:
 
    ```bash
-   nix run .#nemo-finetune-container
+   nemo-start
    ```
 
 3. Inside the container, set up the environment:
