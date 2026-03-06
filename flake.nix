@@ -205,27 +205,6 @@
           meta.description = "Run NVIDIA PyTorch container with GPU support";
         };
 
-        apps.sglang-container = {
-          type = "app";
-          program = "${pkgs.writeShellScript "sglang-container" ''
-            exec ${pkgs.podman}/bin/podman run --rm -it \
-              --device nvidia.com/gpu=all \
-              --shm-size=1g \
-              --network host \
-              -v /tmp:/tmp \
-              lmsysorg/sglang:spark \
-              python3 -m sglang.launch_server \
-                --model-path meta-llama/Llama-3.1-8B-Instruct \
-                --host 0.0.0.0 \
-                --port 30000 \
-                --trust-remote-code \
-                --tp 1 \
-                --attention-backend flashinfer \
-                --mem-fraction-static 0.75
-          ''}";
-          meta.description = "Run SGLang inference server with GPU support";
-        };
-
         apps.generate-kernel-config = {
           type = "app";
           program = "${pkgs.writeShellScript "generate-kernel-config" ''

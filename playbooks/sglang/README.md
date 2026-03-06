@@ -6,7 +6,8 @@ for efficient inference on the NVIDIA DGX Spark.
 ## Usage
 
 ```bash
-nix run .#sglang-container
+nix develop /path/to/playbooks#sglang
+sglang-start
 ```
 
 The server runs on port 30000.
