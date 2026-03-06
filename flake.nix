@@ -231,19 +231,6 @@
           meta.description = "Generate terse DGX kernel configuration";
         };
 
-        apps.open-webui-container = {
-          type = "app";
-          program = "${pkgs.writeShellScript "open-webui-container" ''
-            exec ${pkgs.podman}/bin/podman run --rm -it \
-              --device nvidia.com/gpu=all \
-              -p 8080:8080 \
-              -v open-webui:/app/backend/data \
-              -v open-webui-ollama:/root/.ollama \
-              --name open-webui \
-              ghcr.io/open-webui/open-webui:ollama
-          ''}";
-          meta.description = "Run Open WebUI with Ollama for local LLM chat";
-        };
       }
     );
 }
