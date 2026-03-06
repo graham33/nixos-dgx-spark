@@ -5,7 +5,8 @@ Fine-tune LLMs using native PyTorch and HuggingFace PEFT on the DGX Spark.
 ## Usage
 
 ```bash
-nix run .#pytorch-finetune-container
+nix develop /home/graham/playbooks#pytorch-finetune
+pytorch-finetune
 ```
 
 ### Features

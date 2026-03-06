@@ -205,21 +205,6 @@
           meta.description = "Run NVIDIA PyTorch container with GPU support";
         };
 
-        apps.pytorch-finetune-container = {
-          type = "app";
-          program = "${pkgs.writeShellScript "pytorch-finetune-container" ''
-            exec ${pkgs.podman}/bin/podman run --rm -it \
-              --device nvidia.com/gpu=all \
-              --ipc=host \
-              -v "$HOME/.cache/huggingface:/root/.cache/huggingface" \
-              -v "$PWD:/workspace" \
-              -w /workspace \
-              nvcr.io/nvidia/pytorch:25.11-py3 \
-              /bin/bash -c "pip install transformers peft datasets trl bitsandbytes && exec /bin/bash"
-          ''}";
-          meta.description = "Run PyTorch fine-tuning container with GPU support and HuggingFace dependencies";
-        };
-
         apps.generate-kernel-config = {
           type = "app";
           program = "${pkgs.writeShellScript "generate-kernel-config" ''
