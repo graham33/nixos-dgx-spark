@@ -171,10 +171,13 @@ This repository includes devshells for various NVIDIA DGX Spark playbooks from h
 
 - [ComfyUI](./playbooks/comfyui/README.md) - Run ComfyUI with Stable Diffusion 1.5 for AI image generation
 - [Connect Two Sparks](./playbooks/connect-two-sparks/README.md) - Connect two DGX Spark systems together
+- [CUDA-X Data Science](./playbooks/cuda-x-data-science/README.md) - GPU-accelerated data science with RAPIDS
 - [Isaac Sim](./playbooks/isaac-sim/README.md) - Install and use Isaac Sim and Isaac Lab
 - [NeMo Fine-tuning](./playbooks/nemo-finetune/README.md) - Fine-tune models with NVIDIA NeMo framework
+- [NIM on Spark](./playbooks/nim-on-spark/README.md) - Run NVIDIA NIM microservices on DGX Spark
 - [PyTorch Fine-tuning](./playbooks/pytorch-finetune/README.md) - Fine-tune models with PyTorch on DGX Spark
 - [RAG Workbench](./playbooks/rag-workbench/README.md) - RAG application using NVIDIA AI Workbench
+- [Text to Knowledge Graph](./playbooks/text-to-knowledge-graph/README.md) - Build knowledge graphs from text with GPU acceleration
 - [vLLM Container](./playbooks/vllm-container/README.md) - Run vLLM inference server with Qwen2.5-Math-1.5B-Instruct model
 - [vLLM Nix](./playbooks/vllm-nix/README.md) - Run vLLM inference server natively with Qwen2.5-Math-1.5B-Instruct model (Nix native, no containers)
 
