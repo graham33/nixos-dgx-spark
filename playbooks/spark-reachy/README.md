@@ -53,13 +53,13 @@ controller, speech-to-text, text-to-speech, tracker, and UI server.
 
 ### AI models
 
-| Purpose            | Model                                     |
-| ------------------ | ----------------------------------------- |
+| Purpose            | Model                                    |
+| ------------------ | ---------------------------------------- |
 | LLM                | `openai/gpt-oss-20b` (TensorRT-LLM)      |
-| Image generation   | `black-forest-labs/FLUX.1-Kontext-dev`    |
-| Speech recognition | `nvidia/riva-parakeet-ctc-1.1B`           |
-| Speech synthesis   | `hexgrad/Kokoro-82M`                      |
-| Vision / tracking  | `facebookresearch/detectron2`, ByteTrack  |
+| Image generation   | `black-forest-labs/FLUX.1-Kontext-dev`   |
+| Speech recognition | `nvidia/riva-parakeet-ctc-1.1B`          |
+| Speech synthesis   | `hexgrad/Kokoro-82M`                     |
+| Vision / tracking  | `facebookresearch/detectron2`, ByteTrack |
 
 ## Time estimate
 
