@@ -148,6 +148,7 @@
         };
 
         devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { };
+        devShells.isaac-sim = pkgs.callPackage ./playbooks/isaac-sim/shell.nix { };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { };
 
@@ -195,6 +196,40 @@
           ${pythonForKernelConfig}/bin/python3 -m pytest test_generate_config.py -v
           touch $out
         '';
+
+        apps.isaac-sim-container = {
+          type = "app";
+          program = "${pkgs.writeShellScript "isaac-sim-container" ''
+            CACHE_DIR="''${HOME}/docker/isaac-sim"
+            mkdir -p "$CACHE_DIR/cache/main" \
+                     "$CACHE_DIR/cache/computecache" \
+                     "$CACHE_DIR/logs" \
+                     "$CACHE_DIR/config" \
+                     "$CACHE_DIR/data" \
+                     "$CACHE_DIR/pkg"
+
+            DISPLAY_FLAGS=""
+            if [ -n "''${DISPLAY:-}" ]; then
+              DISPLAY_FLAGS="-e DISPLAY -v $HOME/.Xauthority:/isaac-sim/.Xauthority"
+            fi
+
+            exec ${pkgs.podman}/bin/podman run --rm -it \
+              --device nvidia.com/gpu=all \
+              --network host \
+              -e "ACCEPT_EULA=Y" \
+              -e "PRIVACY_CONSENT=Y" \
+              $DISPLAY_FLAGS \
+              -v "$CACHE_DIR/cache/main:/isaac-sim/.cache:rw" \
+              -v "$CACHE_DIR/cache/computecache:/isaac-sim/.nv/ComputeCache:rw" \
+              -v "$CACHE_DIR/logs:/isaac-sim/.nvidia-omniverse/logs:rw" \
+              -v "$CACHE_DIR/config:/isaac-sim/.nvidia-omniverse/config:rw" \
+              -v "$CACHE_DIR/data:/isaac-sim/.local/share/ov/data:rw" \
+              -v "$CACHE_DIR/pkg:/isaac-sim/.local/share/ov/pkg:rw" \
+              nvcr.io/nvidia/isaac-sim:5.1.0 \
+              "$@"
+          ''}";
+          meta.description = "Run NVIDIA Isaac Sim container with GPU support";
+        };
 
         apps.pytorch-container = {
           type = "app";
