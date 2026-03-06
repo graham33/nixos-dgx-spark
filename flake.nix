@@ -161,6 +161,7 @@
         devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { inherit nixglhost; };
         devShells.flux-dreambooth = pkgs.callPackage ./playbooks/flux-dreambooth/shell.nix { inherit nixglhost; };
         devShells.multimodal-inference = pkgs.callPackage ./playbooks/multimodal-inference/shell.nix { inherit nixglhost; };
+        devShells.nemo-finetune = pkgs.callPackage ./playbooks/nemo-finetune/shell.nix { inherit nixglhost; };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { inherit nixglhost; };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { inherit nixglhost; };
         devShells.speculative-decoding = pkgs.callPackage ./playbooks/speculative-decoding/shell.nix { inherit nixglhost; };
@@ -213,6 +214,22 @@
           ${pythonForKernelConfig}/bin/python3 -m pytest test_generate_config.py -v
           touch $out
         '';
+
+        apps.nemo-finetune-container = {
+          type = "app";
+          program = "${pkgs.writeShellScript "nemo-finetune-container" ''
+            exec ${pkgs.podman}/bin/podman run --rm -it \
+              --device nvidia.com/gpu=all \
+              --shm-size=8g \
+              --ulimit memlock=-1 \
+              --ulimit stack=67108864 \
+              --entrypoint /usr/bin/bash \
+              -v "$PWD":/workspace \
+              -w /workspace \
+              nvcr.io/nvidia/pytorch:25.11-py3
+          ''}";
+          meta.description = "Run NeMo fine-tuning container with GPU support";
+        };
 
         apps.pytorch-container = {
           type = "app";
