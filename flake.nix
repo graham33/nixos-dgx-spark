@@ -148,6 +148,7 @@
         };
 
         devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { };
+        devShells.live-vlm-webui = pkgs.callPackage ./playbooks/live-vlm-webui/shell.nix { };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { };
 
@@ -210,6 +211,16 @@
             exec ${pythonForKernelConfig}/bin/python3 ${./scripts/generate-terse-dgx-config.py} "$@"
           ''}";
           meta.description = "Generate terse DGX kernel configuration";
+        };
+
+        apps.live-vlm-webui-container = {
+          type = "app";
+          program = "${pkgs.writeShellScript "live-vlm-webui-container" ''
+            exec ${pkgs.podman}/bin/podman run --rm -it \
+              --network host \
+              ghcr.io/nvidia-ai-iot/live-vlm-webui:latest
+          ''}";
+          meta.description = "Run Live VLM WebUI container (GPU, port 8090, Ollama on 11434)";
         };
       }
     );
