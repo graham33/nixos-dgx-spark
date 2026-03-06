@@ -5,7 +5,8 @@ Deploy a multi-agent chatbot system using LLM orchestration on the DGX Spark.
 ## Usage
 
 ```bash
-nix run .#multi-agent-chatbot-container
+nix develop .#multi-agent-chatbot
+multi-agent-chatbot-start
 ```
 
 On first run the launcher clones the
@@ -15,12 +16,6 @@ launches skip the download.
 
 The frontend is served at <http://localhost:3000> and the backend API at
 <http://localhost:8000>.
-
-### Development shell
-
-```bash
-nix develop .#multi-agent-chatbot
-```
 
 ### Architecture
 

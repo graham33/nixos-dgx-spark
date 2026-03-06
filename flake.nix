@@ -205,36 +205,6 @@
           meta.description = "Run NVIDIA PyTorch container with GPU support";
         };
 
-        apps.multi-agent-chatbot-container = {
-          type = "app";
-          program = "${pkgs.writeShellScript "multi-agent-chatbot-container" ''
-            set -euo pipefail
-            PLAYBOOK_DIR="''${MULTI_AGENT_CHATBOT_DIR:-$HOME/dgx-spark-playbooks/nvidia/multi-agent-chatbot/assets}"
-
-            if [ ! -d "$PLAYBOOK_DIR" ]; then
-              echo "Cloning NVIDIA DGX Spark playbooks..."
-              ${pkgs.git}/bin/git clone https://github.com/NVIDIA/dgx-spark-playbooks "$HOME/dgx-spark-playbooks"
-            fi
-
-            cd "$PLAYBOOK_DIR"
-
-            if [ ! -d models ] || [ -z "$(ls -A models 2>/dev/null)" ]; then
-              echo "Downloading models (~114 GB, this may take a while)..."
-              chmod +x model_download.sh
-              ./model_download.sh
-            fi
-
-            echo "Starting multi-agent chatbot services..."
-            echo "Frontend: http://localhost:3000"
-            echo "Backend:  http://localhost:8000"
-            exec ${pkgs.podman-compose}/bin/podman-compose \
-              -f docker-compose.yml \
-              -f docker-compose-models.yml \
-              up --build
-          ''}";
-          meta.description = "Run multi-agent chatbot with GPU support via containers";
-        };
-
         apps.generate-kernel-config = {
           type = "app";
           program = "${pkgs.writeShellScript "generate-kernel-config" ''
