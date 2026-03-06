@@ -170,6 +170,7 @@ After initializing the template, you'll need to:
 This repository includes devshells for various NVIDIA DGX Spark playbooks from https://build.nvidia.com/spark:
 
 - [ComfyUI](./playbooks/comfyui/README.md) - Run ComfyUI with Stable Diffusion 1.5 for AI image generation
+- [DGX Dashboard](./playbooks/dgx-dashboard/README.md) - Set up DGX Dashboard for system monitoring
 - [vLLM Container](./playbooks/vllm-container/README.md) - Run vLLM inference server with Qwen2.5-Math-1.5B-Instruct model
 - [vLLM Nix](./playbooks/vllm-nix/README.md) - Run vLLM inference server natively with Qwen2.5-Math-1.5B-Instruct model (Nix native, no containers)
 
