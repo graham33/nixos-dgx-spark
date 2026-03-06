@@ -1,6 +1,6 @@
 { mkShell
 , curl
-, git
+, fetchFromGitHub
 , jq
 , podman
 }:
@@ -8,12 +8,16 @@
 let
   ragPort = "8080";
   workbenchImage = "nvcr.io/nvidia/ai-workbench/python-basic:1.0.8";
-  ragRepo = "https://github.com/NVIDIA/workbench-example-agentic-rag";
+  ragWorkbenchSrc = fetchFromGitHub {
+    owner = "NVIDIA";
+    repo = "workbench-example-agentic-rag";
+    rev = "main";
+    hash = "sha256-mYsXNvUiXqOX2epC5CmE15jIIoWEVe6rUwItosNavOM=";
+  };
 in
 mkShell {
   packages = [
     curl
-    git
     jq
     podman
   ];
@@ -27,8 +31,7 @@ mkShell {
     echo "  - NVIDIA_API_KEY (https://org.ngc.nvidia.com/setup/api-keys)"
     echo "  - TAVILY_API_KEY (https://tavily.com)"
     echo ""
-    echo "To clone the example repository:"
-    echo "  rag-clone"
+    echo "Source available at: ${ragWorkbenchSrc}"
     echo ""
     echo "To start the RAG application:"
     echo "  rag-start"
@@ -37,15 +40,7 @@ mkShell {
     echo "  rag-test \"How do I add an integration in the CLI?\""
     echo ""
 
-    # Clone the agentic RAG example repository
-    rag-clone() {
-      if [ -d workbench-example-agentic-rag ]; then
-        echo "Repository already cloned."
-        return
-      fi
-      echo "Cloning ${ragRepo}..."
-      ${git}/bin/git clone ${ragRepo}
-    }
+    export RAG_WORKBENCH_SRC="${ragWorkbenchSrc}"
 
     # Start the RAG application container
     rag-start() {
@@ -59,10 +54,6 @@ mkShell {
         echo "Generate one at https://tavily.com"
         return 1
       fi
-      if [ ! -d workbench-example-agentic-rag ]; then
-        echo "Repository not found. Run rag-clone first."
-        return 1
-      fi
       echo "Starting RAG application on port ${ragPort}..."
       exec ${podman}/bin/podman run --rm -it \
         --device nvidia.com/gpu=all \
@@ -70,7 +61,7 @@ mkShell {
         --network host \
         -e NVIDIA_API_KEY="$NVIDIA_API_KEY" \
         -e TAVILY_API_KEY="$TAVILY_API_KEY" \
-        -v "$PWD/workbench-example-agentic-rag":/project/code \
+        -v "${ragWorkbenchSrc}":/project/code \
         -w /project/code \
         ${workbenchImage} \
         /bin/bash -c "pip install -r requirements.txt && python3 -m chatui"
@@ -85,7 +76,6 @@ mkShell {
         -d "{\"data\": [\"$query\"]}" | ${jq}/bin/jq '.'
     }
 
-    export -f rag-clone
     export -f rag-start
     export -f rag-test
   '';

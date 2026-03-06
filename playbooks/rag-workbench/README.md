@@ -25,30 +25,23 @@ export TAVILY_API_KEY="your-tavily-api-key"
    nix develop .#rag-workbench
    ```
 
-2. Clone the example repository:
-
-   ```bash
-   rag-clone
-   ```
-
-3. Start the RAG application:
+2. Start the RAG application:
 
    ```bash
    rag-start
    ```
 
-4. In a separate terminal, test the application:
+3. In a separate terminal, test the application:
 
    ```bash
    nix develop .#rag-workbench
    rag-test "How do I add an integration in the CLI?"
    ```
 
-5. Alternatively, open the Gradio web interface at `http://localhost:8080`
+4. Alternatively, open the Gradio web interface at `http://localhost:8080`
 
 ## Available Commands
 
-- `rag-clone` — Clone the NVIDIA agentic RAG example repository
 - `rag-start` — Start the RAG application container with GPU support
 - `rag-test <query>` — Test the application with a query
 
