@@ -148,6 +148,7 @@
         };
 
         devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { };
+        devShells.portfolio-optimization = pkgs.callPackage ./playbooks/portfolio-optimization/shell.nix { };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { };
 
@@ -195,6 +196,20 @@
           ${pythonForKernelConfig}/bin/python3 -m pytest test_generate_config.py -v
           touch $out
         '';
+
+        apps.portfolio-optimization-container = {
+          type = "app";
+          program = "${pkgs.writeShellScript "portfolio-optimization-container" ''
+            exec ${pkgs.podman}/bin/podman run --rm -it \
+              --device nvidia.com/gpu=all \
+              --shm-size=1g \
+              -p 8888:8888 \
+              -p 8787:8787 \
+              -p 8786:8786 \
+              nvcr.io/nvidia/rapidsai/notebooks:25.10-cuda13-py3.13
+          ''}";
+          meta.description = "GPU-accelerated portfolio optimisation with NVIDIA RAPIDS";
+        };
 
         apps.pytorch-container = {
           type = "app";
