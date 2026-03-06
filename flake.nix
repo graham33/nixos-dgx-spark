@@ -217,22 +217,6 @@
           touch $out
         '';
 
-        apps.nemo-finetune-container = {
-          type = "app";
-          program = "${pkgs.writeShellScript "nemo-finetune-container" ''
-            exec ${pkgs.podman}/bin/podman run --rm -it \
-              --device nvidia.com/gpu=all \
-              --shm-size=8g \
-              --ulimit memlock=-1 \
-              --ulimit stack=67108864 \
-              --entrypoint /usr/bin/bash \
-              -v "$PWD":/workspace \
-              -w /workspace \
-              nvcr.io/nvidia/pytorch:25.11-py3
-          ''}";
-          meta.description = "Run NeMo fine-tuning container with GPU support";
-        };
-
         apps.pytorch-container = {
           type = "app";
           program = "${pkgs.writeShellScript "pytorch-container" ''
