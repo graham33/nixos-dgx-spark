@@ -31,15 +31,6 @@ analysis using Ollama.
 - `live-vlm-models` — List models available in Ollama
 - `live-vlm-stop` — Stop all Live VLM containers
 
-## Running the Container Directly
-
-```bash
-nix run .#live-vlm-webui-container
-```
-
-This starts only the WebUI container. You must have Ollama running separately on
-port 11434.
-
 ## Supported Models
 
 | Model             | Size | Use Case                      |
