@@ -148,6 +148,7 @@
         };
 
         devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { };
+        devShells.llama-factory = pkgs.callPackage ./playbooks/llama-factory/shell.nix { };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { };
 
@@ -202,6 +203,21 @@
             exec ${pkgs.podman}/bin/podman run --rm -it --device nvidia.com/gpu=all nvcr.io/nvidia/pytorch:25.11-py3 /bin/bash
           ''}";
           meta.description = "Run NVIDIA PyTorch container with GPU support";
+        };
+
+        apps.llama-factory-container = {
+          type = "app";
+          program = "${pkgs.writeShellScript "llama-factory-container" ''
+            exec ${pkgs.podman}/bin/podman run --rm -it \
+              --device nvidia.com/gpu=all \
+              --ipc=host \
+              --network host \
+              -v "''${HUGGINGFACE_HUB_CACHE:-$HOME/.cache/huggingface/hub}":/root/.cache/huggingface/hub \
+              -e GRADIO_SERVER_NAME=0.0.0.0 \
+              docker.io/hiyouga/llamafactory:latest \
+              llamafactory-cli webui
+          ''}";
+          meta.description = "Run LLaMA Factory WebUI container with GPU support";
         };
 
         apps.generate-kernel-config = {
