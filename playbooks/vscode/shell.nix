@@ -1,10 +1,12 @@
 { mkShell
 , openssh
+, vscode
 }:
 
 mkShell {
   packages = [
     openssh
+    vscode
   ];
 
   shellHook = ''
