@@ -233,15 +233,6 @@
           meta.description = "Generate terse DGX kernel configuration";
         };
 
-        apps.live-vlm-webui-container = {
-          type = "app";
-          program = "${pkgs.writeShellScript "live-vlm-webui-container" ''
-            exec ${pkgs.podman}/bin/podman run --rm -it \
-              --network host \
-              ghcr.io/nvidia-ai-iot/live-vlm-webui:latest
-          ''}";
-          meta.description = "Run Live VLM WebUI container (GPU, port 8090, Ollama on 11434)";
-        };
       }
     );
 }
