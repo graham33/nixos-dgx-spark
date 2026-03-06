@@ -197,20 +197,6 @@
           touch $out
         '';
 
-        apps.multimodal-inference-container = {
-          type = "app";
-          program = "${pkgs.writeShellScript "multimodal-inference-container" ''
-            exec ${pkgs.podman}/bin/podman run --rm -it \
-              --device nvidia.com/gpu=all \
-              --ipc=host \
-              --ulimit memlock=-1 \
-              --ulimit stack=67108864 \
-              -v "$HOME/.cache/huggingface:/root/.cache/huggingface" \
-              nvcr.io/nvidia/pytorch:25.11-py3 /bin/bash
-          ''}";
-          meta.description = "Run multi-modal inference container with GPU support";
-        };
-
         apps.pytorch-container = {
           type = "app";
           program = "${pkgs.writeShellScript "pytorch-container" ''

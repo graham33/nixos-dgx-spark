@@ -19,7 +19,7 @@ TensorRT Diffusion demos inside the PyTorch container.
 2. Launch the container with GPU support:
 
    ```bash
-   nix run .#multimodal-inference-container
+   multimodal-inference-container
    ```
 
 3. Inside the container, set up TensorRT Diffusion:
