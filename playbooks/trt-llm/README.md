@@ -42,14 +42,6 @@ fusion and quantisation on the DGX Spark.
 - `trt-llm-serve [MODEL]` - Start an OpenAI-compatible API server (port 8355)
 - `trt-llm-test [PROMPT]` - Send a chat completion request to the running server
 
-## Container App
-
-You can also launch the container directly:
-
-```bash
-nix run .#trt-llm-container
-```
-
 ## Default Model
 
 The default model is `nvidia/Llama-3.1-8B-Instruct-FP4`, an FP4-quantised
