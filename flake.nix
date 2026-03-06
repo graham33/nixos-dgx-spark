@@ -148,6 +148,7 @@
         };
 
         devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { };
+        devShells.cuda-x-data-science = pkgs.callPackage ./playbooks/cuda-x-data-science/shell.nix { };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { };
 
@@ -195,6 +196,19 @@
           ${pythonForKernelConfig}/bin/python3 -m pytest test_generate_config.py -v
           touch $out
         '';
+
+        apps.cuda-x-data-science-container = {
+          type = "app";
+          program = "${pkgs.writeShellScript "cuda-x-data-science-container" ''
+            exec ${pkgs.podman}/bin/podman run --rm -it \
+              --device nvidia.com/gpu=all \
+              -p 8888:8888 \
+              -v "$PWD":/workspace \
+              -w /workspace \
+              docker.io/rapidsai/notebooks:25.12-cuda13-py3.12
+          ''}";
+          meta.description = "Run NVIDIA RAPIDS notebooks container with GPU-accelerated data science libraries";
+        };
 
         apps.pytorch-container = {
           type = "app";
