@@ -225,6 +225,7 @@ This repository includes devshells for various NVIDIA DGX Spark playbooks from h
 | [ComfyUI](./playbooks/comfyui/README.md)                            | Run ComfyUI with Stable Diffusion 1.5 for AI image generation   |       ✅        |                  |
 | [DGX Dashboard](./playbooks/dgx-dashboard/README.md)                | Set up DGX Dashboard for system monitoring                      |       ✅        |       ☑️¹        |
 | [FLUX.1 Dreambooth](./playbooks/flux-dreambooth/README.md)          | FLUX.1 Dreambooth LoRA fine-tuning                              |       ✅        |                  |
+| [Live VLM WebUI](./playbooks/live-vlm-webui/README.md)              | Live vision-language model web interface                        |       ✅        |                  |
 | [Multi-modal Inference](./playbooks/multimodal-inference/README.md) | Run multi-modal inference with vision-language models           |       ✅        |                  |
 | [NCCL for Two Sparks](./playbooks/nccl-two-sparks/README.md)        | Multi-node GPU communication with NCCL                          |       ✅        |       ☑️¹        |
 | [Speculative Decoding](./playbooks/speculative-decoding/README.md)  | Speculative decoding for faster inference                       |       ✅        |                  |
