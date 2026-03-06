@@ -161,6 +161,7 @@
         devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { inherit nixglhost; };
         devShells.flux-dreambooth = pkgs.callPackage ./playbooks/flux-dreambooth/shell.nix { inherit nixglhost; };
         devShells.multimodal-inference = pkgs.callPackage ./playbooks/multimodal-inference/shell.nix { inherit nixglhost; };
+        devShells.pytorch-finetune = pkgs.callPackage ./playbooks/pytorch-finetune/shell.nix { inherit nixglhost; };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { inherit nixglhost; };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { inherit nixglhost; };
         devShells.speculative-decoding = pkgs.callPackage ./playbooks/speculative-decoding/shell.nix { inherit nixglhost; };
@@ -220,6 +221,21 @@
             exec ${pkgs.podman}/bin/podman run --rm -it --device nvidia.com/gpu=all nvcr.io/nvidia/pytorch:25.11-py3 /bin/bash
           ''}";
           meta.description = "Run NVIDIA PyTorch container with GPU support";
+        };
+
+        apps.pytorch-finetune-container = {
+          type = "app";
+          program = "${pkgs.writeShellScript "pytorch-finetune-container" ''
+            exec ${pkgs.podman}/bin/podman run --rm -it \
+              --device nvidia.com/gpu=all \
+              --ipc=host \
+              -v "$HOME/.cache/huggingface:/root/.cache/huggingface" \
+              -v "$PWD:/workspace" \
+              -w /workspace \
+              nvcr.io/nvidia/pytorch:25.11-py3 \
+              /bin/bash -c "pip install transformers peft datasets trl bitsandbytes && exec /bin/bash"
+          ''}";
+          meta.description = "Run PyTorch fine-tuning container with GPU support and HuggingFace dependencies";
         };
 
         apps.generate-kernel-config = {
