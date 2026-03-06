@@ -25,6 +25,7 @@ mkShell {
     echo "  flux-download         Download FLUX.1-dev model weights (30-45 min)"
     echo "  flux-train            Run Dreambooth LoRA fine-tuning (~90 min)"
     echo "  flux-comfyui          Launch ComfyUI for inference (http://localhost:8188)"
+    echo "  flux-pytorch-shell    Drop into a bare PyTorch container with workspace mounted"
     echo ""
 
     export FLUX_WORKSPACE="''${FLUX_WORKSPACE:-$PWD/flux-workspace}"
@@ -178,6 +179,21 @@ mkShell {
         python main.py
     }
 
-    export -f flux-build-train flux-build-comfyui flux-download flux-train flux-comfyui _flux-ensure-workspace
+    flux-pytorch-shell() {
+      _flux-ensure-workspace
+      echo "Dropping into PyTorch container with workspace mounted..."
+      exec ${podman}/bin/podman run --rm -it \
+        --device nvidia.com/gpu=all \
+        --ipc=host \
+        --network host \
+        --shm-size=8g \
+        --ulimit memlock=-1 \
+        --ulimit stack=67108864 \
+        -v "$HOME/.cache/huggingface":/root/.cache/huggingface \
+        -v "$FLUX_WORKSPACE":/workspace \
+        nvcr.io/nvidia/pytorch:25.09-py3 /bin/bash
+    }
+
+    export -f flux-build-train flux-build-comfyui flux-download flux-train flux-comfyui flux-pytorch-shell _flux-ensure-workspace
   '';
 }

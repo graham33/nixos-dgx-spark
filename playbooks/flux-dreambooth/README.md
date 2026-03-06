@@ -53,13 +53,14 @@ DGX Spark, then generate images with ComfyUI.
 
 ## Available Commands
 
-| Command              | Description                                 |
-| -------------------- | ------------------------------------------- |
-| `flux-build-train`   | Build the training container image          |
-| `flux-build-comfyui` | Build the ComfyUI inference container image |
-| `flux-download`      | Download FLUX.1-dev model weights           |
-| `flux-train`         | Run Dreambooth LoRA fine-tuning             |
-| `flux-comfyui`       | Launch ComfyUI for image generation         |
+| Command              | Description                                               |
+| -------------------- | --------------------------------------------------------- |
+| `flux-build-train`   | Build the training container image                        |
+| `flux-build-comfyui` | Build the ComfyUI inference container image               |
+| `flux-download`      | Download FLUX.1-dev model weights                         |
+| `flux-train`         | Run Dreambooth LoRA fine-tuning                           |
+| `flux-comfyui`       | Launch ComfyUI for image generation                       |
+| `flux-pytorch-shell` | Drop into a bare PyTorch container with workspace mounted |
 
 ## Workspace Layout
 
