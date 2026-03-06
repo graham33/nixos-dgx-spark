@@ -6,7 +6,8 @@ enabling larger models to fit in GPU memory on the DGX Spark.
 ## Usage
 
 ```bash
-nix run .#nvfp4-container
+nix develop .#nvfp4
+nvfp4-start
 ```
 
 ### What is NVFP4?

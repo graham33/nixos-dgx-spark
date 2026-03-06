@@ -197,23 +197,6 @@
           touch $out
         '';
 
-        apps.nvfp4-container = {
-          type = "app";
-          program = "${pkgs.writeShellScript "nvfp4-container" ''
-            exec ${pkgs.podman}/bin/podman run --rm -it \
-              --device nvidia.com/gpu=all \
-              --ipc=host \
-              --ulimit memlock=-1 \
-              --ulimit stack=67108864 \
-              -v "./output_models:/workspace/output_models" \
-              -v "$HOME/.cache/huggingface:/root/.cache/huggingface" \
-              ''${HF_TOKEN:+-e HF_TOKEN="$HF_TOKEN"} \
-              nvcr.io/nvidia/tensorrt-llm/release:spark-single-gpu-dev \
-              /bin/bash
-          ''}";
-          meta.description = "Run NVIDIA TensorRT-LLM container for NVFP4 quantisation";
-        };
-
         apps.pytorch-container = {
           type = "app";
           program = "${pkgs.writeShellScript "pytorch-container" ''
