@@ -227,6 +227,7 @@ This repository includes devshells for various NVIDIA DGX Spark playbooks from h
 | [FLUX.1 Dreambooth](./playbooks/flux-dreambooth/README.md)          | FLUX.1 Dreambooth LoRA fine-tuning                              |       ✅        |                  |
 | [Multi-modal Inference](./playbooks/multimodal-inference/README.md) | Run multi-modal inference with vision-language models           |       ✅        |                  |
 | [NCCL for Two Sparks](./playbooks/nccl-two-sparks/README.md)        | Multi-node GPU communication with NCCL                          |       ✅        |       ☑️¹        |
+| [Portfolio Optimisation](./playbooks/portfolio-optimization/README.md) | GPU-accelerated portfolio optimisation with cuOpt            |       ✅        |                  |
 | [Speculative Decoding](./playbooks/speculative-decoding/README.md)  | Speculative decoding for faster inference                       |       ✅        |                  |
 | [TRT-LLM](./playbooks/trt-llm/README.md)                            | TensorRT-LLM for optimised inference                            |       ✅        |                  |
 | [vLLM Container](./playbooks/vllm-container/README.md)              | Run vLLM inference server with Qwen2.5-Math-1.5B-Instruct model |       ✅        |                  |
