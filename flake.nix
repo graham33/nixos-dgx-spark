@@ -205,23 +205,6 @@
           meta.description = "Run NVIDIA PyTorch container with GPU support";
         };
 
-        apps.unsloth-container = {
-          type = "app";
-          program = "${pkgs.writeShellScript "unsloth-container" ''
-            exec ${pkgs.podman}/bin/podman run --rm -it \
-              --device nvidia.com/gpu=all \
-              --shm-size=8g \
-              -v "''${HF_HOME:-$HOME/.cache/huggingface}":/root/.cache/huggingface \
-              nvcr.io/nvidia/pytorch:25.11-py3 \
-              /usr/bin/bash -c '
-                pip install transformers peft hf_transfer "datasets==4.3.0" "trl==0.26.1" && \
-                pip install --no-deps unsloth unsloth_zoo bitsandbytes && \
-                exec /usr/bin/bash
-              '
-          ''}";
-          meta.description = "Run Unsloth LoRA fine-tuning environment on DGX Spark";
-        };
-
         apps.generate-kernel-config = {
           type = "app";
           program = "${pkgs.writeShellScript "generate-kernel-config" ''
