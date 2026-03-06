@@ -205,19 +205,6 @@
           meta.description = "Run NVIDIA PyTorch container with GPU support";
         };
 
-        apps.scrna-seq-container = {
-          type = "app";
-          program = "${pkgs.writeShellScript "scrna-seq-container" ''
-            exec ${pkgs.podman}/bin/podman run --rm -it \
-              --device nvidia.com/gpu=all \
-              --shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 \
-              -p 8888:8888 -p 8787:8787 -p 8786:8786 -p 8501:8501 -p 8050:8050 \
-              -v "$PWD":/workspace \
-              nvcr.io/nvidia/rapidsai/notebooks:25.10-cuda13-py3.13
-          ''}";
-          meta.description = "GPU-accelerated single-cell RNA sequencing with RAPIDS";
-        };
-
         apps.generate-kernel-config = {
           type = "app";
           program = "${pkgs.writeShellScript "generate-kernel-config" ''
