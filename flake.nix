@@ -150,7 +150,6 @@
         devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { };
-        devShells.tailscale = pkgs.callPackage ./playbooks/tailscale/shell.nix { };
 
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
 
