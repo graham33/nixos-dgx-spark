@@ -163,6 +163,7 @@
         devShells.flux-dreambooth = pkgs.callPackage ./playbooks/flux-dreambooth/shell.nix { inherit nixglhost; };
         devShells.multimodal-inference = pkgs.callPackage ./playbooks/multimodal-inference/shell.nix { inherit nixglhost; };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { inherit nixglhost; };
+        devShells.unsloth = pkgs.callPackage ./playbooks/unsloth/shell.nix { inherit nixglhost; };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { inherit nixglhost; };
         devShells.speculative-decoding = pkgs.callPackage ./playbooks/speculative-decoding/shell.nix { inherit nixglhost; };
         devShells.trt-llm = pkgs.callPackage ./playbooks/trt-llm/shell.nix { inherit nixglhost; };
@@ -222,6 +223,23 @@
             exec ${pkgs.podman}/bin/podman run --rm -it --device nvidia.com/gpu=all nvcr.io/nvidia/pytorch:25.11-py3 /bin/bash
           ''}";
           meta.description = "Run NVIDIA PyTorch container with GPU support";
+        };
+
+        apps.unsloth-container = {
+          type = "app";
+          program = "${pkgs.writeShellScript "unsloth-container" ''
+            exec ${pkgs.podman}/bin/podman run --rm -it \
+              --device nvidia.com/gpu=all \
+              --shm-size=8g \
+              -v "''${HF_HOME:-$HOME/.cache/huggingface}":/root/.cache/huggingface \
+              nvcr.io/nvidia/pytorch:25.11-py3 \
+              /usr/bin/bash -c '
+                pip install transformers peft hf_transfer "datasets==4.3.0" "trl==0.26.1" && \
+                pip install --no-deps unsloth unsloth_zoo bitsandbytes && \
+                exec /usr/bin/bash
+              '
+          ''}";
+          meta.description = "Run Unsloth LoRA fine-tuning environment on DGX Spark";
         };
 
         apps.generate-kernel-config = {
