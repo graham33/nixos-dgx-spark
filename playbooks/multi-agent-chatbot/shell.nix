@@ -1,4 +1,5 @@
 { mkShell
+, podman
 , podman-compose
 , curl
 , jq
@@ -15,6 +16,7 @@ let
 in
 mkShell {
   packages = [
+    podman
     podman-compose
     curl
     jq
