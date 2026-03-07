@@ -35,43 +35,13 @@ mkShell {
     }
 
     flux-build-train() {
-      local tmpdir
-      tmpdir=$(mktemp -d)
-      cat > "$tmpdir/Dockerfile" << 'DOCKERFILE'
-    FROM nvcr.io/nvidia/pytorch:25.09-py3
-    RUN cd /workspace/ && \
-        git clone https://github.com/kohya-ss/sd-scripts.git && \
-        cd sd-scripts && \
-        git checkout sd3 && \
-        pip install -r requirements.txt && \
-        apt update && \
-        apt install -y libgl1-mesa-dev
-    WORKDIR /workspace/sd-scripts
-    CMD ["/bin/bash"]
-    DOCKERFILE
       echo "Building flux-train image..."
-      ${podman}/bin/podman build -f "$tmpdir/Dockerfile" -t flux-train "$tmpdir"
-      rm -rf "$tmpdir"
+      ${podman}/bin/podman build -f ${./Dockerfile.train} -t flux-train $(dirname ${./Dockerfile.train})
     }
 
     flux-build-comfyui() {
-      local tmpdir
-      tmpdir=$(mktemp -d)
-      cat > "$tmpdir/Dockerfile" << 'DOCKERFILE'
-    FROM nvcr.io/nvidia/pytorch:25.09-py3
-    RUN cd /workspace/ && \
-        git clone https://github.com/comfyanonymous/ComfyUI.git && \
-        cd ComfyUI && \
-        git checkout 4ffea0e864275301329ddb5ecc3fbc7211d7a802 && \
-        sed -i '/torch/d' requirements.txt && \
-        pip install -r requirements.txt && \
-        pip install torchsde
-    WORKDIR /workspace/ComfyUI
-    CMD ["/bin/bash"]
-    DOCKERFILE
       echo "Building flux-comfyui image..."
-      ${podman}/bin/podman build -f "$tmpdir/Dockerfile" -t flux-comfyui "$tmpdir"
-      rm -rf "$tmpdir"
+      ${podman}/bin/podman build -f ${./Dockerfile.comfyui} -t flux-comfyui $(dirname ${./Dockerfile.comfyui})
     }
 
     flux-download() {
