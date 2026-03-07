@@ -1,0 +1,7 @@
+print_iter_log: false
+kv_cache_config:
+  dtype: "auto"
+  free_gpu_memory_fraction: 0.9
+cuda_graph_config:
+  enable_padding: true
+disable_overlap_scheduler: true

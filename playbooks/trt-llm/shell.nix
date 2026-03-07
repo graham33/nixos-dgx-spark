@@ -67,22 +67,14 @@ mkShell {
         -e HF_TOKEN="$HF_TOKEN" \
         -e MODEL_HANDLE="$model" \
         -v "$HOME/.cache/huggingface/:/root/.cache/huggingface/" \
+        -v "${./extra-llm-api-config.yml}:/extra-llm-api-config.yml:ro" \
         ${containerImage} \
         bash -c 'hf download $MODEL_HANDLE && \
-          cat > /tmp/extra-llm-api-config.yml <<EOFCFG
-    print_iter_log: false
-    kv_cache_config:
-      dtype: "auto"
-      free_gpu_memory_fraction: 0.9
-    cuda_graph_config:
-      enable_padding: true
-    disable_overlap_scheduler: true
-    EOFCFG
           trtllm-serve "$MODEL_HANDLE" \
             --max_batch_size 64 \
             --trust_remote_code \
             --port ${serverPort} \
-            --extra_llm_api_options /tmp/extra-llm-api-config.yml'
+            --extra_llm_api_options /extra-llm-api-config.yml'
     }
 
     trt-llm-test() {
