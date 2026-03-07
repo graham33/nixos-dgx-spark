@@ -1,11 +1,10 @@
 # Video Search and Summarisation Agent Playbook
 
-GPU-accelerated video search and summarisation using NVIDIA's VSS blueprint
-on the DGX Spark.
+GPU-accelerated video search and summarisation using NVIDIA's VSS blueprint.
 
 ## Prerequisites
 
-- DGX OS 7.4.0+ with driver 580.126.09+ and CUDA 13.0
+- An NVIDIA GPU with sufficient VRAM, driver 580.126.09+ and CUDA 13.0
 - NGC API key (log in with `podman login nvcr.io`)
 - Accept the [Cosmos-Reason2-8B](https://huggingface.co/nvidia/Cosmos-Reason2-8B) model terms on Hugging Face
 
@@ -26,7 +25,7 @@ on the DGX Spark.
 3. Start the VSS Event Reviewer (fully local):
 
    ```bash
-   vss-start [path/to/compose/dir]
+   vss-start
    ```
 
 4. Access the UIs:
@@ -64,7 +63,7 @@ podman network rm vss-shared-network
 rm -rf /tmp/alert-media-dir
 ```
 
-> **Note:** DGX Spark hardware with NVIDIA GPU is required for all inference
+> **Note:** An NVIDIA GPU with sufficient VRAM is required for all inference
 > workloads.
 
 ## Reference
