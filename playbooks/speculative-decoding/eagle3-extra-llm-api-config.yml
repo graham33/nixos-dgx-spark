@@ -1,0 +1,12 @@
+enable_attention_dp: false
+disable_overlap_scheduler: false
+enable_autotuner: false
+cuda_graph_config:
+    max_batch_size: 1
+speculative_config:
+    decoding_type: Eagle
+    max_draft_len: 5
+    speculative_model_dir: /opt/gpt-oss-120b-Eagle3/
+kv_cache_config:
+    free_gpu_memory_fraction: 0.9
+    enable_block_reuse: false
