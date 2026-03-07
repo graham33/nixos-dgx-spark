@@ -35,6 +35,7 @@
       comfyuiModelsOverlay = import ./overlays/comfyui-models.nix;
       dlpackOverlay = import ./overlays/dlpack.nix;
       vllmDepsOverlay = import ./overlays/vllm-deps.nix;
+      jaxAarch64Overlay = import ./overlays/jax-aarch64.nix;
     in
     {
       # Expose the DGX Spark module for other projects
@@ -68,6 +69,7 @@
             dlpackOverlay
             vllmDepsOverlay
             korniaRsOverlay
+            jaxAarch64Overlay
             nixified-ai.overlays.comfyui
             nixified-ai.overlays.models
             nixified-ai.overlays.fetchers
