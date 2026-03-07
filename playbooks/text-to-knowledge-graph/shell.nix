@@ -1,5 +1,5 @@
 { mkShell
-, git
+, fetchFromGitHub
 , podman
 , podman-compose
 , curl
@@ -7,13 +7,16 @@
 }:
 
 let
-  repoUrl = "https://github.com/NVIDIA/dgx-spark-playbooks.git";
-  repoDir = "dgx-spark-playbooks";
-  assetsDir = "${repoDir}/nvidia/txt2kg/assets";
+  dgxSparkPlaybooks = fetchFromGitHub {
+    owner = "NVIDIA";
+    repo = "dgx-spark-playbooks";
+    rev = "a79c14d8f54021c7fce33057faf4a58ea85b79a9";
+    hash = "sha256-+anAUXQIne2YZWm5CYv1IdM2M2OHd1oXNquVzlHfCwI=";
+  };
+  assetsDir = "${dgxSparkPlaybooks}/nvidia/txt2kg/assets";
 in
 mkShell {
   packages = [
-    git
     podman
     podman-compose
     curl
@@ -25,24 +28,20 @@ mkShell {
     echo "Services: Ollama (LLM) + ArangoDB (graph DB) + Next.js (frontend)"
     echo "Instructions: https://build.nvidia.com/spark/txt2kg/instructions"
     echo ""
+    echo "Playbook assets: ${dgxSparkPlaybooks}/nvidia/txt2kg/assets"
+    echo ""
     echo "Commands:"
-    echo "  txt2kg-start          Start the pipeline (clones repo if needed)"
+    echo "  txt2kg-start          Start the pipeline"
     echo "  txt2kg-start-vllm     Start with Neo4j + vLLM backend"
     echo "  txt2kg-stop           Stop all services"
     echo "  txt2kg-pull-model     Pull a model into Ollama (default: llama3.1:8b)"
     echo "  txt2kg-test           Test Ollama is responding"
     echo ""
 
-    txt2kg-clone() {
-      if [ ! -d "${assetsDir}" ]; then
-        echo "Cloning NVIDIA DGX Spark playbooks..."
-        ${git}/bin/git clone --depth 1 ${repoUrl}
-      fi
-    }
+    TXT2KG_ASSETS_DIR="${assetsDir}"
 
     txt2kg-start() {
-      txt2kg-clone
-      cd ${assetsDir}
+      cd "$TXT2KG_ASSETS_DIR"
       echo "Starting ArangoDB + Ollama stack..."
       ${podman-compose}/bin/podman-compose -f deploy/compose/docker-compose.yml up -d
       echo ""
@@ -55,8 +54,7 @@ mkShell {
     }
 
     txt2kg-start-vllm() {
-      txt2kg-clone
-      cd ${assetsDir}
+      cd "$TXT2KG_ASSETS_DIR"
       echo "Starting Neo4j + vLLM stack..."
       ${podman-compose}/bin/podman-compose -f deploy/compose/docker-compose.vllm.yml up -d
       echo ""
@@ -67,12 +65,8 @@ mkShell {
     }
 
     txt2kg-stop() {
-      if [ -d "${assetsDir}" ]; then
-        cd ${assetsDir}
-        ${podman-compose}/bin/podman-compose -f deploy/compose/docker-compose.yml down
-      else
-        echo "Repository not cloned yet; nothing to stop."
-      fi
+      cd "$TXT2KG_ASSETS_DIR"
+      ${podman-compose}/bin/podman-compose -f deploy/compose/docker-compose.yml down
     }
 
     txt2kg-pull-model() {
@@ -86,7 +80,6 @@ mkShell {
       ${curl}/bin/curl -s http://localhost:11434/api/tags | ${jq}/bin/jq .
     }
 
-    export -f txt2kg-clone
     export -f txt2kg-start
     export -f txt2kg-start-vllm
     export -f txt2kg-stop
