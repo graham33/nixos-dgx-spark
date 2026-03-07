@@ -11,10 +11,14 @@ acceleration on the DGX Spark.
 nix develop .#nemotron-llama-cpp
 ```
 
-Download a Nemotron GGUF model, then start the server:
+Download the model from Hugging Face, then start the server:
 
 ```bash
-llama-server -m nemotron-3-nano.gguf --port 8080 -ngl 99
+huggingface-cli download unsloth/Nemotron-3-Nano-30B-A3B-GGUF \
+  Nemotron-3-Nano-30B-A3B-UD-Q8_K_XL.gguf \
+  --local-dir ~/models/nemotron3-gguf
+llama-server -m ~/models/nemotron3-gguf/Nemotron-3-Nano-30B-A3B-UD-Q8_K_XL.gguf \
+  --port 8080 -ngl 99
 ```
 
 ### Container
