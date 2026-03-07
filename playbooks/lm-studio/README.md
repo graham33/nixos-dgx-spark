@@ -1,8 +1,7 @@
 # LM Studio on DGX Spark Playbook
 
 LM Studio provides a CLI (`lms`) for running local LLMs with GPU acceleration on the
-NVIDIA DGX Spark. Unlike container-based playbooks, LM Studio is installed natively via
-its installer script.
+NVIDIA DGX Spark. LM Studio is installed from a versioned AppImage fetched by Nix.
 
 ## Prerequisites
 
@@ -18,10 +17,10 @@ its installer script.
    nix develop .#lm-studio
    ```
 
-2. Install the LM Studio CLI on your Spark:
+2. Install LM Studio on your Spark:
 
    ```bash
-   curl -fsSL https://lmstudio.ai/install.sh | bash
+   lms-install
    ```
 
    Follow the terminal instructions to add `lms` to your PATH.
@@ -48,25 +47,28 @@ its installer script.
 
 ## Available Commands
 
+- `lms-install` -- Install LM Studio from the Nix store (AppImage fetched at eval time)
 - `lms-test-server <host>` -- Test server connectivity and list loaded models
 - `lms-test-chat <host> [model]` -- Send a test chat completion request
 
 ## Client Helper Scripts
 
-NVIDIA provides helper scripts for connecting from your laptop:
+NVIDIA provides helper scripts for connecting from your laptop. The devshell fetches
+these from the [lmstudio-ai/docs](https://github.com/lmstudio-ai/docs) repository as
+Nix derivations. Copy them to your current directory with:
 
 ```bash
-# JavaScript
-curl -L -O https://raw.githubusercontent.com/lmstudio-ai/docs/main/_assets/nvidia-spark-playbook/js/run.js
-
-# Python
-curl -L -O https://raw.githubusercontent.com/lmstudio-ai/docs/main/_assets/nvidia-spark-playbook/py/run.py
-
-# Bash
-curl -L -O https://raw.githubusercontent.com/lmstudio-ai/docs/main/_assets/nvidia-spark-playbook/bash/run.sh
+lms-get-client-scripts
 ```
 
-Replace `<SPARK_IP>` in the downloaded script, then run it.
+This copies `run.js` (JavaScript), `run.py` (Python), and `run.sh` (Bash) to the
+current directory. Replace `{SPARK_LOCAL_IP}` in the script with your DGX Spark's
+IP address, then run it.
+
+## Upgrading LM Studio
+
+The AppImage version is pinned in `shell.nix`. To upgrade, update `lmStudioVersion`
+and the `hash` field (use the new hash from `nix-prefetch-url`).
 
 ## Cleanup
 
@@ -74,8 +76,8 @@ Replace `<SPARK_IP>` in the downloaded script, then run it.
 # Remove downloaded models
 rm -rf ~/.lmstudio/models/
 
-# Uninstall LM Studio CLI
-rm -rf ~/.lmstudio/llmster
+# Uninstall LM Studio
+rm -rf ~/.lmstudio/bin/
 ```
 
 ## References
