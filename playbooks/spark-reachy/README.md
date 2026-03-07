@@ -30,9 +30,14 @@ nix develop .#spark-reachy
 
 Then follow the steps printed in the shell, or see below.
 
+The photo booth repository
+([NVIDIA/spark-reachy-photo-booth](https://github.com/NVIDIA/spark-reachy-photo-booth))
+is fetched at build time via `fetchFromGitHub` and its path is printed when you
+enter the shell.
+
 ### Step-by-step
 
-1. Clone the photo booth repository and `cd` into it.
+1. `cd` into the photo booth repository path printed by the shell.
 2. Copy `.env.example` to `.env` and fill in your NGC and Hugging Face tokens.
 3. Connect and power on the Reachy Mini; verify with `lsusb`.
 4. Log in to the NGC container registry:
