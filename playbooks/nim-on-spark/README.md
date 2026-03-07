@@ -38,7 +38,7 @@ curl http://localhost:8000/v1/chat/completions \
 - Automatic GPU memory management
 
 > **Note:** DGX Spark hardware with NVIDIA GPU is required. An NVIDIA NGC API
-> key may be required for pulling NIM containers.
+> key is required for pulling NIM containers.
 
 ## References
 
