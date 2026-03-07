@@ -150,7 +150,9 @@
         devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { };
-        devShells.nccl-two-sparks = pkgs.callPackage ./playbooks/nccl-two-sparks/shell.nix { };
+        devShells.nccl-two-sparks = pkgs.callPackage ./playbooks/nccl-two-sparks/shell.nix {
+          openmpi = pkgs.openmpi.override { cudaSupport = false; };
+        };
 
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
 
