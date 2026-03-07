@@ -1,5 +1,6 @@
 { mkShell
 , curl
+, fetchFromGitHub
 , fetchurl
 , jq
 }:
@@ -21,25 +22,17 @@ let
     hash = "sha256-Nrvp0syo7POGE/KRpykDYck6oaLIsNTp/v81avrsypU=";
   };
 
-  # Client helper scripts from the lmstudio-ai/docs repository, fetched as
-  # Nix derivations rather than requiring curl at runtime.
-  lmStudioDocsRev = "main";
-  lmStudioDocsBase = "https://raw.githubusercontent.com/lmstudio-ai/docs/${lmStudioDocsRev}/_assets/nvidia-spark-playbook";
-
-  sparkClientJs = fetchurl {
-    url = "${lmStudioDocsBase}/js/run.js";
-    hash = "sha256-lU1vIav2K2IuXeC1VnZo48/YKrGiDamjI47sb4nP8Lc=";
+  # Client helper scripts from the lmstudio-ai/docs repository, fetched via
+  # fetchFromGitHub as a pinned derivation. These provide JavaScript, Python,
+  # and Bash examples for connecting to an LM Studio server from a laptop.
+  lmstudio-docs = fetchFromGitHub {
+    owner = "lmstudio-ai";
+    repo = "docs";
+    rev = "ed3080de362eed80dc14d4e7c1abe7f87efd30b5";
+    hash = "sha256-YtRi3h+cBV0HUFJj7t1RN14E8zQlJX+B1tAqKJT7idk=";
   };
 
-  sparkClientPy = fetchurl {
-    url = "${lmStudioDocsBase}/py/run.py";
-    hash = "sha256-QPHGxjtAZyLeE5TOpgJs5FoVnEPaGJaXVI7Tdk+6+Ts=";
-  };
-
-  sparkClientSh = fetchurl {
-    url = "${lmStudioDocsBase}/bash/run.sh";
-    hash = "sha256-BDPrl/66RMzXkC7jtCEt/7JGCI7rT4SbyXrQFjEBsUM=";
-  };
+  clientScriptsDir = "${lmstudio-docs}/_assets/nvidia-spark-playbook";
 in
 mkShell {
   packages = [
@@ -90,9 +83,9 @@ mkShell {
     # Copy NVIDIA client example scripts (fetched via Nix) to the current directory.
     lms-get-client-scripts() {
       echo "Copying LM Studio client example scripts..."
-      cp ${sparkClientJs} ./run.js && chmod +w ./run.js
-      cp ${sparkClientPy} ./run.py && chmod +w ./run.py
-      cp ${sparkClientSh} ./run.sh && chmod +wx ./run.sh
+      cp ${clientScriptsDir}/js/run.js ./run.js && chmod +w ./run.js
+      cp ${clientScriptsDir}/py/run.py ./run.py && chmod +w ./run.py
+      cp ${clientScriptsDir}/bash/run.sh ./run.sh && chmod +wx ./run.sh
       echo "Copied run.js, run.py, and run.sh."
       echo "Replace {SPARK_LOCAL_IP} with your DGX Spark IP address."
     }
