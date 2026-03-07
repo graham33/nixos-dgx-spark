@@ -218,6 +218,7 @@ After initializing the template, you'll need to:
 This repository includes devshells for various NVIDIA DGX Spark playbooks from https://build.nvidia.com/spark:
 
 - [ComfyUI](./playbooks/comfyui/README.md) - Run ComfyUI with Stable Diffusion 1.5 for AI image generation
+- [Connect Two Sparks](./playbooks/connect-two-sparks/README.md) - Connect two DGX Spark systems for multi-node workloads
 - [FLUX.1 Dreambooth](./playbooks/flux-dreambooth/README.md) - FLUX.1 Dreambooth LoRA fine-tuning
 - [Multi-modal Inference](./playbooks/multimodal-inference/README.md) - Run multi-modal inference with vision-language models
 - [Speculative Decoding](./playbooks/speculative-decoding/README.md) - Speculative decoding for faster inference
