@@ -30,6 +30,7 @@
       comfyuiModelsOverlay = import ./overlays/comfyui-models.nix;
       dlpackOverlay = import ./overlays/dlpack.nix;
       vllmDepsOverlay = import ./overlays/vllm-deps.nix;
+      jaxAarch64Overlay = import ./overlays/jax-aarch64.nix;
     in
     {
       # Expose the DGX Spark module for other projects
@@ -62,6 +63,7 @@
             dlpackOverlay
             vllmDepsOverlay
             korniaRsOverlay
+            jaxAarch64Overlay
             nixified-ai.overlays.comfyui
             nixified-ai.overlays.models
             nixified-ai.overlays.fetchers
@@ -148,6 +150,7 @@
         };
 
         devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { };
+        devShells.optimized-jax = pkgs.callPackage ./playbooks/optimized-jax/shell.nix { };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { };
 
