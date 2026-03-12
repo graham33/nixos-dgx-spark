@@ -1,4 +1,5 @@
 { mkShell
+, nixglhost
 , podman
 , curl
 , jq
@@ -11,6 +12,7 @@ let
 in
 mkShell {
   packages = [
+    nixglhost
     podman
     curl
     jq
