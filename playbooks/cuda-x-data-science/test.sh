@@ -6,27 +6,23 @@ FULL=false
 
 echo "=== Testing cuda-x-data-science ==="
 
+RAPIDS_IMAGE="docker.io/rapidsai/notebooks:25.12-cuda13-py3.12"
+
 # --- Smoke tests (always run) ---
 
-echo "Checking binaries..."
-command -v podman
+echo "Checking cuda-x-start function is defined..."
+declare -f cuda-x-start > /dev/null
+echo "OK: cuda-x-start function is defined"
 
-echo "Checking podman..."
-PODMAN_VERSION=$(podman --version 2>&1 || true)
-echo "${PODMAN_VERSION}" | grep -qF "podman"
-echo "OK: podman version: ${PODMAN_VERSION}"
+echo "Checking cuda-x-start references correct RAPIDS image..."
+declare -f cuda-x-start | grep -qF "rapidsai/notebooks:25.12-cuda13-py3.12"
+echo "OK: cuda-x-start references correct RAPIDS image"
 
-echo "Checking podman info..."
-PODMAN_INFO=$(podman info 2>&1 || true)
-echo "${PODMAN_INFO}" | grep -qF "host"
-echo "OK: podman info works"
-
-echo "Checking podman images (no pull)..."
-podman images --format "{{.Repository}}:{{.Tag}}" 2>&1 || true
-echo "OK: podman images works"
+echo "Checking cuda-x-start uses GPU passthrough flag..."
+declare -f cuda-x-start | grep -qF -- "--device nvidia.com/gpu=all"
+echo "OK: cuda-x-start uses --device nvidia.com/gpu=all"
 
 echo "Checking RAPIDS container image availability..."
-RAPIDS_IMAGE="docker.io/rapidsai/notebooks:25.12-cuda13-py3.12"
 if podman image exists "${RAPIDS_IMAGE}" 2>/dev/null; then
   echo "OK: RAPIDS image already pulled: ${RAPIDS_IMAGE}"
 else
@@ -37,8 +33,6 @@ fi
 # --- Full integration tests (only with --full) ---
 if $FULL; then
   echo "Running integration tests..."
-
-  RAPIDS_IMAGE="docker.io/rapidsai/notebooks:25.12-cuda13-py3.12"
 
   if ! podman image exists "${RAPIDS_IMAGE}" 2>/dev/null; then
     echo "ERROR: RAPIDS image not found. Pull it first:"
