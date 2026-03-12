@@ -1,6 +1,7 @@
 { mkShell
 , git
 , git-lfs
+, nixglhost
 , podman
 }:
 
@@ -8,6 +9,7 @@ mkShell {
   packages = [
     git
     git-lfs
+    nixglhost
     podman
   ];
 
