@@ -8,27 +8,20 @@ echo "=== Testing nemo-finetune ==="
 
 # --- Smoke tests (always run) ---
 
-echo "Checking binaries..."
-command -v podman
+echo "Checking nemo-start shell function is defined..."
+declare -f nemo-start > /dev/null
+echo "OK: nemo-start is defined"
 
-echo "Checking podman version..."
-podman --version
-
-echo "Checking podman info (local only, no container pull)..."
-PODMAN_INFO=$(podman info 2>&1 || true)
-echo "${PODMAN_INFO}" | grep -qiF "host" || true
-echo "OK: podman info works"
-
-echo "Checking podman images (list local images)..."
-podman images --format "{{.Repository}}:{{.Tag}}" 2>&1 | head -5 || true
-echo "OK: podman images works"
+echo "Checking nemo-start function references correct container image..."
+declare -f nemo-start | grep -q "nvcr.io/nvidia/pytorch:25.11-py3"
+echo "OK: nemo-start references nvcr.io/nvidia/pytorch:25.11-py3"
 
 # --- Full integration tests (only with --full) ---
 if $FULL; then
   echo "Running integration tests..."
 
-  echo "Checking if NeMo container image is available locally..."
   CONTAINER_IMAGE="nvcr.io/nvidia/pytorch:25.11-py3"
+  echo "Checking if NeMo container image is available locally..."
   if podman image exists "${CONTAINER_IMAGE}" 2>/dev/null; then
     echo "Container image found: ${CONTAINER_IMAGE}"
     echo "Testing container Python version..."
