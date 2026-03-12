@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# Handle SIGPIPE gracefully (e.g. from grep pipelines)
+trap '' PIPE
 
 FULL=false
 [[ "${1:-}" == "--full" ]] && FULL=true
@@ -8,29 +10,18 @@ echo "=== Testing scrna-seq ==="
 
 # --- Smoke tests (always run) ---
 
-echo "Checking binaries..."
+# Verify podman is available (the only package provided by this devshell)
 command -v podman
 
-echo "Checking podman..."
-podman --version
+# Check that the shellHook exported the scrna-seq-start helper function
+echo "Checking scrna-seq-start function is exported..."
+declare -f scrna-seq-start > /dev/null
+echo "OK: scrna-seq-start is exported"
 
-echo "Checking podman info (rootless)..."
-PODMAN_INFO=$(podman info 2>&1 || true)
-echo "${PODMAN_INFO}" | grep -qiF "host" || { echo "WARNING: podman info did not return expected output"; }
-echo "OK: podman info works"
-
-echo "Checking scrna-seq-start function is defined..."
-HELP=$(bash -c 'source /dev/stdin <<'"'"'EOF'"'"'
-'"'"'
-scrna-seq-start() {
-  echo "scrna-seq-start defined"
-}
-export -f scrna-seq-start
-EOF
-declare -f scrna-seq-start' 2>&1 || true)
-# Just verify that the shell and function export mechanism work
-bash -c 'f() { echo ok; }; export -f f; bash -c "f"' 2>&1 | grep -qF "ok"
-echo "OK: shell function export mechanism works"
+# Verify the function references the expected container image
+echo "Checking scrna-seq-start references the RAPIDS container image..."
+declare -f scrna-seq-start | grep -qF "nvcr.io/nvidia/rapidsai/notebooks"
+echo "OK: scrna-seq-start references the RAPIDS container image"
 
 # --- Full integration tests (only with --full) ---
 if $FULL; then
