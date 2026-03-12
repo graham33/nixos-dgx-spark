@@ -11,18 +11,13 @@ echo "=== Testing portfolio-optimization ==="
 echo "Checking binaries..."
 command -v podman
 
-echo "Checking podman..."
-PODMAN_HELP=$(podman --help 2>&1 || true)
-echo "${PODMAN_HELP}" | grep -qF "run"
-echo "OK: podman --help works"
+echo "Checking shell helper functions..."
+declare -f portfolio-start > /dev/null
+echo "OK: portfolio-start function is defined"
 
-echo "Checking podman version..."
-podman --version
-
-echo "Checking podman run --help..."
-PODMAN_RUN_HELP=$(podman run --help 2>&1 || true)
-echo "${PODMAN_RUN_HELP}" | grep -qF -- "--device"
-echo "OK: podman run --help contains --device flag"
+echo "Checking portfolio-start uses expected container image..."
+declare -f portfolio-start | grep -qF "nvcr.io/nvidia/rapidsai/notebooks:25.10-cuda13-py3.13"
+echo "OK: portfolio-start references the expected container image"
 
 # --- Full integration tests (only with --full) ---
 if $FULL; then
