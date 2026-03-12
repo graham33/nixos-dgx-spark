@@ -1,12 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-FULL=false
-[[ "${1:-}" == "--full" ]] && FULL=true
-
 echo "=== Testing local-network ==="
-
-# --- Smoke tests (always run) ---
 
 echo "Checking nmap..."
 nmap --version | head -1
@@ -24,13 +19,8 @@ SSH_HELP=$(ssh 2>&1 || true)
 echo "${SSH_HELP}" | grep -qF -- "-L"
 echo "OK: ssh supports port forwarding"
 
-# --- Full tests (only with --full) ---
-if $FULL; then
-  echo "Running full tests..."
-
-  echo "Checking nmap local scan (loopback)..."
-  nmap -sn 127.0.0.1
-  echo "OK: nmap scan completed"
-fi
+echo "Checking nmap local scan (loopback)..."
+nmap -sn 127.0.0.1
+echo "OK: nmap scan completed"
 
 echo "All tests passed!"
