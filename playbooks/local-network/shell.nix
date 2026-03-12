@@ -2,10 +2,12 @@
 , openssh
 , nmap
 , avahi
+, nixglhost
 }:
 
 mkShell {
   packages = [
+    nixglhost
     openssh
     nmap
     avahi
