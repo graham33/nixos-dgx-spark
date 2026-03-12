@@ -4,6 +4,10 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs";
     flake-utils.url = "github:numtide/flake-utils";
+    nix-gl-host = {
+      url = "github:numtide/nix-gl-host";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     pre-commit-hooks = {
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -18,6 +22,7 @@
     { self
     , nixpkgs
     , flake-utils
+    , nix-gl-host
     , pre-commit-hooks
     , nixified-ai
     ,
@@ -77,6 +82,8 @@
 
         pythonForKernelConfig = pkgs.python3.withPackages (ps: [ ps.pytest ]);
 
+        nixglhost = nix-gl-host.packages.${system}.default;
+
         pre-commit-check = pre-commit-hooks.lib.${system}.run {
           src = ./.;
           hooks = {
@@ -111,6 +118,7 @@
         # Dev shells
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
+            nixglhost
             pre-commit
             nixpkgs-fmt
             nodePackages.prettier
@@ -123,6 +131,7 @@
 
         devShells.cuda = pkgs.mkShell {
           packages = with pkgs; [
+            nixglhost
             cudaPackages.cuda_cuobjdump
             cudaPackages.cuda_nvcc
             cudaPackages.cuda-samples
@@ -137,19 +146,21 @@
 
         devShells.torch = pkgs.mkShell {
           packages = with pkgs; [
+            nixglhost
             pythonEnv
           ];
         };
 
         devShells.llama-cpp = pkgs.mkShell {
           packages = with pkgs; [
+            nixglhost
             llama-cpp
           ];
         };
 
-        devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { };
-        devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { };
-        devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { };
+        devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { inherit nixglhost; };
+        devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { inherit nixglhost; };
+        devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { inherit nixglhost; };
 
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
 
