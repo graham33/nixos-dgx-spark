@@ -8,27 +8,18 @@ echo "=== Testing pytorch-finetune ==="
 
 # --- Smoke tests (always run) ---
 
-echo "Checking binaries..."
+echo "Checking podman available..."
 command -v podman
+echo "OK: podman available"
 
-echo "Checking podman..."
-PODMAN_HELP=$(podman --help 2>&1 || true)
-echo "${PODMAN_HELP}" | grep -qF "run"
-echo "OK: podman --help works"
+echo "Checking pytorch-finetune shell helper exported..."
+declare -f pytorch-finetune
+echo "OK: pytorch-finetune function is exported"
 
-echo "Checking podman version..."
-podman --version
-
-echo "Checking podman info (storage/runtime)..."
-# Just verify podman info runs without error; don't require a daemon
-podman info --format '{{.Host.OS}}' 2>&1 || true
-echo "OK: podman info ran"
-
-# Verify the container image reference is correct (no pull, just inspect cached or skip)
 CONTAINER_IMAGE="nvcr.io/nvidia/pytorch:25.11-py3"
 echo "Container image: ${CONTAINER_IMAGE}"
 
-# --- Python import checks (inside container, only with --full) ---
+# --- Full integration tests (inside container, only with --full) ---
 if $FULL; then
   echo "Running full integration tests (inside container)..."
 
@@ -53,15 +44,10 @@ if $FULL; then
     echo "NOTE: torch.cuda.is_available() is False (known GB10/SM12.1 compat issue - not a failure)"
   fi
 
-  echo "Checking transformers import inside container..."
+  echo "Checking transformers and peft imports inside container..."
   podman run --rm "${CONTAINER_IMAGE}" \
     bash -c "pip install --quiet transformers peft datasets trl bitsandbytes && \
-      python3 -c 'import transformers; print(transformers.__version__)'"
-
-  echo "Checking peft import inside container..."
-  podman run --rm "${CONTAINER_IMAGE}" \
-    bash -c "pip install --quiet peft && \
-      python3 -c 'import peft; print(peft.__version__)'"
+      python3 -c 'import transformers; import peft; print(transformers.__version__, peft.__version__)'"
 fi
 
 echo "All tests passed!"
