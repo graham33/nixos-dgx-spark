@@ -9,21 +9,21 @@ echo "=== Testing isaac-sim ==="
 
 # --- Smoke tests (always run) ---
 
-echo "Checking binaries..."
-command -v git
+echo "Checking git-lfs (needed for large asset downloads)..."
 command -v git-lfs
+git lfs install --skip-repo 2>&1 | grep -qF "Git LFS initialized"
+echo "OK: git lfs install works"
+
+echo "Checking podman (needed for Isaac Sim container)..."
 command -v podman
+podman --help 2>&1 | grep -qF "run"
+echo "OK: podman supports run subcommand"
+podman run --help 2>&1 | grep -qF -- "--device"
+echo "OK: podman run supports --device (required for GPU passthrough)"
 
-echo "Checking git..."
-git --version
-
-echo "Checking git-lfs..."
-git-lfs --version
-
-echo "Checking podman..."
-PODMAN_HELP=$(podman --help 2>&1 || true)
-echo "${PODMAN_HELP}" | grep -qF "run"
-echo "OK: podman --help works"
+echo "Checking isaac-sim-container shell function..."
+declare -f isaac-sim-container > /dev/null
+echo "OK: isaac-sim-container function is defined"
 
 # --- Full integration tests (only with --full) ---
 if $FULL; then
