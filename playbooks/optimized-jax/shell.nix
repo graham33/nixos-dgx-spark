@@ -1,11 +1,13 @@
 { mkShell
 , git
+, nixglhost
 , podman
 , python3Packages
 }:
 
 mkShell {
   packages = [
+    nixglhost
     git
     podman
     (python3Packages.python.withPackages (ps: with ps; [
