@@ -1,4 +1,5 @@
 { mkShell
+, nixglhost
 , podman
 , curl
 , jq
@@ -6,6 +7,7 @@
 
 mkShell {
   packages = [
+    nixglhost
     podman
     curl
     jq
