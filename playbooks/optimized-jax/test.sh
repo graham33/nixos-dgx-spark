@@ -1,12 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-FULL=false
-[[ "${1:-}" == "--full" ]] && FULL=true
-
 echo "=== Testing optimized-jax ==="
-
-# --- Smoke tests (always run) ---
 
 echo "Checking JAX import and version..."
 JAX_VERSION=$(python3 -c 'import jax; print(jax.__version__)' 2>/dev/null || true)
@@ -43,12 +38,8 @@ print("Basic jnp.sum([1,2,3]) =", float(y))
 ' 2>/dev/null
 echo "OK: JAX basic computation works"
 
-# --- Full integration tests (only with --full) ---
-if $FULL; then
-  echo "Running integration tests..."
-
-  echo "Checking JAX JIT compilation..."
-  python3 -c '
+echo "Checking JAX JIT compilation..."
+python3 -c '
 import jax
 import jax.numpy as jnp
 
@@ -62,10 +53,10 @@ result = matmul(a, b)
 assert float(result[0, 0]) == 4.0, f"Expected 4.0, got {float(result[0, 0])}"
 print("JIT matmul 4x4 result[0,0] =", float(result[0, 0]))
 ' 2>/dev/null
-  echo "OK: JAX JIT compilation works"
+echo "OK: JAX JIT compilation works"
 
-  echo "Checking JAX automatic differentiation..."
-  python3 -c '
+echo "Checking JAX automatic differentiation..."
+python3 -c '
 import jax
 import jax.numpy as jnp
 
@@ -81,7 +72,6 @@ for i, (got, exp) in enumerate(zip(g.tolist(), expected)):
     assert abs(got - exp) < 1e-5, f"grad[{i}]: expected {exp}, got {got}"
 print("Gradient of sum(x^2) at [1,2,3] =", g.tolist())
 ' 2>/dev/null
-  echo "OK: JAX automatic differentiation works"
-fi
+echo "OK: JAX automatic differentiation works"
 
 echo "All tests passed!"
