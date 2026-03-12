@@ -1,4 +1,5 @@
 { mkShell
+, nixglhost
 , openssh
 , iperf3
 , ethtool
@@ -7,6 +8,7 @@
 
 mkShell {
   packages = [
+    nixglhost
     openssh
     iperf3
     ethtool
