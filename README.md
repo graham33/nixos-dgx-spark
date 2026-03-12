@@ -165,6 +165,51 @@ After initializing the template, you'll need to:
    sudo nixos-rebuild switch --flake /etc/nixos#dgx-spark
    ```
 
+## Using Nix on DGX OS (Ubuntu)
+
+You can use the dev shells and playbooks in this repo on NVIDIA DGX OS (Ubuntu)
+without installing NixOS.
+
+### Setup
+
+1. **Install Nix** using the [official installer](https://nixos.org/download/):
+
+   ```bash
+   sh <(curl -L https://nixos.org/nix/install) --daemon
+   ```
+
+   Alternatively, you can use the [Determinate Nix Installer](https://github.com/DeterminateSystems/nix-installer):
+
+   ```bash
+   curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+   ```
+
+2. **Enable flakes and nix-command** by adding to `/etc/nix/nix.conf`:
+
+   ```
+   experimental-features = nix-command flakes
+   ```
+
+3. **Enable the graham33 Cachix cache** — see [Caching](#caching) below.
+
+### Running CUDA Applications
+
+On non-NixOS systems, CUDA applications built with Nix need
+[nix-gl-host](https://github.com/numtide/nix-gl-host) to find the host GPU
+drivers. It is included in all dev shells in this repo. Prefix commands with
+`nixglhost`:
+
+```bash
+nixglhost <command>
+```
+
+For example, to run a CUDA sample:
+
+```bash
+nix develop .#cuda
+nixglhost deviceQuery
+```
+
 ## Playbooks
 
 This repository includes devshells for various NVIDIA DGX Spark playbooks from https://build.nvidia.com/spark:
@@ -179,6 +224,14 @@ Unfortunately CUDA packages are not currently cached by the NixOS default
 caches. There are community caches, but they currently don't provide
 aarch64-linux packages. See https://nixos.wiki/wiki/CUDA for general caching
 details.
+
+To avoid rebuilding large CUDA packages, use the graham33 Cachix cache:
+
+```bash
+cachix use graham33
+```
+
+Install cachix first if needed: https://docs.cachix.org/installation
 
 ## License
 
