@@ -1,19 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+FULL=0
+for arg in "$@"; do
+  [[ "$arg" == "--full" ]] && FULL=1
+done
+
 echo "=== Testing unsloth ==="
 
-# --- Smoke tests (always run) ---
-
-echo "Checking binaries..."
+# Podman is the only tool this playbook needs
 command -v podman
-echo "OK: podman found"
 
-echo "Checking podman version..."
-podman --version
+# The shellHook exports unsloth-start; verify it is available
+if ! declare -f unsloth-start > /dev/null 2>&1; then
+  echo "ERROR: unsloth-start function not found (shellHook not sourced?)" >&2
+  exit 1
+fi
+echo "OK: unsloth-start function defined"
 
-echo "Checking podman info (local, no pull)..."
-PODMAN_INFO=$(podman info 2>&1 || true)
-echo "${PODMAN_INFO}" | grep -qiF "host" && echo "OK: podman info works"
+# HF_HOME should default gracefully (not required to be set)
+HF_CACHE="${HF_HOME:-$HOME/.cache/huggingface}"
+echo "OK: HuggingFace cache path: ${HF_CACHE}"
+
+if [[ "$FULL" -eq 1 ]]; then
+  echo "--- Full tests ---"
+  echo "Pulling container image (this may take a while)..."
+  podman pull nvcr.io/nvidia/pytorch:25.11-py3
+  echo "OK: container image pulled"
+fi
 
 echo "All tests passed!"
