@@ -1,9 +1,11 @@
 { mkShell
+, nixglhost
 , podman
 }:
 
 mkShell {
   packages = [
+    nixglhost
     podman
   ];
 
