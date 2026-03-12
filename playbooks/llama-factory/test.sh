@@ -8,36 +8,25 @@ echo "=== Testing llama-factory ==="
 
 # --- Smoke tests (always run) ---
 
-echo "Checking binaries..."
-command -v podman
-command -v curl
-command -v jq
+CONTAINER_IMAGE="docker.io/hiyouga/llamafactory:latest"
 
-echo "Checking podman..."
-podman --version
-echo "OK: podman is available"
+echo "Checking llama-factory-start function is defined..."
+declare -f llama-factory-start > /dev/null
+echo "OK: llama-factory-start is defined"
 
-echo "Checking curl..."
-curl --version | head -1
-
-echo "Checking jq..."
-jq --version
-
-echo "Checking podman info (rootless)..."
-# Verify podman can run basic operations without pulling images
-PODMAN_HELP=$(podman --help 2>&1 || true)
-echo "${PODMAN_HELP}" | grep -qF "run"
-echo "OK: podman --help includes 'run'"
+echo "Checking llama-factory-start references correct container image..."
+declare -f llama-factory-start | grep -qF "${CONTAINER_IMAGE}"
+echo "OK: llama-factory-start references ${CONTAINER_IMAGE}"
 
 # --- Full integration tests (only with --full) ---
 if $FULL; then
   echo "Running integration tests..."
 
   echo "Pulling LLaMA Factory image..."
-  podman pull docker.io/hiyouga/llamafactory:latest
+  podman pull "${CONTAINER_IMAGE}"
 
   echo "Checking llamafactory-cli in container..."
-  podman run --rm docker.io/hiyouga/llamafactory:latest \
+  podman run --rm "${CONTAINER_IMAGE}" \
     llamafactory-cli version 2>&1 | head -5 || true
   echo "OK: llamafactory-cli is accessible in container"
 fi
