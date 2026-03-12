@@ -9,34 +9,38 @@ echo "=== Testing connect-two-sparks ==="
 
 # --- Smoke tests (always run) ---
 
-echo "Checking binaries..."
-command -v ssh
-command -v ssh-keygen
-command -v ssh-copy-id
-command -v iperf3
-command -v ethtool
-
-echo "Checking ssh..."
-HELP=$(ssh --help 2>&1 || true)
-echo "$HELP" | grep -qF "usage:"
-echo "OK: ssh --help works"
-
-echo "Checking iperf3..."
+# iperf3: check -s (server) and -c (client) flags used in the README workflow
+echo "Checking iperf3 -s (server mode)..."
 HELP=$(iperf3 --help 2>&1 || true)
-echo "$HELP" | grep -qF -- "--port"
-echo "OK: iperf3 --help works"
+echo "$HELP" | grep -qF -- "-s, --server"
+echo "OK: iperf3 supports -s (server mode)"
 
-echo "Checking ethtool..."
-ethtool --version
-echo "OK: ethtool --version works"
+echo "Checking iperf3 -c (client mode)..."
+echo "$HELP" | grep -qF -- "-c, --client"
+echo "OK: iperf3 supports -c (client mode)"
 
-echo "Checking rdma tools (ibv_devices)..."
+# ssh-keygen: check -t flag for ed25519 key type used in README
+echo "Checking ssh-keygen -t ed25519..."
+HELP=$(ssh-keygen --help 2>&1 || true)
+echo "$HELP" | grep -qF "ed25519"
+echo "OK: ssh-keygen supports -t ed25519"
+
+# ssh-copy-id: used to set up passwordless SSH between the two Sparks
+echo "Checking ssh-copy-id..."
+HELP=$(ssh-copy-id --help 2>&1 || true)
+echo "$HELP" | grep -qiF "hostname"
+echo "OK: ssh-copy-id available"
+
+# ibv_devices: RDMA device listing from rdma-core
+echo "Checking ibv_devices..."
 command -v ibv_devices
 echo "OK: ibv_devices available"
 
-echo "Checking rdma tools (ibstat)..."
-command -v ibstat
-echo "OK: ibstat available"
+# ibstat: InfiniBand status tool with -l (list CAs) flag
+echo "Checking ibstat -l..."
+HELP=$(ibstat --help 2>&1 || true)
+echo "$HELP" | grep -qF -- "--list_of_cas"
+echo "OK: ibstat supports -l (list_of_cas)"
 
 # --- Full integration tests (only with --full) ---
 if $FULL; then
