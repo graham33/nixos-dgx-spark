@@ -2,12 +2,14 @@
 , podman
 , curl
 , jq
+, nixglhost
 }:
 let
   sglangPort = "30000";
 in
 mkShell {
   packages = [
+    nixglhost
     podman
     curl
     jq
