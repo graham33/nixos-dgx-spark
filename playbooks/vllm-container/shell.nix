@@ -1,7 +1,6 @@
 { mkShell
 , hyperfine
 , jq
-, nixglhost
 , podman
 }:
 
@@ -12,7 +11,6 @@ mkShell {
   packages = [
     hyperfine
     jq
-    nixglhost
     podman
   ];
 
