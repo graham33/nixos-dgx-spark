@@ -39,6 +39,7 @@
     {
       # Expose the DGX Spark module for other projects
       nixosModules.dgx-spark = import ./modules/dgx-spark.nix;
+      nixosModules.dgx-dashboard = import ./modules/dgx-dashboard.nix;
 
       overlays.cuda-13 = cuda13Overlay;
 
@@ -168,8 +169,10 @@
         devShells.nccl-two-sparks = pkgs.callPackage ./playbooks/nccl-two-sparks/shell.nix {
           inherit nixglhost;
         };
+        devShells.dgx-dashboard = pkgs.callPackage ./playbooks/dgx-dashboard/shell.nix { inherit nixglhost; };
 
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
+        packages.dgx-dashboard = pkgs.callPackage ./packages/dgx-dashboard { };
 
         packages.usb-image =
           let
