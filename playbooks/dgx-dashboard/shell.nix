@@ -1,10 +1,15 @@
 { mkShell
+, callPackage
 , openssh
 }:
 
+let
+  dgx-dashboard = callPackage ../../packages/dgx-dashboard { };
+in
 mkShell {
   packages = [
     openssh
+    dgx-dashboard
   ];
 
   shellHook = ''
@@ -13,6 +18,9 @@ mkShell {
     echo ""
     echo "The DGX Dashboard is a pre-installed web application on DGX OS."
     echo "Access it at: http://localhost:11000"
+    echo ""
+    echo "Run locally (aarch64-linux only):"
+    echo "  dashboard-service -port 11000 serve"
     echo ""
     echo "For remote access, use SSH tunnelling:"
     echo "  dgx-dashboard-tunnel <user>@<host>"

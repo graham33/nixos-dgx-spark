@@ -1,8 +1,8 @@
 # DGX Dashboard Playbook
 
-The DGX Dashboard is a pre-installed web application on DGX OS that provides a
-graphical interface for system updates, GPU telemetry, resource monitoring, and
-an integrated JupyterLab environment.
+The DGX Dashboard is a web application that provides a graphical interface for
+system updates, GPU telemetry, resource monitoring, and an integrated JupyterLab
+environment.
 
 ## Quick Start
 
@@ -20,6 +20,43 @@ an integrated JupyterLab environment.
 
 3. Open <http://localhost:11000> in your browser and log in with your DGX Spark
    system credentials.
+
+## NixOS Module
+
+To run the DGX Dashboard on NixOS, add the module to your configuration:
+
+```nix
+{
+  imports = [ dgx-spark.nixosModules.dgx-dashboard ];
+
+  services.dgx-dashboard = {
+    enable = true;
+    port = 11000; # default
+  };
+}
+```
+
+This sets up:
+
+- A dedicated service user and group
+- Two systemd services (`dgx-dashboard` and `dgx-dashboard-admin`)
+- D-Bus policy for the admin service
+- Log rotation
+
+> **Note:** The dashboard binaries are aarch64-only. This module only works on
+> `aarch64-linux` systems.
+
+## Running Locally
+
+On an aarch64-linux system, you can run the dashboard directly from the
+devshell:
+
+```bash
+nix develop .#dgx-dashboard
+dashboard-service -port 11000 serve
+```
+
+Then open <http://localhost:11000> in your browser.
 
 ## Features
 
@@ -51,13 +88,6 @@ Then open a tunnel for both ports:
 ```bash
 ssh -L 11000:localhost:11000 -L <JUPYTER_PORT>:localhost:<JUPYTER_PORT> user@dgxspark.local
 ```
-
-> **Note:** DGX Spark hardware with DGX OS is required. The dashboard is
-> pre-installed and does not require a separate container.
-
-> **Future work:** This playbook currently only supports DGX OS. Packaging the
-> DGX Dashboard as a Nix derivation so it can run on NixOS is tracked in
-> [issue #105](https://github.com/graham33/nixos-dgx-spark/issues/105).
 
 ## Reference
 
