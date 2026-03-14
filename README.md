@@ -219,6 +219,7 @@ This repository includes devshells for various NVIDIA DGX Spark playbooks from h
 
 - [ComfyUI](./playbooks/comfyui/README.md) - Run ComfyUI with Stable Diffusion 1.5 for AI image generation
 - [FLUX.1 Dreambooth](./playbooks/flux-dreambooth/README.md) - FLUX.1 Dreambooth LoRA fine-tuning
+- [Multi-modal Inference](./playbooks/multimodal-inference/README.md) - Run multi-modal inference with vision-language models
 - [Speculative Decoding](./playbooks/speculative-decoding/README.md) - Speculative decoding for faster inference
 - [TRT-LLM](./playbooks/trt-llm/README.md) - TensorRT-LLM for optimised inference
 - [vLLM Container](./playbooks/vllm-container/README.md) - Run vLLM inference server with Qwen2.5-Math-1.5B-Instruct model
