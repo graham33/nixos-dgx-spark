@@ -1,8 +1,0 @@
-print_iter_log: false
-disable_overlap_scheduler: true
-speculative_config:
-  decoding_type: DraftTarget
-  max_draft_len: 4
-  speculative_model_dir: /opt/Llama-3.1-8B-Instruct-FP4/
-kv_cache_config:
-  enable_block_reuse: false

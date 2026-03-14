@@ -1,64 +1,16 @@
-# Nix and NixOS on the DGX Spark
+# NixOS DGX Spark
 
 [![CI](https://github.com/graham33/nixos-dgx-spark/actions/workflows/ci.yml/badge.svg)](https://github.com/graham33/nixos-dgx-spark/actions/workflows/ci.yml)
 [![Cachix](https://img.shields.io/badge/cachix-graham33-blue.svg)](https://graham33.cachix.org)
 [![License](https://img.shields.io/github/license/graham33/nixos-dgx-spark)](LICENSE)
 
-Allows you to try DGX Spark Playbooks using Nix on DGX OS, and install NixOS
-on your DGX Spark for the full Nix experience! Provides USB images and a NixOS
-module to add settings required for DGX Spark systems.
+NixOS configuration for NVIDIA DGX Spark systems. Provides USB images
+and a NixOS module to add settings required for DGX Spark systems.
 
 This works on the NVIDIA DGX Spark itself, and has also been reported to work
 on the Asus Ascent GX10.
 
-## Using Nix on DGX OS (Ubuntu)
-
-You can use the dev shells and playbooks in this repo on NVIDIA DGX OS (Ubuntu)
-without installing NixOS.
-
-### Setup
-
-1. **Install Nix** using the [official installer](https://nixos.org/download/):
-
-   ```bash
-   sh <(curl -L https://nixos.org/nix/install) --daemon
-   ```
-
-   Alternatively, you can use the [Determinate Nix Installer](https://github.com/DeterminateSystems/nix-installer):
-
-   ```bash
-   curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
-   ```
-
-2. **Enable flakes and nix-command** by adding to `/etc/nix/nix.conf`:
-
-   ```
-   experimental-features = nix-command flakes
-   ```
-
-3. **Enable the graham33 Cachix cache** — see [Caching](#caching) below.
-
-### Running CUDA Applications
-
-On non-NixOS systems, CUDA applications built with Nix need
-[nix-gl-host](https://github.com/numtide/nix-gl-host) to find the host GPU
-drivers. It is included in all dev shells in this repo. Prefix commands with
-`nixglhost`:
-
-```bash
-nixglhost <command>
-```
-
-For example, to run a CUDA sample:
-
-```bash
-nix develop .#cuda
-nixglhost deviceQuery
-```
-
-## NixOS on the DGX Spark
-
-### USB Boot Image
+## USB Boot Image
 
 Build the USB image:
 
@@ -73,17 +25,17 @@ The image includes two kernel options, selectable from the GRUB boot menu:
 - **NixOS** (default) - NVIDIA's specialized kernel for DGX Spark with full GPU support and working Ethernet
 - **NixOS (standard-kernel)** - Standard NixOS 6.17 kernel (Ethernet has problems)
 
-#### Booting
+### Booting
 
 Disable Secure Boot in the DGX Spark BIOS and boot from the USB drive.
 
 You can then following the installation instructions in the NixOS manual: https://nixos.org/manual/nixos/stable/#sec-installation-manual
 
-### Using the DGX Spark module
+## Using the DGX Spark module
 
 This module provides configurable DGX Spark hardware support with options for kernel selection.
 
-#### Module Configuration Options
+### Module Configuration Options
 
 ```nix
 hardware.dgx-spark = {
@@ -92,7 +44,7 @@ hardware.dgx-spark = {
 };
 ```
 
-#### Using NVIDIA Kernel
+### Using NVIDIA Kernel
 
 ```nix
 hardware.dgx-spark.enable = true;  # Uses NVIDIA kernel by default
@@ -103,7 +55,7 @@ The NVIDIA kernel is a custom build optimized for NVIDIA DGX Spark systems. The 
 The module also enables the DGX Dashboard web interface at
 <http://localhost:11000>, providing GPU telemetry and system monitoring.
 
-#### Using Standard NixOS Kernel (has some issues with networking)
+### Using Standard NixOS Kernel (has some issues with networking)
 
 ```nix
 hardware.dgx-spark = {
@@ -112,7 +64,7 @@ hardware.dgx-spark = {
 };
 ```
 
-#### Kernel Configuration Management
+### Kernel Configuration Management
 
 The kernel configuration is generated from NVIDIA's Debian annotations and stored in `kernel-configs/nvidia-dgx-spark-<version>.nix`. This terse configuration only contains options that differ from NixOS defaults, reducing verbosity by ~82%.
 
@@ -140,7 +92,7 @@ You can also use a local kernel source for development:
 nix run .#generate-kernel-config -- --kernel-source /path/to/NV-Kernels
 ```
 
-#### Importing in Other Projects
+### Importing in Other Projects
 
 Other projects can import this flake and use the DGX Spark module:
 
@@ -164,7 +116,7 @@ Other projects can import this flake and use the DGX Spark module:
 }
 ```
 
-### Quick Start NixOS Template
+## Quick Start NixOS Template
 
 For a complete NixOS configuration template specifically designed for DGX Spark
 systems, you can use the template:
@@ -184,7 +136,7 @@ This will create a complete NixOS configuration with:
 - `configuration.nix` - Main system configuration optimized for DGX Spark
 - `hardware-configuration.nix` - Hardware configuration template
 
-#### Customizing the Template
+### Customizing the Template
 
 After initializing the template, you'll need to:
 
@@ -228,6 +180,7 @@ This repository includes devshells for various NVIDIA DGX Spark playbooks from h
 | [Multi-modal Inference](./playbooks/multimodal-inference/README.md) | Run multi-modal inference with vision-language models           |       ✅        |                  |
 | [NCCL for Two Sparks](./playbooks/nccl-two-sparks/README.md)        | Multi-node GPU communication with NCCL                          |       ✅        |       ☑️¹        |
 | [Speculative Decoding](./playbooks/speculative-decoding/README.md)  | Speculative decoding for faster inference                       |       ✅        |                  |
+| [Tailscale](./playbooks/tailscale/README.md)                        | Set up Tailscale VPN on DGX Spark                               |       ✅        |                  |
 | [TRT-LLM](./playbooks/trt-llm/README.md)                            | TensorRT-LLM for optimised inference                            |       ✅        |                  |
 | [vLLM Container](./playbooks/vllm-container/README.md)              | Run vLLM inference server with Qwen2.5-Math-1.5B-Instruct model |       ✅        |                  |
 | [vLLM Nix](./playbooks/vllm-nix/README.md)                          | Run vLLM inference server natively (Nix native, no containers)  |       ✅        |                  |
@@ -240,14 +193,6 @@ Unfortunately CUDA packages are not currently cached by the NixOS default
 caches. There are community caches, but they currently don't provide
 aarch64-linux packages. See https://nixos.wiki/wiki/CUDA for general caching
 details.
-
-To avoid rebuilding large CUDA packages, use the graham33 Cachix cache:
-
-```bash
-cachix use graham33
-```
-
-Install cachix first if needed: https://docs.cachix.org/installation
 
 ## License
 
