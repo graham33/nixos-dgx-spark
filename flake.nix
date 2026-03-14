@@ -162,6 +162,7 @@
         devShells.flux-dreambooth = pkgs.callPackage ./playbooks/flux-dreambooth/shell.nix { inherit nixglhost; };
         devShells.multimodal-inference = pkgs.callPackage ./playbooks/multimodal-inference/shell.nix { inherit nixglhost; };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { inherit nixglhost; };
+        devShells.nvfp4 = pkgs.callPackage ./playbooks/nvfp4/shell.nix { inherit nixglhost; };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { inherit nixglhost; };
         devShells.speculative-decoding = pkgs.callPackage ./playbooks/speculative-decoding/shell.nix { inherit nixglhost; };
         devShells.trt-llm = pkgs.callPackage ./playbooks/trt-llm/shell.nix { inherit nixglhost; };
