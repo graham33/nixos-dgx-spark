@@ -225,6 +225,7 @@ This repository includes devshells for various NVIDIA DGX Spark playbooks from h
 - [vLLM Container](./playbooks/vllm-container/README.md) - Run vLLM inference server with Qwen2.5-Math-1.5B-Instruct model
 - [vLLM Nix](./playbooks/vllm-nix/README.md) - Run vLLM inference server natively with Qwen2.5-Math-1.5B-Instruct model (Nix native, no containers)
 - [NCCL for Two Sparks](./playbooks/nccl-two-sparks/README.md) - Multi-node GPU communication with NCCL
+- [VS Code](./playbooks/vscode/README.md) - Set up VS Code for remote development on DGX Spark
 
 ## Caching
 
