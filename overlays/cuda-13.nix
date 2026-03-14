@@ -12,6 +12,17 @@ final: prev: {
   ];
 
   cudaPackages = prev.cudaPackages_13.overrideScope (cudaFinal: cudaPrev: {
+    # Bump NCCL to v2.28.9-1 (nixpkgs has v2.28.7-1)
+    nccl = cudaPrev.nccl.overrideAttrs (oldAttrs: {
+      version = "2.28.9-1";
+      src = prev.fetchFromGitHub {
+        owner = "NVIDIA";
+        repo = "nccl";
+        rev = "v2.28.9-1";
+        hash = "sha256-1nNLcS/F0HsGbYf327TLX+ZVI13YcrrhpLqbGVuml2g=";
+      };
+    });
+
     # Fix cuda_cccl to include cccl subdirectory for CUTLASS compatibility
     # The source has include/cccl/cuda/std but the build strips the cccl prefix
     cuda_cccl = cudaPrev.cuda_cccl.overrideAttrs (oldAttrs: {

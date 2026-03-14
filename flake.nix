@@ -164,6 +164,9 @@
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { inherit nixglhost; };
         devShells.speculative-decoding = pkgs.callPackage ./playbooks/speculative-decoding/shell.nix { inherit nixglhost; };
         devShells.trt-llm = pkgs.callPackage ./playbooks/trt-llm/shell.nix { inherit nixglhost; };
+        devShells.nccl-two-sparks = pkgs.callPackage ./playbooks/nccl-two-sparks/shell.nix {
+          inherit nixglhost;
+        };
 
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
 

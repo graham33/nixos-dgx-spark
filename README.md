@@ -223,6 +223,7 @@ This repository includes devshells for various NVIDIA DGX Spark playbooks from h
 - [TRT-LLM](./playbooks/trt-llm/README.md) - TensorRT-LLM for optimised inference
 - [vLLM Container](./playbooks/vllm-container/README.md) - Run vLLM inference server with Qwen2.5-Math-1.5B-Instruct model
 - [vLLM Nix](./playbooks/vllm-nix/README.md) - Run vLLM inference server natively with Qwen2.5-Math-1.5B-Instruct model (Nix native, no containers)
+- [NCCL for Two Sparks](./playbooks/nccl-two-sparks/README.md) - Multi-node GPU communication with NCCL
 
 ## Caching
 
