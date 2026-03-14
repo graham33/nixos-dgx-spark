@@ -55,6 +55,8 @@ let
   );
 in
 {
+  imports = [ ./dgx-dashboard.nix ];
+
   options.hardware.dgx-spark = {
     enable = mkEnableOption "DGX Spark hardware support";
 
@@ -103,5 +105,7 @@ in
     hardware.nvidia-container-toolkit.enable = true;
 
     environment.systemPackages = [ pkgs.nvtopPackages.nvidia ];
+
+    services.dgx-dashboard.enable = true;
   };
 }
