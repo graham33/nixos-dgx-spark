@@ -222,6 +222,7 @@ This repository includes devshells for various NVIDIA DGX Spark playbooks from h
 - [Multi-modal Inference](./playbooks/multimodal-inference/README.md) - Run multi-modal inference with vision-language models
 - [Speculative Decoding](./playbooks/speculative-decoding/README.md) - Speculative decoding for faster inference
 - [TRT-LLM](./playbooks/trt-llm/README.md) - TensorRT-LLM for optimised inference
+- [Unsloth](./playbooks/unsloth/README.md) - Fine-tune LLMs with Unsloth on DGX Spark
 - [vLLM Container](./playbooks/vllm-container/README.md) - Run vLLM inference server with Qwen2.5-Math-1.5B-Instruct model
 - [vLLM Nix](./playbooks/vllm-nix/README.md) - Run vLLM inference server natively with Qwen2.5-Math-1.5B-Instruct model (Nix native, no containers)
 - [NCCL for Two Sparks](./playbooks/nccl-two-sparks/README.md) - Multi-node GPU communication with NCCL
