@@ -168,6 +168,7 @@
         devShells.nccl-two-sparks = pkgs.callPackage ./playbooks/nccl-two-sparks/shell.nix {
           inherit nixglhost;
         };
+        devShells.open-webui = pkgs.callPackage ./playbooks/open-webui/shell.nix { inherit nixglhost; };
 
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
 
@@ -229,6 +230,7 @@
           ''}";
           meta.description = "Generate terse DGX kernel configuration";
         };
+
       }
     );
 }
