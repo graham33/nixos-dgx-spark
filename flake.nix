@@ -168,6 +168,7 @@
         devShells.nccl-two-sparks = pkgs.callPackage ./playbooks/nccl-two-sparks/shell.nix {
           inherit nixglhost;
         };
+        devShells.vibe-coding = pkgs.callPackage ./playbooks/vibe-coding/shell.nix { inherit nixglhost; };
 
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
 
