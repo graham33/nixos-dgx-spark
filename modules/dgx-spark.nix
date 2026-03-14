@@ -101,5 +101,7 @@ in
     };
 
     hardware.nvidia-container-toolkit.enable = true;
+
+    environment.systemPackages = [ pkgs.nvtopPackages.nvidia ];
   };
 }
