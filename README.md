@@ -226,6 +226,7 @@ This repository includes devshells for various NVIDIA DGX Spark playbooks from h
 | [DGX Dashboard](./playbooks/dgx-dashboard/README.md)                | Set up DGX Dashboard for system monitoring                      |       ✅        |       ☑️¹        |
 | [FLUX.1 Dreambooth](./playbooks/flux-dreambooth/README.md)          | FLUX.1 Dreambooth LoRA fine-tuning                              |       ✅        |                  |
 | [Multi-modal Inference](./playbooks/multimodal-inference/README.md) | Run multi-modal inference with vision-language models           |       ✅        |                  |
+| [NIM on Spark](./playbooks/nim-on-spark/README.md)                  | Run NVIDIA NIM microservices on DGX Spark                       |       ✅        |                  |
 | [NCCL for Two Sparks](./playbooks/nccl-two-sparks/README.md)        | Multi-node GPU communication with NCCL                          |       ✅        |       ☑️¹        |
 | [Speculative Decoding](./playbooks/speculative-decoding/README.md)  | Speculative decoding for faster inference                       |       ✅        |                  |
 | [TRT-LLM](./playbooks/trt-llm/README.md)                            | TensorRT-LLM for optimised inference                            |       ✅        |                  |
