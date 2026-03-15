@@ -220,7 +220,6 @@ After initializing the template, you'll need to:
 
 This repository includes devshells for various NVIDIA DGX Spark playbooks from https://build.nvidia.com/spark:
 
-<<<<<<< HEAD
 | Playbook                                                            | Description                                                     | Tested on NixOS | Tested on DGX OS |
 | ------------------------------------------------------------------- | --------------------------------------------------------------- | :-------------: | :--------------: |
 | [ComfyUI](./playbooks/comfyui/README.md)                            | Run ComfyUI with Stable Diffusion 1.5 for AI image generation   |       ✅        |                  |
