@@ -100,6 +100,9 @@ hardware.dgx-spark.enable = true;  # Uses NVIDIA kernel by default
 
 The NVIDIA kernel is a custom build optimized for NVIDIA DGX Spark systems. The kernel configuration is generated from NVIDIA's Debian annotations and compared with NixOS defaults to produce a minimal, maintainable configuration.
 
+The module also enables the DGX Dashboard web interface at
+<http://localhost:11000>, providing GPU telemetry and system monitoring.
+
 #### Using Standard NixOS Kernel (has some issues with networking)
 
 ```nix
@@ -222,6 +225,7 @@ This repository includes devshells for various NVIDIA DGX Spark playbooks from h
 - [Multi-modal Inference](./playbooks/multimodal-inference/README.md) - Run multi-modal inference with vision-language models
 - [Speculative Decoding](./playbooks/speculative-decoding/README.md) - Speculative decoding for faster inference
 - [TRT-LLM](./playbooks/trt-llm/README.md) - TensorRT-LLM for optimised inference
+- [DGX Dashboard](./playbooks/dgx-dashboard/README.md) - Set up DGX Dashboard for system monitoring
 - [vLLM Container](./playbooks/vllm-container/README.md) - Run vLLM inference server with Qwen2.5-Math-1.5B-Instruct model
 - [vLLM Nix](./playbooks/vllm-nix/README.md) - Run vLLM inference server natively with Qwen2.5-Math-1.5B-Instruct model (Nix native, no containers)
 - [NCCL for Two Sparks](./playbooks/nccl-two-sparks/README.md) - Multi-node GPU communication with NCCL
