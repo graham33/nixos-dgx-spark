@@ -35,6 +35,7 @@
       comfyuiModelsOverlay = import ./overlays/comfyui-models.nix;
       dlpackOverlay = import ./overlays/dlpack.nix;
       vllmDepsOverlay = import ./overlays/vllm-deps.nix;
+      jaxAarch64Overlay = import ./overlays/jax-aarch64.nix;
     in
     {
       # Expose the DGX Spark module for other projects
@@ -68,6 +69,7 @@
             dlpackOverlay
             vllmDepsOverlay
             korniaRsOverlay
+            jaxAarch64Overlay
             nixified-ai.overlays.comfyui
             nixified-ai.overlays.models
             nixified-ai.overlays.fetchers
@@ -162,6 +164,7 @@
         devShells.comfyui = pkgs.callPackage ./playbooks/comfyui/shell.nix { inherit nixglhost; };
         devShells.flux-dreambooth = pkgs.callPackage ./playbooks/flux-dreambooth/shell.nix { inherit nixglhost; };
         devShells.multimodal-inference = pkgs.callPackage ./playbooks/multimodal-inference/shell.nix { inherit nixglhost; };
+        devShells.optimized-jax = pkgs.callPackage ./playbooks/optimized-jax/shell.nix { inherit nixglhost; };
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { inherit nixglhost; };
         devShells.vllm-nix = pkgs.callPackage ./playbooks/vllm-nix/shell.nix { inherit nixglhost; };
         devShells.speculative-decoding = pkgs.callPackage ./playbooks/speculative-decoding/shell.nix { inherit nixglhost; };
