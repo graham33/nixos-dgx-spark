@@ -26,6 +26,24 @@ mkShell {
   ];
 
   shellHook = ''
+    if [ ! -f /etc/NIXOS ]; then
+      if [ ! -f "$HOME/.config/containers/policy.json" ] && [ ! -f /etc/containers/policy.json ]; then
+        echo "ERROR: No container policy.json found. Podman will not be able to pull images."
+        echo "Fix with: mkdir -p ~/.config/containers && cp ${../../containers/policy.json} ~/.config/containers/policy.json"
+        return 1
+      fi
+      if [ ! -f "$HOME/.config/containers/registries.conf" ] && [ ! -f /etc/containers/registries.conf ]; then
+        echo "ERROR: No registries.conf found. Podman will not be able to resolve short image names."
+        echo "Fix with: mkdir -p ~/.config/containers && cp ${../../containers/registries.conf} ~/.config/containers/registries.conf"
+        return 1
+      fi
+      if [ ! -f /etc/cdi/nvidia.yaml ] && [ ! -f /var/run/cdi/nvidia-container-toolkit.json ]; then
+        echo "ERROR: No CDI spec found. Podman will not be able to access GPUs."
+        echo "Fix with: sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml"
+        return 1
+      fi
+    fi
+
     echo "=== Multi-Agent Chatbot Playbook ==="
     echo "Instructions: https://build.nvidia.com/spark/multi-agent-chatbot/instructions"
     echo ""
