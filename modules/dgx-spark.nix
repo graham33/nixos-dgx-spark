@@ -104,8 +104,6 @@ in
 
     hardware.nvidia-container-toolkit.enable = true;
 
-    services.openssh.enable = true;
-
     environment.systemPackages = with pkgs; [
       nvtopPackages.nvidia
       iperf3
