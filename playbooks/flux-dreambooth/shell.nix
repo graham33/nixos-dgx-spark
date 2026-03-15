@@ -3,8 +3,18 @@
 , jq
 , nixglhost
 , podman
+, fetchFromGitHub
 }:
 
+let
+  dgxSparkPlaybooks = fetchFromGitHub {
+    owner = "NVIDIA";
+    repo = "dgx-spark-playbooks";
+    rev = "f2709b8694580c1b23ceb6498b3d321f06d1f826";
+    hash = "sha256-N40dW5gnQPOqZsXMjbhPuShsNiinoPPgViPDRg6g1EY=";
+  };
+  defaultFluxData = "${dgxSparkPlaybooks}/nvidia/flux-finetuning/assets/flux_data";
+in
 mkShell {
   packages = [
     curl
@@ -14,6 +24,24 @@ mkShell {
   ];
 
   shellHook = ''
+    if [ ! -f /etc/NIXOS ]; then
+      if [ ! -f "$HOME/.config/containers/policy.json" ] && [ ! -f /etc/containers/policy.json ]; then
+        echo "ERROR: No container policy.json found. Podman will not be able to pull images."
+        echo "Fix with: mkdir -p ~/.config/containers && cp ${../../containers/policy.json} ~/.config/containers/policy.json"
+        return 1
+      fi
+      if [ ! -f "$HOME/.config/containers/registries.conf" ] && [ ! -f /etc/containers/registries.conf ]; then
+        echo "ERROR: No registries.conf found. Podman will not be able to resolve short image names."
+        echo "Fix with: mkdir -p ~/.config/containers && cp ${../../containers/registries.conf} ~/.config/containers/registries.conf"
+        return 1
+      fi
+      if [ ! -f /etc/cdi/nvidia.yaml ] && [ ! -f /var/run/cdi/nvidia-container-toolkit.json ]; then
+        echo "ERROR: No CDI spec found. Podman will not be able to access GPUs."
+        echo "Fix with: sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml"
+        return 1
+      fi
+    fi
+
     echo "=== FLUX.1 Dreambooth LoRA Fine-tuning Playbook ==="
     echo "Instructions: https://build.nvidia.com/spark/flux-finetuning/instructions"
     echo ""
@@ -52,6 +80,13 @@ mkShell {
         return 1
       fi
       _flux-ensure-workspace
+
+      # Copy default training dataset (tjtoy + sparkgpu) if not already present
+      if [ ! -f "$FLUX_WORKSPACE/flux_data/data.toml" ]; then
+        echo "Copying default training dataset..."
+        cp -r ${defaultFluxData}/* "$FLUX_WORKSPACE/flux_data/"
+        chmod -R u+w "$FLUX_WORKSPACE/flux_data"
+      fi
 
       _download_if_needed() {
         local url="$1" file="$2"
