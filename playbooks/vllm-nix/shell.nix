@@ -2,7 +2,6 @@
 , curl
 , hyperfine
 , jq
-, nixglhost
 , python3
 , vllm
 }:
@@ -15,7 +14,6 @@ mkShell {
     curl
     hyperfine
     jq
-    nixglhost
     python3
     vllm
   ];
