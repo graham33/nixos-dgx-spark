@@ -104,7 +104,14 @@ in
 
     hardware.nvidia-container-toolkit.enable = true;
 
-    environment.systemPackages = [ pkgs.nvtopPackages.nvidia ];
+    programs.ssh.enable = true;
+
+    environment.systemPackages = with pkgs; [
+      nvtopPackages.nvidia
+      iperf3
+      ethtool
+      rdma-core
+    ];
 
     services.dgx-dashboard.enable = true;
   };
