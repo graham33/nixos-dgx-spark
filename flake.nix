@@ -169,6 +169,7 @@
         devShells.nccl-two-sparks = pkgs.callPackage ./playbooks/nccl-two-sparks/shell.nix {
           inherit nixglhost;
         };
+        devShells.vscode = pkgs.callPackage ./playbooks/vscode/shell.nix { inherit nixglhost; };
 
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
         packages.dgx-dashboard = pkgs.callPackage ./packages/dgx-dashboard { };
