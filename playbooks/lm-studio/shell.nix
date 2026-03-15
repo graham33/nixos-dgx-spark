@@ -1,4 +1,5 @@
 { mkShell
+, nixglhost
 , curl
 , fetchFromGitHub
 , fetchurl
@@ -36,6 +37,7 @@ let
 in
 mkShell {
   packages = [
+    nixglhost
     curl
     jq
   ];
