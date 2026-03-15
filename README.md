@@ -223,7 +223,7 @@ This repository includes devshells for various NVIDIA DGX Spark playbooks from h
 | Playbook                                                            | Description                                                     | NixOS | DGX OS |
 | ------------------------------------------------------------------- | --------------------------------------------------------------- | :---: | :----: |
 | [ComfyUI](./playbooks/comfyui/README.md)                            | Run ComfyUI with Stable Diffusion 1.5 for AI image generation   |  ✅   |        |
-| [DGX Dashboard](./playbooks/dgx-dashboard/README.md)                | Set up DGX Dashboard for system monitoring                      |  ✅   |        |
+| [DGX Dashboard](./playbooks/dgx-dashboard/README.md)                | Set up DGX Dashboard for system monitoring                      |  ✅   |  ☑️¹   |
 | [FLUX.1 Dreambooth](./playbooks/flux-dreambooth/README.md)          | FLUX.1 Dreambooth LoRA fine-tuning                              |  ✅   |        |
 | [Multi-modal Inference](./playbooks/multimodal-inference/README.md) | Run multi-modal inference with vision-language models           |  ✅   |        |
 | [NCCL for Two Sparks](./playbooks/nccl-two-sparks/README.md)        | Multi-node GPU communication with NCCL                          |  ✅   |        |
@@ -231,6 +231,8 @@ This repository includes devshells for various NVIDIA DGX Spark playbooks from h
 | [TRT-LLM](./playbooks/trt-llm/README.md)                            | TensorRT-LLM for optimised inference                            |  ✅   |        |
 | [vLLM Container](./playbooks/vllm-container/README.md)              | Run vLLM inference server with Qwen2.5-Math-1.5B-Instruct model |  ✅   |        |
 | [vLLM Nix](./playbooks/vllm-nix/README.md)                          | Run vLLM inference server natively (Nix native, no containers)  |  ✅   |        |
+
+¹ Pre-installed on DGX OS
 
 ## Caching
 
