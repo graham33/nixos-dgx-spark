@@ -226,6 +226,7 @@ This repository includes devshells for various NVIDIA DGX Spark playbooks from h
 | [Connect Two Sparks](./playbooks/connect-two-sparks/README.md)      | Connect two DGX Spark systems via QSFP                          |       ✅        |       ☑️¹        |
 | [DGX Dashboard](./playbooks/dgx-dashboard/README.md)                | Set up DGX Dashboard for system monitoring                      |       ✅        |       ☑️¹        |
 | [FLUX.1 Dreambooth](./playbooks/flux-dreambooth/README.md)          | FLUX.1 Dreambooth LoRA fine-tuning                              |       ✅        |                  |
+| [Multi-Agent Chatbot](./playbooks/multi-agent-chatbot/README.md)    | Build and deploy a multi-agent chatbot                          |       ✅        |                  |
 | [Multi-modal Inference](./playbooks/multimodal-inference/README.md) | Run multi-modal inference with vision-language models           |       ✅        |                  |
 | [NCCL for Two Sparks](./playbooks/nccl-two-sparks/README.md)        | Multi-node GPU communication with NCCL                          |       ✅        |       ☑️¹        |
 | [NVFP4](./playbooks/nvfp4/README.md)                                | FP4 model quantisation with TensorRT Model Optimizer            |       ✅        |                  |
