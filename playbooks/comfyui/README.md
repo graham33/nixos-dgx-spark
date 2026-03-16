@@ -24,7 +24,8 @@ This playbook provides a Nix devshell for running ComfyUI with NVIDIA GPU suppor
 
 ## Testing
 
-1. In the web interface, click **Templates** -> **Getting Started** -> **Image Generation**
+1. In the web interface, click **File** -> **Open** and open
+   `text-to-image-workflow.json` in the playbook directory.
 2. Click **Run** to generate an image
 3. Generation takes less than 10 seconds on DGX Spark
 
