@@ -222,7 +222,7 @@ This repository includes devshells for various NVIDIA DGX Spark playbooks from h
 
 | Playbook                                                            | Description                                                     | Tested on NixOS | Tested on DGX OS |
 | ------------------------------------------------------------------- | --------------------------------------------------------------- | :-------------: | :--------------: |
-| [ComfyUI](./playbooks/comfyui/README.md)                            | Run ComfyUI with Stable Diffusion 1.5 for AI image generation   |       ✅        |                  |
+| [ComfyUI](./playbooks/comfyui/README.md)                            | Run ComfyUI with Stable Diffusion 1.5 for AI image generation   |       ✅        |        ✅        |
 | [Connect Two Sparks](./playbooks/connect-two-sparks/README.md)      | Connect two DGX Spark systems via QSFP                          |       ✅        |       ☑️¹        |
 | [DGX Dashboard](./playbooks/dgx-dashboard/README.md)                | Set up DGX Dashboard for system monitoring                      |       ✅        |       ☑️¹        |
 | [FLUX.1 Dreambooth](./playbooks/flux-dreambooth/README.md)          | FLUX.1 Dreambooth LoRA fine-tuning                              |       ✅        |        ✅        |
