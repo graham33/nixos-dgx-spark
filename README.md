@@ -232,7 +232,7 @@ This repository includes devshells for various NVIDIA DGX Spark playbooks from h
 | [NVFP4](./playbooks/nvfp4/README.md)                                | FP4 model quantisation with TensorRT Model Optimizer             | 🟠 Container³ |       ✅        |                  |
 | [PyTorch Fine-tuning](./playbooks/pytorch-finetune/README.md)       | Fine-tune models with PyTorch on DGX Spark                       | 🟠 Container³ |       ✅        |                  |
 | [Speculative Decoding](./playbooks/speculative-decoding/README.md)  | Speculative decoding for faster inference                        | 🟠 Container³ |       ✅        |                  |
-| [TRT-LLM](./playbooks/trt-llm/README.md)                            | TensorRT-LLM for optimised inference                             | 🟠 Container³ |       ✅        |                  |
+| [TRT-LLM](./playbooks/trt-llm/README.md)                            | TensorRT-LLM for optimised inference                             | 🟠 Container³ |       ✅        |        ✅        |
 | [vLLM Container](./playbooks/vllm-container/README.md)              | Run vLLM inference server with Qwen2.5-Math-1.5B-Instruct model | 🟠 Container³ |       ✅        |        ✅        |
 | [vLLM Nix](./playbooks/vllm-nix/README.md)                          | Run vLLM inference server natively (Nix native, no containers)   | 🟢 Full Nix²  |       ✅        |                  |
 
