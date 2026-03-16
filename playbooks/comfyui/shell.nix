@@ -11,4 +11,11 @@ mkShell {
       withModels = [ comfyuiModels.sd15-fp16 ];
     })
   ];
+
+  shellHook = ''
+    if [ ! -f /etc/NIXOS ]; then
+      comfyui() { nixglhost comfyui "$@"; }
+      export -f comfyui
+    fi
+  '';
 }
