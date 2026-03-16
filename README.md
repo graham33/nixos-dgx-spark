@@ -233,7 +233,7 @@ This repository includes devshells for various NVIDIA DGX Spark playbooks from h
 | [PyTorch Fine-tuning](./playbooks/pytorch-finetune/README.md)       | Fine-tune models with PyTorch on DGX Spark                      |       ✅        |                  |
 | [Speculative Decoding](./playbooks/speculative-decoding/README.md)  | Speculative decoding for faster inference                       |       ✅        |                  |
 | [TRT-LLM](./playbooks/trt-llm/README.md)                            | TensorRT-LLM for optimised inference                            |       ✅        |                  |
-| [vLLM Container](./playbooks/vllm-container/README.md)              | Run vLLM inference server with Qwen2.5-Math-1.5B-Instruct model |       ✅        |                  |
+| [vLLM Container](./playbooks/vllm-container/README.md)              | Run vLLM inference server with Qwen2.5-Math-1.5B-Instruct model |       ✅        |        ✅        |
 | [vLLM Nix](./playbooks/vllm-nix/README.md)                          | Run vLLM inference server natively (Nix native, no containers)  |       ✅        |                  |
 
 ¹ Pre-installed on DGX OS
