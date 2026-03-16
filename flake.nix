@@ -163,6 +163,7 @@
         devShells.flux-dreambooth = pkgs.callPackage ./playbooks/flux-dreambooth/shell.nix { inherit nixglhost; };
         devShells.multimodal-inference = pkgs.callPackage ./playbooks/multimodal-inference/shell.nix { inherit nixglhost; };
         devShells.pytorch-finetune = pkgs.callPackage ./playbooks/pytorch-finetune/shell.nix { inherit nixglhost; };
+        devShells.pytorch-finetune-nix = pkgs.callPackage ./playbooks/pytorch-finetune-nix/shell.nix { inherit nixglhost; };
 
         devShells.vllm-container = pkgs.callPackage ./playbooks/vllm-container/shell.nix { inherit nixglhost; };
         devShells.nvfp4 = pkgs.callPackage ./playbooks/nvfp4/shell.nix { inherit nixglhost; };
