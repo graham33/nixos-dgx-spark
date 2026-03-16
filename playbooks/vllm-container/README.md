@@ -10,7 +10,7 @@ This playbook provides a Nix devshell for running NVIDIA's vLLM inference server
    nix develop .#vllm
    ```
 
-2. Start the vLLM server:
+2. Start the vLLM server (the model is downloaded automatically on first run):
 
    ```bash
    vllm-serve-qwen-math
