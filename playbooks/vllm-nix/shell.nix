@@ -34,7 +34,11 @@ mkShell {
     # Create vllm-serve-qwen-math command
     vllm-serve-qwen-math() {
       echo "Starting vLLM server with Qwen2.5-Math-1.5B-Instruct model..."
-      exec vllm serve "Qwen/Qwen2.5-Math-1.5B-Instruct" \
+      local vllm_cmd="vllm"
+      if [ ! -f /etc/NIXOS ]; then
+        vllm_cmd="nixglhost vllm"
+      fi
+      exec $vllm_cmd serve "Qwen/Qwen2.5-Math-1.5B-Instruct" \
         --host 0.0.0.0 \
         --port ${vllmPort} \
         --gpu-memory-utilization 0.6
