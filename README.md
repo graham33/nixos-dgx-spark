@@ -227,7 +227,7 @@ This repository includes devshells for various NVIDIA DGX Spark playbooks from h
 | [DGX Dashboard](./playbooks/dgx-dashboard/README.md)                | Set up DGX Dashboard for system monitoring                       | 🟢 Full Nix²  |       ✅        |       ☑️¹        |
 | [FLUX.1 Dreambooth](./playbooks/flux-dreambooth/README.md)          | FLUX.1 Dreambooth LoRA fine-tuning                               | 🟠 Container³ |       ✅        |        ✅        |
 | [Multi-Agent Chatbot](./playbooks/multi-agent-chatbot/README.md)    | Build and deploy a multi-agent chatbot                           | 🟠 Container³ |       ✅        |        ✅        |
-| [Multi-modal Inference](./playbooks/multimodal-inference/README.md) | Run multi-modal inference with vision-language models            | 🟠 Container³ |       ✅        |                  |
+| [Multi-modal Inference](./playbooks/multimodal-inference/README.md) | Run multi-modal inference with vision-language models            | 🟠 Container³ |       ✅        |        ✅        |
 | [NCCL for Two Sparks](./playbooks/nccl-two-sparks/README.md)        | Multi-node GPU communication with NCCL                           | 🟢 Full Nix²  |       ✅        |       ☑️¹        |
 | [NVFP4](./playbooks/nvfp4/README.md)                                | FP4 model quantisation with TensorRT Model Optimizer             | 🟠 Container³ |       ✅        |                  |
 | [PyTorch Fine-tuning](./playbooks/pytorch-finetune/README.md)       | Fine-tune models with PyTorch on DGX Spark                       | 🟠 Container³ |       ✅        |                  |
