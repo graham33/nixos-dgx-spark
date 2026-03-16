@@ -38,18 +38,16 @@ without installing NixOS.
 
 3. **Enable the graham33 Cachix cache** — see [Caching](#caching) below.
 
-### Running CUDA Applications
+### Running on Non-NixOS (e.g. DGX OS)
 
-On non-NixOS systems, CUDA applications built with Nix need
+On non-NixOS systems, Nix-built CUDA applications need
 [nix-gl-host](https://github.com/numtide/nix-gl-host) to find the host GPU
-drivers. It is included in all dev shells in this repo. Prefix commands with
-`nixglhost`:
+drivers. The playbook devshells handle this automatically — container-based
+playbooks don't need it, and Nix-native playbooks wrap their commands with
+`nixglhost` so no manual intervention is required.
 
-```bash
-nixglhost <command>
-```
-
-For example, to run a CUDA sample:
+For other devshells (e.g. `cuda`), `nixglhost` is available and can be used
+to prefix commands manually:
 
 ```bash
 nix develop .#cuda
