@@ -112,5 +112,6 @@ in
     ];
 
     services.dgx-dashboard.enable = true;
+    services.fwupd.enable = true;
   };
 }
