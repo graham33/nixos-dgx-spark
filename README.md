@@ -56,6 +56,10 @@ nixglhost deviceQuery
 
 ## NixOS on the DGX Spark
 
+> [!WARNING]
+> Only DGX OS can boot from the factory firmware. You will need to
+> [update firmware](#firmware-updates) before trying to install NixOS.
+
 ### USB Boot Image
 
 Build the USB image:
@@ -213,6 +217,27 @@ After initializing the template, you'll need to:
    # Apply the configuration
    sudo nixos-rebuild switch --flake /etc/nixos#dgx-spark
    ```
+
+### Firmware Updates
+
+As [noted](https://github.com/graham33/nixos-dgx-spark/issues/32#issuecomment-4182117621)
+in #32, only DGX OS can boot from the factory firmware, so you will need to
+update firmware before trying to install NixOS. This can either be done from
+within DGX OS or using the NixOS USB boot environment.
+
+The module enables [fwupd](https://fwupd.org/) for firmware updates. NVIDIA
+publishes DGX Spark firmware to the Linux Vendor Firmware Service (LVFS). To
+check for available updates:
+
+```bash
+fwupdmgr get-updates
+```
+
+To install available updates:
+
+```bash
+fwupdmgr update
+```
 
 ## Playbooks
 
