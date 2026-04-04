@@ -22,7 +22,9 @@ final: prev: {
         };
         buildInputs = (oldAttrs.buildInputs or [ ]) ++ [ final.dlpack ];
         # Disable -Werror to avoid compilation failures with gcc 14
-        NIX_CFLAGS_COMPILE = (oldAttrs.NIX_CFLAGS_COMPILE or "") + " -Wno-error";
+        env = (oldAttrs.env or { }) // {
+          NIX_CFLAGS_COMPILE = (oldAttrs.env.NIX_CFLAGS_COMPILE or "") + " -Wno-error";
+        };
         # Disable test that requires network access to huggingface.co and slow tests
         disabledTestPaths = (oldAttrs.disabledTestPaths or [ ]) ++ [
           "tests/python/test_structural_tag_converter.py"
@@ -35,12 +37,8 @@ final: prev: {
 
       # Override cupy to use cudaPackages from final scope instead of hardcoded cuDNN 8.9.7
       # This is needed for CUDA 13 compatibility where cuDNN 8.9.7 is not available
-      # Note: we should likely make cudnn optional in the upstream cupy package
-      cupy = final.callPackage "${prev.path}/pkgs/development/python-modules/cupy" {
-        inherit (python-final) buildPythonPackage setuptools cython fastrlock numpy pytestCheckHook mock;
+      cupy = python-prev.cupy.override {
         cudaPackages = final.cudaPackages;
-        addDriverRunpath = final.addDriverRunpath;
-        symlinkJoin = final.symlinkJoin;
       };
 
       # Override bitsandbytes to add cuda_crt to build inputs for CUDA 13
