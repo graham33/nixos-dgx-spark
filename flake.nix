@@ -62,7 +62,7 @@
         ];
       };
     }
-    // flake-utils.lib.eachDefaultSystem (
+    // flake-utils.lib.eachSystem [ "aarch64-linux" ] (
       system:
       let
         commonConfig = {
@@ -192,6 +192,49 @@
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
         packages.dgx-dashboard = pkgs.callPackage ./packages/dgx-dashboard { };
 
+        # Expose pkgs for downstream flakes to access ComfyUI packages, models, and fetchers
+        legacyPackages = {
+          inherit pkgs;
+        };
+
+        checks = {
+          pre-commit-check = pre-commit-check;
+
+          kernel-config-tests = pkgs.runCommand "kernel-config-tests" { src = ./.; } ''
+            set -e
+            cd $src/tests
+            ${pythonForKernelConfig}/bin/python3 -m pytest test_generate_config.py -v
+            touch $out
+          '';
+        }
+        // (nixpkgs.lib.mapAttrs'
+          (name: shell: nixpkgs.lib.nameValuePair "devShell-${name}" shell.inputDerivation)
+          self.devShells.${system}
+        )
+        // {
+          nixos-dgx-spark = self.nixosConfigurations.dgx-spark.config.system.build.toplevel;
+        };
+
+        apps.pytorch-container = {
+          type = "app";
+          program = "${pkgs.writeShellScript "pytorch-container" ''
+            exec ${pkgs.podman}/bin/podman run --rm -it --device nvidia.com/gpu=all nvcr.io/nvidia/pytorch:25.11-py3 /bin/bash
+          ''}";
+          meta.description = "Run NVIDIA PyTorch container with GPU support";
+        };
+
+        apps.generate-kernel-config = {
+          type = "app";
+          program = "${pkgs.writeShellScript "generate-kernel-config" ''
+            exec ${pythonForKernelConfig}/bin/python3 ${./scripts/generate-terse-dgx-config.py} "$@"
+          ''}";
+          meta.description = "Generate terse DGX kernel configuration";
+        };
+      }
+    )
+    // flake-utils.lib.eachDefaultSystem (
+      system:
+      {
         packages.usb-image =
           let
             targetSystem = "aarch64-linux";
@@ -220,45 +263,6 @@
           }).config.system.build.isoImage;
 
         packages.default = self.packages.${system}.usb-image;
-
-        # Expose pkgs for downstream flakes to access ComfyUI packages, models, and fetchers
-        legacyPackages = {
-          inherit pkgs;
-        };
-
-        checks = {
-          pre-commit-check = pre-commit-check;
-
-          kernel-config-tests = pkgs.runCommand "kernel-config-tests" { src = ./.; } ''
-            set -e
-            cd $src/tests
-            ${pythonForKernelConfig}/bin/python3 -m pytest test_generate_config.py -v
-            touch $out
-          '';
-        }
-        // (nixpkgs.lib.mapAttrs'
-          (name: shell: nixpkgs.lib.nameValuePair "devShell-${name}" shell.inputDerivation)
-          self.devShells.${system}
-        )
-        // (nixpkgs.lib.optionalAttrs (system == "aarch64-linux") {
-          nixos-dgx-spark = self.nixosConfigurations.dgx-spark.config.system.build.toplevel;
-        });
-
-        apps.pytorch-container = {
-          type = "app";
-          program = "${pkgs.writeShellScript "pytorch-container" ''
-            exec ${pkgs.podman}/bin/podman run --rm -it --device nvidia.com/gpu=all nvcr.io/nvidia/pytorch:25.11-py3 /bin/bash
-          ''}";
-          meta.description = "Run NVIDIA PyTorch container with GPU support";
-        };
-
-        apps.generate-kernel-config = {
-          type = "app";
-          program = "${pkgs.writeShellScript "generate-kernel-config" ''
-            exec ${pythonForKernelConfig}/bin/python3 ${./scripts/generate-terse-dgx-config.py} "$@"
-          ''}";
-          meta.description = "Generate terse DGX kernel configuration";
-        };
       }
     );
 }
