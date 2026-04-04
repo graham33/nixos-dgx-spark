@@ -4,27 +4,24 @@ on:
   push:
     branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
     branches: [main]
 
 jobs:
-  check:
-    strategy:
-      fail-fast: false
-      matrix:
-        runner: [ubuntu-latest, ubuntu-24.04-arm]
-    runs-on: ${{ matrix.runner }}
+  authorize:
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' &&
+       contains(github.event.pull_request.labels.*.name, 'ok-to-test'))
     steps:
-      - uses: actions/checkout@v6
+      - run: echo "Build authorized"
 
-      - uses: DeterminateSystems/flake-checker-action@main
-
-      - uses: DeterminateSystems/nix-installer-action@main
-
-      - uses: DeterminateSystems/magic-nix-cache-action@main
-
-      - uses: cachix/cachix-action@v17
-        with:
-          name: graham33
-
-      - name: Run flake checks
-        run: nix flake check
+  nixbuild:
+    needs: authorize
+    uses: nixbuild/nixbuild-action/.github/workflows/ci-workflow.yml@v24
+    with:
+      filter_builds: >
+        .top_attr == "checks" or .top_attr == "packages"
+    secrets:
+      nixbuild_token: ${{ secrets.nixbuild_token }}

@@ -226,14 +226,23 @@
           inherit pkgs;
         };
 
-        checks.pre-commit-check = pre-commit-check;
+        checks = {
+          pre-commit-check = pre-commit-check;
 
-        checks.kernel-config-tests = pkgs.runCommand "kernel-config-tests" { src = ./.; } ''
-          set -e
-          cd $src/tests
-          ${pythonForKernelConfig}/bin/python3 -m pytest test_generate_config.py -v
-          touch $out
-        '';
+          kernel-config-tests = pkgs.runCommand "kernel-config-tests" { src = ./.; } ''
+            set -e
+            cd $src/tests
+            ${pythonForKernelConfig}/bin/python3 -m pytest test_generate_config.py -v
+            touch $out
+          '';
+        }
+        // (nixpkgs.lib.mapAttrs'
+          (name: shell: nixpkgs.lib.nameValuePair "devShell-${name}" shell.inputDerivation)
+          self.devShells.${system}
+        )
+        // (nixpkgs.lib.optionalAttrs (system == "aarch64-linux") {
+          nixos-dgx-spark = self.nixosConfigurations.dgx-spark.config.system.build.toplevel;
+        });
 
         apps.pytorch-container = {
           type = "app";
