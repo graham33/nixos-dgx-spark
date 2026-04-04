@@ -16,6 +16,10 @@
       url = "github:nixified-ai/flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -25,6 +29,7 @@
     , nix-gl-host
     , pre-commit-hooks
     , nixified-ai
+    , disko
     ,
     }:
     let
@@ -46,6 +51,15 @@
       templates.dgx-spark = {
         path = ./templates/dgx-spark;
         description = "NixOS configuration template for DGX Spark systems";
+      };
+
+      nixosConfigurations.dgx-spark = nixpkgs.lib.nixosSystem {
+        system = "aarch64-linux";
+        modules = [
+          disko.nixosModules.disko
+          ./nixos-anywhere/disk-config.nix
+          ./nixos-anywhere/configuration.nix
+        ];
       };
     }
     // flake-utils.lib.eachDefaultSystem (

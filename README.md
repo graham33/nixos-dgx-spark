@@ -278,6 +278,34 @@ cachix use graham33
 
 Install cachix first if needed: https://docs.cachix.org/installation
 
+## nixos-anywhere (Experimental)
+
+> [!WARNING]
+> This has not been tested yet. Use at your own risk.
+
+You can install NixOS on a DGX Spark remotely using
+[nixos-anywhere](https://github.com/nix-community/nixos-anywhere). This is
+useful for headless setups where you have SSH access to the target machine
+(e.g. booted from a NixOS installer ISO or DGX OS with Nix installed).
+
+```bash
+nix run github:nix-community/nixos-anywhere -- --flake github:graham33/nixos-dgx-spark#dgx-spark root@<ip>
+```
+
+This will partition the NVMe disk and install NixOS with the DGX Spark module
+enabled. You may want to customise `nixos-anywhere/configuration.nix` (e.g. to
+add SSH keys or change the hostname) — clone the repo and point `--flake` at
+your local checkout instead.
+
+To test the disk configuration in a VM without installing:
+
+```bash
+nix run github:nix-community/nixos-anywhere -- --flake .#dgx-spark --vm-test
+```
+
+See the [nixos-anywhere documentation](https://github.com/nix-community/nixos-anywhere/blob/main/docs/quickstart.md)
+for full details and requirements.
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
