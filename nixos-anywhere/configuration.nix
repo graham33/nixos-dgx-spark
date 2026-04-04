@@ -15,12 +15,7 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  services.openssh = {
-    enable = true;
-    settings = {
-      PermitRootLogin = "yes";
-    };
-  };
+  services.openssh.enable = true;
 
   system.stateVersion = "25.11";
 }

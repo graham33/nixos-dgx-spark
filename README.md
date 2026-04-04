@@ -285,8 +285,7 @@ Install cachix first if needed: https://docs.cachix.org/installation
 
 You can install NixOS on a DGX Spark remotely using
 [nixos-anywhere](https://github.com/nix-community/nixos-anywhere). This is
-useful for headless setups where you have SSH access to the target machine
-(e.g. booted from a NixOS installer ISO or DGX OS with Nix installed).
+useful for headless setups where you have SSH access to the target machine.
 
 ```bash
 nix run github:nix-community/nixos-anywhere -- --flake github:graham33/nixos-dgx-spark#dgx-spark root@<ip>
