@@ -136,7 +136,7 @@
             nixglhost
             pre-commit
             nixpkgs-fmt
-            nodePackages.prettier
+            prettier
           ];
 
           shellHook = ''
