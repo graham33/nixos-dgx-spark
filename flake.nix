@@ -34,19 +34,15 @@
     }:
     let
       linux617Overlay = import ./overlays/linux-6.17.nix;
-      cudaSbsaOverlay = import ./overlays/cuda-sbsa.nix;
-      cuda13Overlay = import ./overlays/cuda-13.nix;
-      korniaRsOverlay = import ./overlays/kornia-rs.nix;
+      fixesOverlay = import ./overlays/fixes.nix;
       comfyuiModelsOverlay = import ./overlays/comfyui-models.nix;
-      dlpackOverlay = import ./overlays/dlpack.nix;
-      vllmDepsOverlay = import ./overlays/vllm-deps.nix;
     in
     {
       # Expose the DGX Spark module for other projects
       nixosModules.dgx-spark = import ./modules/dgx-spark.nix;
       nixosModules.dgx-dashboard = import ./modules/dgx-dashboard.nix;
 
-      overlays.cuda-13 = cuda13Overlay;
+      overlays.fixes = fixesOverlay;
 
       templates.dgx-spark = {
         path = ./templates/dgx-spark;
@@ -77,11 +73,7 @@
           config = commonConfig;
           overlays = [
             linux617Overlay
-            cudaSbsaOverlay
-            cuda13Overlay
-            dlpackOverlay
-            vllmDepsOverlay
-            korniaRsOverlay
+            fixesOverlay
             nixified-ai.overlays.comfyui
             nixified-ai.overlays.models
             nixified-ai.overlays.fetchers
