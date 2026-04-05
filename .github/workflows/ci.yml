@@ -36,4 +36,17 @@ jobs:
 
       - name: Build checks and packages
         run: |
-          nix flake check --print-build-logs
+          # Collect all check and package attributes
+          attrs=$(nix eval .#checks.aarch64-linux --apply 'builtins.attrNames' --json | \
+            jq -r '.[] | ".#checks.aarch64-linux.\(.)"')
+          attrs+=$'\n'
+          attrs+=$(nix eval .#packages.aarch64-linux --apply 'builtins.attrNames' --json | \
+            jq -r '.[] | ".#packages.aarch64-linux.\(.)"')
+
+          echo "Building: $attrs"
+
+          echo "$attrs" | xargs nix build \
+            --print-build-logs \
+            --eval-store auto \
+            --store ssh-ng://eu.nixbuild.net \
+            --builders "" --max-jobs 2
