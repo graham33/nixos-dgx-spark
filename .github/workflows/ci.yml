@@ -22,6 +22,7 @@ jobs:
     uses: nixbuild/nixbuild-action/.github/workflows/ci-workflow.yml@v24
     with:
       filter_builds: >
-        .top_attr == "checks" or .top_attr == "packages"
+        (.top_attr == "checks" or .top_attr == "packages") and
+        (.system == "x86_64-linux" or .system == "aarch64-linux")
     secrets:
       nixbuild_token: ${{ secrets.nixbuild_token }}
