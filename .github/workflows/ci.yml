@@ -22,6 +22,7 @@ jobs:
     uses: nixbuild/nixbuild-action/.github/workflows/ci-workflow.yml@v24
     with:
       nix_on_tmpfs: true
+      runs_on: ubuntu-24.04-arm
       nix_conf: |
         extra-substituters = https://graham33.cachix.org
         extra-trusted-public-keys = graham33.cachix.org-1:DqH72VpwSrACa3+L9eqh4bixjWx9IQUaxQtRh4gtkX8=
