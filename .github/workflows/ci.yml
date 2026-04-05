@@ -48,6 +48,7 @@ jobs:
             echo "::group::Building $attr"
             nix build "$attr" \
               --print-build-logs \
+              --verbose \
               --eval-store auto \
               --store ssh-ng://eu.nixbuild.net \
               --builders "" --max-jobs 2
