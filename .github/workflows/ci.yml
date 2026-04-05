@@ -43,10 +43,13 @@ jobs:
           attrs+=$(nix eval .#packages.aarch64-linux --apply 'builtins.attrNames' --json | \
             jq -r '.[] | ".#packages.aarch64-linux.\(.)"')
 
-          echo "Building: $attrs"
-
-          echo "$attrs" | xargs nix build \
-            --print-build-logs \
-            --eval-store auto \
-            --store ssh-ng://eu.nixbuild.net \
-            --builders "" --max-jobs 2
+          # Build each attribute individually to avoid daemon OOM
+          echo "$attrs" | while read -r attr; do
+            echo "::group::Building $attr"
+            nix build "$attr" \
+              --print-build-logs \
+              --eval-store auto \
+              --store ssh-ng://eu.nixbuild.net \
+              --builders "" --max-jobs 2
+            echo "::endgroup::"
+          done
