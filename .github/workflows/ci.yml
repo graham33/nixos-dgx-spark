@@ -21,6 +21,7 @@ jobs:
     needs: authorize
     uses: nixbuild/nixbuild-action/.github/workflows/ci-workflow.yml@v24
     with:
+      nix_on_tmpfs: true
       filter_builds: >
         (.top_attr == "checks" or .top_attr == "packages") and
         (.system == "x86_64-linux" or .system == "aarch64-linux")
