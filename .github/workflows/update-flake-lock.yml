@@ -16,4 +16,4 @@ jobs:
       - uses: DeterminateSystems/update-flake-lock@main
         with:
           pr-title: "chore: update flake.lock"
-          pr-labels: dependencies
+          pr-labels: dependencies,ok-to-test

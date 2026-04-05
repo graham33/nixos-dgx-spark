@@ -4,27 +4,53 @@ on:
   push:
     branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
     branches: [main]
 
 jobs:
-  check:
-    strategy:
-      fail-fast: false
-      matrix:
-        runner: [ubuntu-latest, ubuntu-24.04-arm]
-    runs-on: ${{ matrix.runner }}
+  authorize:
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' &&
+       contains(github.event.pull_request.labels.*.name, 'ok-to-test'))
     steps:
-      - uses: actions/checkout@v6
+      - run: echo "Build authorized"
 
-      - uses: DeterminateSystems/flake-checker-action@main
+  check:
+    needs: authorize
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
 
-      - uses: DeterminateSystems/nix-installer-action@main
-
-      - uses: DeterminateSystems/magic-nix-cache-action@main
-
-      - uses: cachix/cachix-action@v17
+      - uses: nixbuild/nix-quick-install-action@v34
         with:
-          name: graham33
+          nix_on_tmpfs: true
+          nix_conf: |
+            extra-substituters = https://graham33.cachix.org
+            extra-trusted-public-keys = graham33.cachix.org-1:DqH72VpwSrACa3+L9eqh4bixjWx9IQUaxQtRh4gtkX8=
 
-      - name: Run flake checks
-        run: nix flake check
+      - uses: nixbuild/nixbuild-action@v24
+        with:
+          nixbuild_token: ${{ secrets.nixbuild_token }}
+
+      - name: Build checks and packages
+        run: |
+          # Collect all check and package attributes
+          attrs=$(nix eval .#checks.aarch64-linux --apply 'builtins.attrNames' --json | \
+            jq -r '.[] | ".#checks.aarch64-linux.\(.)"')
+          attrs+=$'\n'
+          attrs+=$(nix eval .#packages.aarch64-linux --apply 'builtins.attrNames' --json | \
+            jq -r '.[] | ".#packages.aarch64-linux.\(.)"')
+
+          # Build each attribute individually to avoid daemon OOM
+          echo "$attrs" | while read -r attr; do
+            echo "::group::Building $attr"
+            nix build "$attr" \
+              --print-build-logs \
+              --verbose \
+              --eval-store auto \
+              --store ssh-ng://eu.nixbuild.net \
+              --builders "" --max-jobs 2
+            echo "::endgroup::"
+          done
