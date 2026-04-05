@@ -17,17 +17,23 @@ jobs:
     steps:
       - run: echo "Build authorized"
 
-  nixbuild:
+  check:
     needs: authorize
-    uses: nixbuild/nixbuild-action/.github/workflows/ci-workflow.yml@v24
-    with:
-      nix_on_tmpfs: true
-      runs_on: ubuntu-24.04-arm
-      nix_conf: |
-        extra-substituters = https://graham33.cachix.org
-        extra-trusted-public-keys = graham33.cachix.org-1:DqH72VpwSrACa3+L9eqh4bixjWx9IQUaxQtRh4gtkX8=
-      filter_builds: >
-        (.top_attr == "checks" or .top_attr == "packages") and
-        (.system == "x86_64-linux" or .system == "aarch64-linux")
-    secrets:
-      nixbuild_token: ${{ secrets.nixbuild_token }}
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: nixbuild/nix-quick-install-action@v34
+        with:
+          nix_on_tmpfs: true
+          nix_conf: |
+            extra-substituters = https://graham33.cachix.org
+            extra-trusted-public-keys = graham33.cachix.org-1:DqH72VpwSrACa3+L9eqh4bixjWx9IQUaxQtRh4gtkX8=
+
+      - uses: nixbuild/nixbuild-action@v24
+        with:
+          nixbuild_token: ${{ secrets.nixbuild_token }}
+
+      - name: Build checks and packages
+        run: |
+          nix flake check --print-build-logs
