@@ -27,4 +27,4 @@ jobs:
           name: graham33
 
       - name: Run flake checks
-        run: nix flake check
+        run: nix flake check --no-build

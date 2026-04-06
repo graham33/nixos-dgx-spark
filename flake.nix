@@ -34,19 +34,15 @@
     }:
     let
       linux617Overlay = import ./overlays/linux-6.17.nix;
-      cudaSbsaOverlay = import ./overlays/cuda-sbsa.nix;
-      cuda13Overlay = import ./overlays/cuda-13.nix;
-      korniaRsOverlay = import ./overlays/kornia-rs.nix;
+      fixesOverlay = import ./overlays/fixes.nix;
       comfyuiModelsOverlay = import ./overlays/comfyui-models.nix;
-      dlpackOverlay = import ./overlays/dlpack.nix;
-      vllmDepsOverlay = import ./overlays/vllm-deps.nix;
     in
     {
       # Expose the DGX Spark module for other projects
       nixosModules.dgx-spark = import ./modules/dgx-spark.nix;
       nixosModules.dgx-dashboard = import ./modules/dgx-dashboard.nix;
 
-      overlays.cuda-13 = cuda13Overlay;
+      overlays.fixes = fixesOverlay;
 
       templates.dgx-spark = {
         path = ./templates/dgx-spark;
@@ -62,7 +58,7 @@
         ];
       };
     }
-    // flake-utils.lib.eachDefaultSystem (
+    // flake-utils.lib.eachSystem [ "aarch64-linux" ] (
       system:
       let
         commonConfig = {
@@ -77,11 +73,7 @@
           config = commonConfig;
           overlays = [
             linux617Overlay
-            cudaSbsaOverlay
-            cuda13Overlay
-            dlpackOverlay
-            vllmDepsOverlay
-            korniaRsOverlay
+            fixesOverlay
             nixified-ai.overlays.comfyui
             nixified-ai.overlays.models
             nixified-ai.overlays.fetchers
@@ -136,7 +128,7 @@
             nixglhost
             pre-commit
             nixpkgs-fmt
-            nodePackages.prettier
+            prettier
           ];
 
           shellHook = ''
@@ -192,6 +184,53 @@
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
         packages.dgx-dashboard = pkgs.callPackage ./packages/dgx-dashboard { };
 
+        # Expose pkgs for downstream flakes to access ComfyUI packages, models, and fetchers
+        legacyPackages = {
+          inherit pkgs;
+        };
+
+        checks = {
+          pre-commit-check = pre-commit-check;
+
+          kernel-config-tests = pkgs.runCommand "kernel-config-tests" { src = ./.; } ''
+            set -e
+            cd $src/tests
+            ${pythonForKernelConfig}/bin/python3 -m pytest test_generate_config.py -v
+            touch $out
+          '';
+        };
+
+        # CI-buildable checks for devShells and nixosConfiguration
+        # Requires CUDA builders, so not included in checks (which run on GitHub Actions)
+        # Build locally with: nix build .#ciChecks.aarch64-linux
+        ciChecks = (nixpkgs.lib.mapAttrs'
+          (name: shell: nixpkgs.lib.nameValuePair "devShell-${name}" shell.inputDerivation)
+          self.devShells.${system}
+        )
+        // {
+          nixos-dgx-spark = self.nixosConfigurations.dgx-spark.config.system.build.toplevel;
+        };
+
+        apps.pytorch-container = {
+          type = "app";
+          program = "${pkgs.writeShellScript "pytorch-container" ''
+            exec ${pkgs.podman}/bin/podman run --rm -it --device nvidia.com/gpu=all nvcr.io/nvidia/pytorch:25.11-py3 /bin/bash
+          ''}";
+          meta.description = "Run NVIDIA PyTorch container with GPU support";
+        };
+
+        apps.generate-kernel-config = {
+          type = "app";
+          program = "${pkgs.writeShellScript "generate-kernel-config" ''
+            exec ${pythonForKernelConfig}/bin/python3 ${./scripts/generate-terse-dgx-config.py} "$@"
+          ''}";
+          meta.description = "Generate terse DGX kernel configuration";
+        };
+      }
+    )
+    // flake-utils.lib.eachDefaultSystem (
+      system:
+      {
         packages.usb-image =
           let
             targetSystem = "aarch64-linux";
@@ -220,36 +259,6 @@
           }).config.system.build.isoImage;
 
         packages.default = self.packages.${system}.usb-image;
-
-        # Expose pkgs for downstream flakes to access ComfyUI packages, models, and fetchers
-        legacyPackages = {
-          inherit pkgs;
-        };
-
-        checks.pre-commit-check = pre-commit-check;
-
-        checks.kernel-config-tests = pkgs.runCommand "kernel-config-tests" { src = ./.; } ''
-          set -e
-          cd $src/tests
-          ${pythonForKernelConfig}/bin/python3 -m pytest test_generate_config.py -v
-          touch $out
-        '';
-
-        apps.pytorch-container = {
-          type = "app";
-          program = "${pkgs.writeShellScript "pytorch-container" ''
-            exec ${pkgs.podman}/bin/podman run --rm -it --device nvidia.com/gpu=all nvcr.io/nvidia/pytorch:25.11-py3 /bin/bash
-          ''}";
-          meta.description = "Run NVIDIA PyTorch container with GPU support";
-        };
-
-        apps.generate-kernel-config = {
-          type = "app";
-          program = "${pkgs.writeShellScript "generate-kernel-config" ''
-            exec ${pythonForKernelConfig}/bin/python3 ${./scripts/generate-terse-dgx-config.py} "$@"
-          ''}";
-          meta.description = "Generate terse DGX kernel configuration";
-        };
       }
     );
 }
