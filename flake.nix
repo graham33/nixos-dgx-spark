@@ -180,9 +180,14 @@
           inherit nixglhost;
         };
         devShells.multi-agent-chatbot = pkgs.callPackage ./playbooks/multi-agent-chatbot/shell.nix { inherit nixglhost; };
+        devShells.openshell = pkgs.callPackage ./playbooks/openshell/shell.nix {
+          inherit nixglhost;
+          openshell = pkgs.callPackage ./packages/openshell { };
+        };
 
         packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
         packages.dgx-dashboard = pkgs.callPackage ./packages/dgx-dashboard { };
+        packages.openshell = pkgs.callPackage ./packages/openshell { };
 
         # Expose pkgs for downstream flakes to access ComfyUI packages, models, and fetchers
         legacyPackages = {

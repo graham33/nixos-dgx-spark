@@ -99,8 +99,12 @@ in
     virtualisation.podman = {
       enable = true;
       dockerCompat = true;
+      dockerSocket.enable = true;
       defaultNetwork.settings.dns_enabled = true;
     };
+
+    # Trust the podman bridge so containers can reach host services
+    networking.firewall.trustedInterfaces = [ "podman+" ];
 
     hardware.nvidia-container-toolkit.enable = true;
 

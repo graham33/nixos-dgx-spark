@@ -242,26 +242,28 @@ fwupdmgr update
 
 This repository includes devshells for various NVIDIA DGX Spark playbooks from https://build.nvidia.com/spark:
 
-| Playbook                                                                | Description                                                     |     Type      | Tested on NixOS | Tested on DGX OS |
-| ----------------------------------------------------------------------- | --------------------------------------------------------------- | :-----------: | :-------------: | :--------------: |
-| [ComfyUI](./playbooks/comfyui/README.md)                                | Run ComfyUI with Stable Diffusion 1.5 for AI image generation   | 🟢 Full Nix²  |       ✅        |        ✅        |
-| [Connect Two Sparks](./playbooks/connect-two-sparks/README.md)          | Connect two DGX Spark systems via QSFP                          | 🟢 Full Nix²  |       ✅        |       ☑️¹        |
-| [DGX Dashboard](./playbooks/dgx-dashboard/README.md)                    | Set up DGX Dashboard for system monitoring                      | 🟢 Full Nix²  |       ✅        |       ☑️¹        |
-| [FLUX.1 Dreambooth](./playbooks/flux-dreambooth/README.md)              | FLUX.1 Dreambooth LoRA fine-tuning                              | 🟠 Container³ |       ✅        |        ✅        |
-| [Multi-Agent Chatbot](./playbooks/multi-agent-chatbot/README.md)        | Build and deploy a multi-agent chatbot                          | 🟠 Container³ |       ✅        |        ✅        |
-| [Multi-modal Inference](./playbooks/multimodal-inference/README.md)     | Run multi-modal inference with vision-language models           | 🟠 Container³ |       ✅        |        ✅        |
-| [NCCL for Two Sparks](./playbooks/nccl-two-sparks/README.md)            | Multi-node GPU communication with NCCL                          | 🟢 Full Nix²  |       ✅        |       ☑️¹        |
-| [NVFP4](./playbooks/nvfp4/README.md)                                    | FP4 model quantisation with TensorRT Model Optimizer            | 🟠 Container³ |       ✅        |                  |
-| [PyTorch Fine-tuning Container](./playbooks/pytorch-finetune/README.md) | Fine-tune models with PyTorch on DGX Spark                      | 🟠 Container³ |       ✅        |                  |
-| [PyTorch Fine-tuning Nix](./playbooks/pytorch-finetune-nix/README.md)   | Fine-tune models with PyTorch (Nix native, no containers)       | 🟢 Full Nix²  |       ✅        |        ✅        |
-| [Speculative Decoding](./playbooks/speculative-decoding/README.md)      | Speculative decoding for faster inference                       | 🟠 Container³ |       ✅        |                  |
-| [TRT-LLM](./playbooks/trt-llm/README.md)                                | TensorRT-LLM for optimised inference                            | 🟠 Container³ |       ✅        |        ✅        |
-| [vLLM Container](./playbooks/vllm-container/README.md)                  | Run vLLM inference server with Qwen2.5-Math-1.5B-Instruct model | 🟠 Container³ |       ✅        |        ✅        |
-| [vLLM Nix](./playbooks/vllm-nix/README.md)                              | Run vLLM inference server natively (Nix native, no containers)  | 🟢 Full Nix²  |       ✅        |        ✅        |
+| Playbook                                                                | Description                                                     |        Type         | Tested on NixOS | Tested on DGX OS |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------- | :-----------------: | :-------------: | :--------------: |
+| [ComfyUI](./playbooks/comfyui/README.md)                                | Run ComfyUI with Stable Diffusion 1.5 for AI image generation   |    🟢 Full Nix²     |       ✅        |        ✅        |
+| [Connect Two Sparks](./playbooks/connect-two-sparks/README.md)          | Connect two DGX Spark systems via QSFP                          |    🟢 Full Nix²     |       ✅        |       ☑️¹        |
+| [DGX Dashboard](./playbooks/dgx-dashboard/README.md)                    | Set up DGX Dashboard for system monitoring                      |    🟢 Full Nix²     |       ✅        |       ☑️¹        |
+| [FLUX.1 Dreambooth](./playbooks/flux-dreambooth/README.md)              | FLUX.1 Dreambooth LoRA fine-tuning                              |    🟠 Container³    |       ✅        |        ✅        |
+| [Multi-Agent Chatbot](./playbooks/multi-agent-chatbot/README.md)        | Build and deploy a multi-agent chatbot                          |    🟠 Container³    |       ✅        |        ✅        |
+| [Multi-modal Inference](./playbooks/multimodal-inference/README.md)     | Run multi-modal inference with vision-language models           |    🟠 Container³    |       ✅        |        ✅        |
+| [NCCL for Two Sparks](./playbooks/nccl-two-sparks/README.md)            | Multi-node GPU communication with NCCL                          |    🟢 Full Nix²     |       ✅        |       ☑️¹        |
+| [NVFP4](./playbooks/nvfp4/README.md)                                    | FP4 model quantisation with TensorRT Model Optimizer            |    🟠 Container³    |       ✅        |                  |
+| [OpenShell](./playbooks/openshell/README.md)                            | Secure long-running AI agents with OpenShell sandbox            | 🔵 Nix + Container⁴ |       ✅        |                  |
+| [PyTorch Fine-tuning Container](./playbooks/pytorch-finetune/README.md) | Fine-tune models with PyTorch on DGX Spark                      |    🟠 Container³    |       ✅        |                  |
+| [PyTorch Fine-tuning Nix](./playbooks/pytorch-finetune-nix/README.md)   | Fine-tune models with PyTorch (Nix native, no containers)       |    🟢 Full Nix²     |       ✅        |        ✅        |
+| [Speculative Decoding](./playbooks/speculative-decoding/README.md)      | Speculative decoding for faster inference                       |    🟠 Container³    |       ✅        |                  |
+| [TRT-LLM](./playbooks/trt-llm/README.md)                                | TensorRT-LLM for optimised inference                            |    🟠 Container³    |       ✅        |        ✅        |
+| [vLLM Container](./playbooks/vllm-container/README.md)                  | Run vLLM inference server with Qwen2.5-Math-1.5B-Instruct model |    🟠 Container³    |       ✅        |        ✅        |
+| [vLLM Nix](./playbooks/vllm-nix/README.md)                              | Run vLLM inference server natively (Nix native, no containers)  |    🟢 Full Nix²     |       ✅        |        ✅        |
 
 ¹ Pre-installed on DGX OS
 ² **Full Nix**: Fully reproducible — all dependencies installed via Nix
 ³ **Container**: Nix provides podman, but containers are pulled/built at runtime
+⁴ **Nix + Container**: CLI tools packaged via Nix, but containers are managed by the tool at runtime
 
 ## Caching
 
