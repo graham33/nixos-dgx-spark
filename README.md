@@ -11,6 +11,9 @@ module to add settings required for DGX Spark systems.
 This works on the NVIDIA DGX Spark itself, and has also been reported to work
 on the Asus Ascent GX10.
 
+See my 5 minute lightning talk from [Planet Nix](https://planetnix.com) for an intro:
+ https://youtu.be/AvK_gi_snJE?si=MPKv3iiuS9B5elIE
+
 ## Using Nix on DGX OS (Ubuntu)
 
 You can use the dev shells and playbooks in this repo on NVIDIA DGX OS (Ubuntu)
