@@ -55,7 +55,10 @@ let
   );
 in
 {
-  imports = [ ./dgx-dashboard.nix ];
+  imports = [
+    ./dgx-dashboard.nix
+    ./vllm.nix
+  ];
 
   options.hardware.dgx-spark = {
     enable = mkEnableOption "DGX Spark hardware support";

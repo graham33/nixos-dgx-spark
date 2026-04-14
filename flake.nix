@@ -43,6 +43,7 @@
           # Expose the DGX Spark module for other projects
           nixosModules.dgx-spark = import ./modules/dgx-spark.nix;
           nixosModules.dgx-dashboard = import ./modules/dgx-dashboard.nix;
+          nixosModules.vllm = import ./modules/vllm.nix;
 
           overlays.fixes = fixesOverlay;
 
