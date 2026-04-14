@@ -4,12 +4,11 @@
 [![Cachix](https://img.shields.io/badge/cachix-graham33-blue.svg)](https://graham33.cachix.org)
 [![License](https://img.shields.io/github/license/graham33/nixos-dgx-spark)](LICENSE)
 
-Allows you to try DGX Spark Playbooks using Nix on DGX OS, and install NixOS
-on your DGX Spark for the full Nix experience! Provides USB images and a NixOS
-module to add settings required for DGX Spark systems.
+Try DGX Spark playbooks using Nix on DGX OS, or install NixOS on your DGX
+Spark for the full Nix experience. The repository provides USB images and a
+NixOS module with settings for DGX Spark systems.
 
-This works on the NVIDIA DGX Spark itself, and has also been reported to work
-on the Asus Ascent GX10.
+This works on the NVIDIA DGX Spark itself and also on the Asus Ascent GX10.
 
 See my 5 minute lightning talk from [Planet Nix](https://planetnix.com) for an intro:
  https://youtu.be/AvK_gi_snJE?si=MPKv3iiuS9B5elIE
@@ -60,8 +59,8 @@ nixglhost deviceQuery
 ## NixOS on the DGX Spark
 
 > [!WARNING]
-> Only DGX OS can boot from the factory firmware. You will need to
-> [update firmware](#firmware-updates) before trying to install NixOS.
+> Only DGX OS can boot from the factory firmware. You need to
+> [update firmware](#firmware-updates) before installing NixOS.
 
 ### USB Boot Image
 
@@ -75,20 +74,20 @@ sync
 
 The image includes two kernel options, selectable from the GRUB boot menu:
 
-- **NixOS** (default) - NVIDIA's specialized kernel for DGX Spark with full GPU support and working Ethernet
+- **NixOS** (default) - NVIDIA's specialised kernel for DGX Spark with full GPU support and working Ethernet
 - **NixOS (standard-kernel)** - Standard NixOS 6.17 kernel (Ethernet has problems)
 
 #### Booting
 
 Disable Secure Boot in the DGX Spark BIOS and boot from the USB drive.
 
-You can then following the installation instructions in the NixOS manual: https://nixos.org/manual/nixos/stable/#sec-installation-manual
+You can then follow the installation instructions in the NixOS manual: https://nixos.org/manual/nixos/stable/#sec-installation-manual
 
 ### Using the DGX Spark module
 
 This module provides configurable DGX Spark hardware support with options for kernel selection.
 
-#### Module Configuration Options
+#### Module configuration options
 
 ```nix
 hardware.dgx-spark = {
@@ -97,18 +96,18 @@ hardware.dgx-spark = {
 };
 ```
 
-#### Using NVIDIA Kernel
+#### Using NVIDIA kernel
 
 ```nix
 hardware.dgx-spark.enable = true;  # Uses NVIDIA kernel by default
 ```
 
-The NVIDIA kernel is a custom build optimized for NVIDIA DGX Spark systems. The kernel configuration is generated from NVIDIA's Debian annotations and compared with NixOS defaults to produce a minimal, maintainable configuration.
+The NVIDIA kernel is a custom build optimised for NVIDIA DGX Spark systems. The kernel configuration is generated from NVIDIA's Debian annotations and compared with NixOS defaults to produce a minimal, maintainable configuration.
 
 The module also enables the DGX Dashboard web interface at
 <http://localhost:11000>, providing GPU telemetry and system monitoring.
 
-#### Using Standard NixOS Kernel (has some issues with networking)
+#### Using standard NixOS kernel (has some issues with networking)
 
 ```nix
 hardware.dgx-spark = {
@@ -117,7 +116,7 @@ hardware.dgx-spark = {
 };
 ```
 
-#### Kernel Configuration Management
+#### Kernel configuration management
 
 The kernel configuration is generated from NVIDIA's Debian annotations and stored in `kernel-configs/nvidia-dgx-spark-<version>.nix`. This terse configuration only contains options that differ from NixOS defaults, reducing verbosity by ~82%.
 
@@ -127,12 +126,12 @@ To regenerate the kernel configuration:
 nix run .#generate-kernel-config
 ```
 
-This will:
+This:
 
-1. Fetch the NVIDIA kernel source from GitHub
-2. Build the NixOS baseline kernel config
-3. Compare NVIDIA's annotations with NixOS defaults
-4. Generate a terse config file with only the differences
+1. Fetches the NVIDIA kernel source from GitHub
+2. Builds the NixOS baseline kernel config
+3. Compares NVIDIA's annotations with NixOS defaults
+4. Generates a terse config file with only the differences
 
 Regeneration is needed when:
 
@@ -145,7 +144,7 @@ You can also use a local kernel source for development:
 nix run .#generate-kernel-config -- --kernel-source /path/to/NV-Kernels
 ```
 
-#### Importing in Other Projects
+#### Importing in other projects
 
 Other projects can import this flake and use the DGX Spark module:
 
@@ -169,7 +168,7 @@ Other projects can import this flake and use the DGX Spark module:
 }
 ```
 
-### Quick Start NixOS Template
+### Quick start NixOS template
 
 For a complete NixOS configuration template specifically designed for DGX Spark
 systems, you can use the template:
@@ -179,19 +178,19 @@ systems, you can use the template:
 mkdir my-dgx-spark-config
 cd my-dgx-spark-config
 
-# Initialize with the DGX Spark template
+# Initialise with the DGX Spark template
 nix flake init -t github:graham33/nixos-dgx-spark#dgx-spark
 ```
 
-This will create a complete NixOS configuration with:
+This creates a complete NixOS configuration with:
 
 - `flake.nix` - Flake configuration that imports the DGX Spark module
-- `configuration.nix` - Main system configuration optimized for DGX Spark
+- `configuration.nix` - Main system configuration optimised for DGX Spark
 - `hardware-configuration.nix` - Hardware configuration template
 
-#### Customizing the Template
+#### Customising the template
 
-After initializing the template, you'll need to:
+After initialising the template, you need to:
 
 1. **Generate hardware configuration and update template:**
 
@@ -204,7 +203,7 @@ After initializing the template, you'll need to:
    # values from /tmp/nixos-config/hardware-configuration.nix
    ```
 
-2. **Edit `configuration.nix` to customize:**
+2. **Edit `configuration.nix` to customise:**
    - Change hostname from `dgx-spark` to your preferred name
    - Update username from `nixos` to your preferred username
    - Add your SSH public keys for remote access
@@ -221,11 +220,11 @@ After initializing the template, you'll need to:
    sudo nixos-rebuild switch --flake /etc/nixos#dgx-spark
    ```
 
-### Firmware Updates
+### Firmware updates
 
 As [noted](https://github.com/graham33/nixos-dgx-spark/issues/32#issuecomment-4182117621)
 in #32, only DGX OS can boot from the factory firmware. If NixOS can't boot
-from the factory firmware, you will need to update firmware from DGX OS first.
+from the factory firmware, you need to update firmware from DGX OS first.
 
 The module enables [fwupd](https://fwupd.org/) for firmware updates. NVIDIA
 publishes DGX Spark firmware to the Linux Vendor Firmware Service (LVFS). To
@@ -243,7 +242,7 @@ fwupdmgr update
 
 ## Playbooks
 
-This repository includes devshells for various NVIDIA DGX Spark playbooks from https://build.nvidia.com/spark:
+This repository includes devshells for NVIDIA DGX Spark playbooks from https://build.nvidia.com/spark:
 
 | Playbook                                                                | Description                                                     |        Type         | Tested on NixOS | Tested on DGX OS |
 | ----------------------------------------------------------------------- | --------------------------------------------------------------- | :-----------------: | :-------------: | :--------------: |
@@ -296,7 +295,7 @@ useful for headless setups where you have SSH access to the target machine.
 nix run github:nix-community/nixos-anywhere -- --flake github:graham33/nixos-dgx-spark#dgx-spark root@<ip>
 ```
 
-This will partition the NVMe disk and install NixOS with the DGX Spark module
+This partitions the NVMe disk and installs NixOS with the DGX Spark module
 enabled. You may want to customise `nixos-anywhere/configuration.nix` (e.g. to
 add SSH keys or change the hostname) — clone the repo and point `--flake` at
 your local checkout instead.

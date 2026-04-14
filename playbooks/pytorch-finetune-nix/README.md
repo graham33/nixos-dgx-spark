@@ -1,6 +1,6 @@
-# PyTorch Fine-tuning (Nix) Playbook
+# PyTorch fine-tuning (Nix) playbook
 
-Fine-tune LLMs using native PyTorch and HuggingFace PEFT on the DGX Spark, with all dependencies provided by Nix.
+Fine-tune LLMs using native PyTorch and HuggingFace PEFT on the DGX Spark. Nix provides all dependencies.
 
 ## Usage
 
@@ -23,7 +23,7 @@ python Llama3_8B_LoRA_finetuning.py
 - BitsAndBytes for 4-bit/8-bit quantisation (QLoRA)
 - NVIDIA fine-tuning scripts from [dgx-spark-playbooks](https://github.com/NVIDIA/dgx-spark-playbooks)
 
-### Available Training Scripts
+### Available training scripts
 
 | Script                           | Description                        |
 | -------------------------------- | ---------------------------------- |
@@ -32,7 +32,7 @@ python Llama3_8B_LoRA_finetuning.py
 | `Llama3_70B_LoRA_finetuning.py`  | LoRA fine-tuning of Llama 3.1 70B  |
 | `Llama3_70B_qLoRA_finetuning.py` | QLoRA fine-tuning of Llama 3.1 70B |
 
-> **Note:** DGX Spark hardware with NVIDIA GPU is required for training.
+DGX Spark hardware with an NVIDIA GPU is required for training.
 
 ## References
 

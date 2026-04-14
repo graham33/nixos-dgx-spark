@@ -1,4 +1,4 @@
-# DGX Dashboard Playbook
+# DGX Dashboard playbook
 
 The DGX Dashboard is a web application that provides a graphical interface for
 GPU telemetry, resource monitoring, and an integrated JupyterLab environment.

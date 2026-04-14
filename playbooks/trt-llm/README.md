@@ -1,7 +1,7 @@
-# TRT-LLM for Inference Playbook
+# TRT-LLM for inference playbook
 
-NVIDIA TensorRT-LLM provides highly optimised LLM inference with kernel
-fusion and quantisation on the DGX Spark.
+NVIDIA TensorRT-LLM provides optimised LLM inference with kernel fusion
+and quantisation on the DGX Spark.
 
 ## Prerequisites
 
@@ -35,14 +35,14 @@ fusion and quantisation on the DGX Spark.
    trt-llm-test "What is the capital of France?"
    ```
 
-## Available Commands
+## Available commands
 
 - `trt-llm-validate` - Verify the TensorRT-LLM container and GPU access
 - `trt-llm-quickstart [MODEL]` - Run a quick inference test without starting a server
 - `trt-llm-serve [MODEL]` - Start an OpenAI-compatible API server (port 8355)
 - `trt-llm-test [PROMPT]` - Send a chat completion request to the running server
 
-## Default Model
+## Default model
 
 The default model is `nvidia/Llama-3.1-8B-Instruct-FP4`, an FP4-quantised
 Llama 3.1 8B model optimised for TensorRT-LLM inference.

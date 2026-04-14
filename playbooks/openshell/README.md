@@ -1,4 +1,4 @@
-# OpenShell Playbook
+# OpenShell playbook
 
 Secure long-running AI agents with OpenShell on DGX Spark. This playbook
 deploys [OpenClaw](https://docs.openclaw.ai/) inside an

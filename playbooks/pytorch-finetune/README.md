@@ -1,4 +1,4 @@
-# Fine-tune with PyTorch Playbook
+# Fine-tune with PyTorch playbook
 
 Fine-tune LLMs using native PyTorch and HuggingFace PEFT on the DGX Spark.
 
@@ -16,12 +16,12 @@ pytorch-finetune
 - HuggingFace model cache persisted via volume mount
 - TorchRun for distributed training
 
-### Volume Mounts
+### Volume mounts
 
 - `$PWD` → `/workspace` (training data and scripts)
 - `$HOME/.cache/huggingface` → `/root/.cache/huggingface` (model cache)
 
-> **Note:** DGX Spark hardware with NVIDIA GPU is required for training.
+DGX Spark hardware with an NVIDIA GPU is required for training.
 
 ## References
 

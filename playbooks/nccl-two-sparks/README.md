@@ -1,4 +1,4 @@
-# NCCL for Two Sparks Playbook
+# NCCL for two Sparks playbook
 
 Multi-node GPU communication using NVIDIA Collective Communications Library
 (NCCL) between two DGX Spark units with Blackwell architecture.
@@ -38,7 +38,7 @@ Multi-node GPU communication using NVIDIA Collective Communications Library
    nccl-run-16g <IP_Node1> <IP_Node2>
    ```
 
-## Available Commands
+## Available commands
 
 - `nccl-run <IP1> <IP2> [interface]` - Run all_gather_perf across two nodes
   (default interface: `enp1s0f1np1`)

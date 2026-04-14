@@ -1,4 +1,4 @@
-# Build and Deploy a Multi-Agent Chatbot Playbook
+# Build and deploy a multi-agent chatbot playbook
 
 Deploy a multi-agent chatbot system using LLM orchestration on the DGX Spark.
 
@@ -46,8 +46,8 @@ podman-compose -f docker-compose.yml -f docker-compose-models.yml down
 podman volume rm "$(basename "$PWD")_postgres_data"
 ```
 
-> **Note:** DGX Spark hardware with NVIDIA GPU is required. This demo uses
-> approximately 120 GB of the 128 GB available on a DGX Spark.
+DGX Spark hardware with an NVIDIA GPU is required. This demo uses
+approximately 120 GB of the 128 GB available on a DGX Spark.
 
 ## References
 

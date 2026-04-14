@@ -1,6 +1,6 @@
-# ComfyUI Playbook
+# ComfyUI playbook
 
-This playbook provides a Nix devshell for running ComfyUI with NVIDIA GPU support and the Stable Diffusion 1.5 model pre-installed.
+Run ComfyUI with NVIDIA GPU support and Stable Diffusion 1.5 pre-installed via a Nix devshell.
 
 ## Quick Start
 
@@ -18,7 +18,7 @@ This playbook provides a Nix devshell for running ComfyUI with NVIDIA GPU suppor
 
 3. Access the web interface at `http://<IP>:8188`
 
-## Pre-installed Models
+## Pre-installed models
 
 - **Stable Diffusion 1.5** (fp16, ~2GB) - General-purpose image generation
 

@@ -1,4 +1,4 @@
-# NVFP4 Quantisation Playbook
+# NVFP4 quantisation playbook
 
 NVFP4 quantisation reduces LLM model size with minimal quality loss,
 enabling larger models to fit in GPU memory on the DGX Spark.
@@ -14,9 +14,9 @@ nix develop .#nvfp4
 | Command                  | Description                                |
 | ------------------------ | ------------------------------------------ |
 | `nvfp4-start`            | Start an interactive container shell       |
-| `nvfp4-quantize [MODEL]` | Quantize a model to NVFP4 format           |
-| `nvfp4-validate`         | Check quantized model output files         |
-| `nvfp4-test [MODEL]`     | Test-load the quantized model              |
+| `nvfp4-quantize [MODEL]` | Quantise a model to NVFP4 format           |
+| `nvfp4-validate`         | Check quantised model output files         |
+| `nvfp4-test [MODEL]`     | Test-load the quantised model              |
 | `nvfp4-serve [MODEL]`    | Serve the model with OpenAI-compatible API |
 | `nvfp4-chat [PROMPT]`    | Send a chat request to the running server  |
 | `nvfp4-cleanup`          | Remove output models and cached data       |
@@ -55,11 +55,11 @@ nvfp4-chat "What is artificial intelligence?"
 NVFP4 (NVIDIA FP4) is a 4-bit floating-point quantisation format that:
 
 - Reduces model memory ~3.5x compared to FP16 and ~1.8x compared to FP8
-- Maintains near-original model quality (typically less than 1% degradation)
+- Maintains near-original model quality (less than 1% degradation in most benchmarks)
 - Leverages Blackwell GPU hardware support for native FP4 computation
 
-> **Note:** DGX Spark hardware with NVIDIA GPU is required for GPU-accelerated
-> quantisation and inference.
+DGX Spark hardware with an NVIDIA GPU is required for GPU-accelerated
+quantisation and inference.
 
 ## References
 

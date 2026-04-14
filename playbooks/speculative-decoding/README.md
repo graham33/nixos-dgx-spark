@@ -1,8 +1,8 @@
-# Speculative Decoding Playbook
+# Speculative decoding playbook
 
 Speculative decoding uses a small draft model to accelerate inference of a
-larger target model on the DGX Spark GPU. This playbook provides two methods
-using TensorRT-LLM.
+larger target model on the DGX Spark GPU. Two methods are available, both
+based on TensorRT-LLM.
 
 ## Prerequisites
 
@@ -54,14 +54,14 @@ verifies in parallel.
 - **Target model:** `nvidia/Llama-3.3-70B-Instruct-FP4`
 - **Draft model:** `nvidia/Llama-3.1-8B-Instruct-FP4`
 
-## How It Works
+## How it works
 
 1. A small **draft model** generates candidate tokens quickly
 2. The large **target model** verifies the candidates in parallel
 3. Accepted tokens are returned, rejected tokens are regenerated
 4. Results in 2-3x faster inference with identical output quality
 
-## Available Commands
+## Available commands
 
 All commands are available inside `nix develop .#speculative-decoding`:
 

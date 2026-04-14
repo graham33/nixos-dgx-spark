@@ -1,4 +1,4 @@
-# Connect Two Sparks Playbook
+# Connect two Sparks playbook
 
 Configure network connectivity between two NVIDIA DGX Spark units via a
 200GbE QSFP direct connection for distributed workloads.
@@ -14,7 +14,7 @@ Configure network connectivity between two NVIDIA DGX Spark units via a
 nix develop .#connect-two-sparks
 ```
 
-### Verify Physical Connection
+### Verify physical connection
 
 After connecting the QSFP cable, check that the interface is up:
 
@@ -25,7 +25,7 @@ ibdev2netdev
 Look for interfaces showing `(Up)` status, typically `enp1s0f0np0` or
 `enp1s0f1np1`.
 
-### Network Configuration
+### Network configuration
 
 Assign static IPs on each Spark:
 
@@ -39,14 +39,14 @@ sudo ip addr add 192.168.100.11/24 dev enp1s0f1np1
 sudo ip link set enp1s0f1np1 up
 ```
 
-### SSH Setup
+### SSH setup
 
 ```bash
 ssh-keygen -t ed25519
 ssh-copy-id user@192.168.100.11
 ```
 
-### Network Testing
+### Network testing
 
 ```bash
 # On Spark 1 (server)
@@ -56,7 +56,7 @@ iperf3 -s
 iperf3 -c 192.168.100.10
 ```
 
-> **Note:** Two DGX Spark units are required for this playbook.
+Two DGX Spark units are required for this playbook.
 
 ## References
 

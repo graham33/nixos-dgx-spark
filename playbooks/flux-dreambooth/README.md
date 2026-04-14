@@ -1,4 +1,4 @@
-# FLUX.1 Dreambooth LoRA Fine-tuning Playbook
+# FLUX.1 Dreambooth LoRA fine-tuning playbook
 
 Fine-tune the FLUX.1-dev 12B image generation model using Dreambooth LoRA on
 DGX Spark, then generate images with ComfyUI.
@@ -28,9 +28,9 @@ DGX Spark, then generate images with ComfyUI.
    flux-build-comfyui
    ```
 
-3. Download model weights (~30-45 minutes, one-time). Note: this writes to a
-   `flux-workspace` directory in your current working directory (override with
-   `export FLUX_WORKSPACE=/path/to/workspace`):
+3. Download model weights (~30-45 minutes, one-time). This writes to a
+   `flux-workspace` directory in your current working directory. Override
+   the location with `export FLUX_WORKSPACE=/path/to/workspace`:
 
    ```bash
    flux-download
@@ -53,7 +53,7 @@ DGX Spark, then generate images with ComfyUI.
 
    Open <http://localhost:8188> in your browser.
 
-## Available Commands
+## Available commands
 
 | Command              | Description                                               |
 | -------------------- | --------------------------------------------------------- |
@@ -64,7 +64,7 @@ DGX Spark, then generate images with ComfyUI.
 | `flux-comfyui`       | Launch ComfyUI for image generation                       |
 | `flux-pytorch-shell` | Drop into a bare PyTorch container with workspace mounted |
 
-## Workspace Layout
+## Workspace layout
 
 All data is stored under `$FLUX_WORKSPACE` (defaults to `$PWD/flux-workspace`):
 
@@ -80,7 +80,7 @@ flux-workspace/
   outputs/         # Generated images
 ```
 
-## Dataset Configuration
+## Dataset configuration
 
 Create `flux-workspace/flux_data/data.toml` to define your training concepts.
 Example:
@@ -103,7 +103,7 @@ keep_tokens = 1
 
 Place 5-10 images per concept in the corresponding subdirectory.
 
-## Memory Management
+## Memory management
 
 DGX Spark uses a Unified Memory Architecture (UMA). To free cached memory
 after stopping containers:

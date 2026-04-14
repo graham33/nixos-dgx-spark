@@ -1,6 +1,6 @@
-# vLLM Nix Playbook
+# vLLM Nix playbook
 
-This playbook provides a Nix devshell for running vLLM inference server directly from nixpkgs (no containers) for the Qwen2.5-Math-1.5B-Instruct model.
+Run the vLLM inference server directly from nixpkgs (no containers) for Qwen2.5-Math-1.5B-Instruct.
 
 ## Quick Start
 
@@ -22,12 +22,12 @@ This playbook provides a Nix devshell for running vLLM inference server directly
    vllm-test-math "12*17"
    ```
 
-## Available Commands
+## Available commands
 
 - `vllm-serve-qwen-math` - Start the vLLM server with the Qwen2.5-Math-1.5B-Instruct model
 - `vllm-test-math <query>` - Test the model with a math query (defaults to "12\*17")
 
-## Differences from Container Version
+## Differences from container version
 
 - Uses vLLM directly from nixpkgs instead of NVIDIA containers
 - No podman/container runtime required

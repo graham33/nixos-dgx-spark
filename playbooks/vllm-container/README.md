@@ -1,6 +1,6 @@
-# vLLM Container Playbook
+# vLLM container playbook
 
-This playbook provides a Nix devshell for running NVIDIA's vLLM inference server for the Qwen2.5-Math-1.5B-Instruct model.
+Run NVIDIA's vLLM inference server for Qwen2.5-Math-1.5B-Instruct via a Nix devshell.
 
 ## Quick Start
 
@@ -22,7 +22,7 @@ This playbook provides a Nix devshell for running NVIDIA's vLLM inference server
    vllm-test-math "12*17"
    ```
 
-## Available Commands
+## Available commands
 
 - `vllm-serve-qwen-math` - Start the vLLM server with the Qwen2.5-Math-1.5B-Instruct model
 - `vllm-test-math <query>` - Test the model with a math query (defaults to "12\*17")

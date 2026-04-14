@@ -1,4 +1,4 @@
-# Multi-modal Inference Playbook
+# Multi-modal inference playbook
 
 Run text-to-image inference models (Flux.1, SDXL) on the DGX Spark using NVIDIA's
 TensorRT Diffusion demos inside the PyTorch container.
@@ -31,7 +31,7 @@ TensorRT Diffusion demos inside the PyTorch container.
      --hf-token=$HF_TOKEN --bf16 --download-onnx-models
    ```
 
-## Supported Models
+## Supported models
 
 | Model          | Script                 | Notes                        |
 | -------------- | ---------------------- | ---------------------------- |
@@ -39,7 +39,7 @@ TensorRT Diffusion demos inside the PyTorch container.
 | Flux.1 Schnell | `demo_txt2img_flux.py` | `--version="flux.1-schnell"` |
 | SDXL (xl-1.0)  | `demo_txt2img_xl.py`   | `--version xl-1.0`           |
 
-> **Note:** FP16 Flux.1 Schnell requires more than 48 GB VRAM for native export.
+FP16 Flux.1 Schnell requires more than 48 GB VRAM for native export.
 
 ## References
 
