@@ -157,6 +157,11 @@ final: prev: {
           tag = "v${version}";
           hash = "sha256-DejbLY2i6Hp1J+spxMut5RKugj7rDyrZmp6v+5wqyWY=";
         };
+        # 1.11.0 adds guidance tests that need llguidance (not yet packaged).
+        # Skip those specific test dirs rather than disabling checks entirely.
+        disabledTestPaths = (oldAttrs.disabledTestPaths or [ ]) ++ [
+          "tests/guidance"
+        ];
       });
 
       # New deps required by vLLM 0.19.0
