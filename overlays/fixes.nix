@@ -146,6 +146,46 @@ final: prev: {
         doCheck = false;
         nativeCheckInputs = [ ];
       });
+
+      # New deps required by vLLM 0.19.0
+      kaldi-native-fbank = python-final.callPackage ../packages/kaldi-native-fbank { };
+      opentelemetry-semantic-conventions-ai = python-final.callPackage ../packages/opentelemetry-semantic-conventions-ai { };
+
+      # Bump opentelemetry-api to 1.40.0 (vLLM 0.19.0 requires >= 1.40)
+      opentelemetry-api = python-prev.opentelemetry-api.overridePythonAttrs (oldAttrs: rec {
+        version = "1.40.0";
+        src = prev.fetchFromGitHub {
+          owner = "open-telemetry";
+          repo = "opentelemetry-python";
+          tag = "v${version}";
+          hash = "sha256-1KVy9s+zjlB4w7E45PMCWRxPus24bgBmmM3k2R9d+Jg=";
+        };
+        sourceRoot = "${src.name}/opentelemetry-api";
+      });
+
+      # Bump opentelemetry-instrumentation to 0.61b0 (matches opentelemetry-api 1.40.0)
+      opentelemetry-instrumentation = python-prev.opentelemetry-instrumentation.overridePythonAttrs (oldAttrs: rec {
+        version = "0.61b0";
+        src = prev.fetchFromGitHub {
+          owner = "open-telemetry";
+          repo = "opentelemetry-python-contrib";
+          tag = "v${version}";
+          hash = "sha256-DT13gcYPNYXBPnf622WsA16C+7sabJfOshDquHn06Ok=";
+        };
+        sourceRoot = "${src.name}/opentelemetry-instrumentation";
+      });
+
+      # Bump vLLM to 0.19.0 for Qwen3.5 and Gemma 4 model support.
+      # Uses the package definition from NixOS/nixpkgs#498040.
+      vllm = python-final.callPackage ../packages/vllm {
+        inherit (final) cudaPackages;
+        # ROCm-only deps — not needed for CUDA
+        amd-aiter = null;
+        amd-quark = null;
+        amdsmi = null;
+        rocmPackages = { };
+        pybind11 = python-final.pybind11;
+      };
     })
   ];
 }
