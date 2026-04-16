@@ -147,6 +147,18 @@ final: prev: {
         nativeCheckInputs = [ ];
       });
 
+      # Bump mistral-common to 1.11.0 — vLLM 0.19.0 uses ReasoningEffort
+      # which was added after 1.8.8.
+      mistral-common = python-prev.mistral-common.overridePythonAttrs (oldAttrs: rec {
+        version = "1.11.0";
+        src = prev.fetchFromGitHub {
+          owner = "mistralai";
+          repo = "mistral-common";
+          tag = "v${version}";
+          hash = "sha256-DejbLY2i6Hp1J+spxMut5RKugj7rDyrZmp6v+5wqyWY=";
+        };
+      });
+
       # New deps required by vLLM 0.19.0
       kaldi-native-fbank = python-final.callPackage ../packages/kaldi-native-fbank { };
       opentelemetry-semantic-conventions-ai = python-final.callPackage ../packages/opentelemetry-semantic-conventions-ai { };
