@@ -194,8 +194,12 @@ final: prev: {
 
       # Bump vLLM to 0.19.0 for Qwen3.5 and Gemma 4 model support.
       # Uses the package definition from NixOS/nixpkgs#498040.
+      # gpuTargets is set to just "12.0" (Blackwell/Spark) to avoid
+      # compiling SM90 (Hopper) CUTLASS kernels which take 16+ hours
+      # on aarch64 and aren't needed on this hardware.
       vllm = python-final.callPackage ../packages/vllm {
         inherit (final) cudaPackages;
+        gpuTargets = [ "12.0" ];
         # ROCm-only deps — not needed for CUDA
         amd-aiter = null;
         amd-quark = null;
