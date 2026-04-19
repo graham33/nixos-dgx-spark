@@ -62,7 +62,7 @@
       };
       systems = [ "aarch64-linux" ];
       perSystem =
-        { system, ... }:
+        { config, system, ... }:
         let
           commonConfig = {
             allowUnfree = true;
@@ -206,9 +206,21 @@
           packages.dgx-dashboard = pkgs.callPackage ./packages/dgx-dashboard { };
           packages.openshell = pkgs.callPackage ./packages/openshell { };
 
-          # Expose pkgs for downstream flakes to access ComfyUI packages, models, and fetchers
+          # Expose pkgs for downstream flakes to access ComfyUI packages, models, and fetchers.
+          # Also includes ciChecks: CI-buildable checks for devShells and nixosConfiguration
+          # that require CUDA builders (not included in checks which run on GitHub Actions).
+          # Build locally with: nix build .#legacyPackages.aarch64-linux.ciChecks
           legacyPackages = {
             inherit pkgs;
+            ciChecks =
+              (nixpkgs.lib.mapAttrs'
+                (
+                  name: shell: nixpkgs.lib.nameValuePair "devShell-${name}" shell.inputDerivation
+                )
+                config.devShells)
+              // {
+                nixos-dgx-spark = self.nixosConfigurations.dgx-spark.config.system.build.toplevel;
+              };
           };
 
           checks = {
@@ -221,19 +233,6 @@
               touch $out
             '';
           };
-
-          # CI-buildable checks for devShells and nixosConfiguration
-          # Requires CUDA builders, so not included in checks (which run on GitHub Actions)
-          # Build locally with: nix build .#ciChecks.aarch64-linux
-          ciChecks =
-            (nixpkgs.lib.mapAttrs'
-              (
-                name: shell: nixpkgs.lib.nameValuePair "devShell-${name}" shell.inputDerivation
-              )
-              self.devShells.${system})
-            // {
-              nixos-dgx-spark = self.nixosConfigurations.dgx-spark.config.system.build.toplevel;
-            };
 
           apps.pytorch-container = {
             type = "app";
