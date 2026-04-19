@@ -71,6 +71,16 @@ in
   };
 
   config = mkIf cfg.enable {
+    # Add the Flox binary cache as a substituter for pre-built CUDA packages.
+    # Flox is authorized by NVIDIA to redistribute CUDA binaries, so packages
+    # like cudatoolkit, nccl, cuDNN, torch, etc. can be fetched as pre-built
+    # binaries instead of compiling from source.
+    # https://flox.dev/blog/the-flox-catalog-now-contains-nvidia-cuda/
+    nix.settings = {
+      extra-substituters = [ "https://cache.flox.dev" ];
+      extra-trusted-public-keys = [ "flox-cache-public-1:7F4OyH7ZCnFhcze3fJdfyXYLQw/aV7GEed86nQ7IsOs=" ];
+    };
+
     nixpkgs.overlays = [ (import ../overlays/linux-6.17.nix) ];
 
     boot.kernelPackages = if cfg.useNvidiaKernel then nvidiaKernel else pkgs.linuxPackages_6_17;

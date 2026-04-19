@@ -11,7 +11,7 @@ NixOS module with settings for DGX Spark systems.
 This works on the NVIDIA DGX Spark itself and also on the Asus Ascent GX10.
 
 See my 5 minute lightning talk from [Planet Nix](https://planetnix.com) for an intro:
- https://youtu.be/AvK_gi_snJE?si=MPKv3iiuS9B5elIE
+https://youtu.be/AvK_gi_snJE?si=MPKv3iiuS9B5elIE
 
 ## Using Nix on DGX OS (Ubuntu)
 
@@ -269,18 +269,34 @@ This repository includes devshells for NVIDIA DGX Spark playbooks from https://b
 
 ## Caching
 
-Unfortunately CUDA packages are not currently cached by the NixOS default
-caches. There are community caches, but they currently don't provide
-aarch64-linux packages. See https://nixos.wiki/wiki/CUDA for general caching
-details.
+### Flox CUDA binary cache (recommended)
 
-To avoid rebuilding large CUDA packages, use the graham33 Cachix cache:
+[Flox](https://flox.dev) distributes pre-built CUDA packages for
+aarch64-linux [with NVIDIA's permission](https://developer.nvidia.com/blog/developers-can-now-get-cuda-directly-from-their-favorite-third-party-platforms/).
+This includes cudatoolkit, nccl, cuDNN, PyTorch, and other CUDA
+dependencies — dramatically reducing build times.
+
+**If you use the DGX Spark NixOS module**, the Flox cache is configured
+automatically as a substituter.
+
+**For standalone Nix** (e.g. on DGX OS), add to `/etc/nix/nix.conf`:
+
+```
+extra-substituters = https://cache.flox.dev
+extra-trusted-public-keys = flox-cache-public-1:7F4OyH7ZCnFhcze3fJdfyXYLQw/aV7GEed86nQ7IsOs=
+```
+
+### graham33 Cachix cache
+
+For packages built by this repo (e.g. dgx-dashboard, openshell):
 
 ```bash
 cachix use graham33
 ```
 
 Install cachix first if needed: https://docs.cachix.org/installation
+
+See https://nixos.wiki/wiki/CUDA for general CUDA caching details.
 
 ## nixos-anywhere (Experimental)
 
