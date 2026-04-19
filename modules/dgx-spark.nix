@@ -108,6 +108,7 @@ in
 
     nixpkgs.config.allowUnfree = true;
     nixpkgs.config.cudaSupport = true;
+    nixpkgs.config.cudaCapabilities = [ "12.0" "12.1" ];
 
     virtualisation.podman = {
       enable = true;
