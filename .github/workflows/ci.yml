@@ -19,6 +19,10 @@ jobs:
       - uses: DeterminateSystems/flake-checker-action@main
 
       - uses: DeterminateSystems/nix-installer-action@main
+        with:
+          extra-conf: |
+            extra-substituters = https://cache.flox.dev
+            extra-trusted-public-keys = flox-cache-public-1:7F4OyH7ZCnFhcze3fJdfyXYLQw/aV7GEed86nQ7IsOs=
 
       - uses: DeterminateSystems/magic-nix-cache-action@main
 
