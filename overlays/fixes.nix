@@ -108,8 +108,11 @@ final: prev: {
         env = (oldAttrs.env or { }) // {
           NIX_CFLAGS_COMPILE = (oldAttrs.env.NIX_CFLAGS_COMPILE or "") + " -Wno-error";
         };
-        # Disable test that requires network access to huggingface.co and slow tests
-        disabledTestPaths = (oldAttrs.disabledTestPaths or [ ]) ++ [
+        # Disable test that requires network access to huggingface.co and slow tests.
+        # NB: replace (not ++ append) because nixpkgs's base xgrammar is newer than
+        # 0.1.27 and disables `tests/python/test_structural_tag_for_model.py`, which
+        # doesn't exist in 0.1.27 — pytest-check-hook errors on any unmatched glob.
+        disabledTestPaths = [
           "tests/python/test_structural_tag_converter.py"
           "tests/python/test_serialization.py"
         ];
