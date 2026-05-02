@@ -94,34 +94,7 @@ final: prev: {
         meta = oldAttrs.meta // { badPlatforms = [ ]; };
       });
 
-      # Fix xgrammar badPlatforms for aarch64-linux and upgrade to 0.1.27
-      xgrammar = python-prev.xgrammar.overridePythonAttrs (oldAttrs: {
-        version = "0.1.27";
-        src = prev.fetchFromGitHub {
-          owner = "mlc-ai";
-          repo = "xgrammar";
-          rev = "v0.1.27";
-          hash = "sha256-XwMSYgXoNKglN772vtrqFOtq//trpIH9Oi/hk++Tf84=";
-        };
-        buildInputs = (oldAttrs.buildInputs or [ ]) ++ [ final.dlpack ];
-        # Disable -Werror to avoid compilation failures with gcc 14
-        env = (oldAttrs.env or { }) // {
-          NIX_CFLAGS_COMPILE = (oldAttrs.env.NIX_CFLAGS_COMPILE or "") + " -Wno-error";
-        };
-        # Disable test that requires network access to huggingface.co and slow tests.
-        # NB: replace (not ++ append) because nixpkgs's base xgrammar is newer than
-        # 0.1.27 and disables `tests/python/test_structural_tag_for_model.py`, which
-        # doesn't exist in 0.1.27 — pytest-check-hook errors on any unmatched glob.
-        disabledTestPaths = [
-          "tests/python/test_structural_tag_converter.py"
-          "tests/python/test_serialization.py"
-        ];
-        meta = oldAttrs.meta // {
-          badPlatforms = [ ];
-        };
-      });
-
-      # Override cupy to use cudaPackages from final scope instead of hardcoded cuDNN 8.9.7
+# Override cupy to use cudaPackages from final scope instead of hardcoded cuDNN 8.9.7
       # This is needed for CUDA 13 compatibility where cuDNN 8.9.7 is not available
       cupy = python-prev.cupy.override {
         cudaPackages = final.cudaPackages;

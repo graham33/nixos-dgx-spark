@@ -25,7 +25,7 @@ let
     }
   ];
 
-  nvidiaKernel = pkgs.linuxPackagesFor (
+  rawNvidiaKernel = pkgs.linuxPackagesFor (
     baseKernel.override {
       argsOverride = {
         src = kernelSource.mkNvidiaKernelSource pkgs;
@@ -53,6 +53,27 @@ let
         });
     }
   );
+
+  # Strip embedded references to the kernel `-dev` output from .ko files. The
+  # nvidia kernel-modules build (nixpkgs PR #498612) declares
+  # `allowedReferences = [ ]` on the module derivation, but the .ko files end
+  # up with __FILE__-derived header paths in `.rodata.str1.8` that point into
+  # the kernel-dev store path, so the closure check fails. Run
+  # remove-references-to as a postFixup to scrub them. Stock x86_64 kernels
+  # don't trigger this — the leak is specific to non-stock (e.g. patched
+  # aarch64) kernels where the build environment leaves these strings around.
+  scrubKernelDevRefs = drv:
+    drv.overrideAttrs (old: {
+      postFixup = (old.postFixup or "") + ''
+        if [ -d "$out/lib/modules" ]; then
+          find $out/lib/modules -name '*.ko' -print0 \
+            | xargs -0 -r ${pkgs.removeReferencesTo}/bin/remove-references-to \
+                -t ${rawNvidiaKernel.kernel.dev}
+        fi
+      '';
+    });
+
+  nvidiaKernel = rawNvidiaKernel;
 in
 {
   imports = [
@@ -101,7 +122,19 @@ in
       open = true;
       nvidiaPersistenced = true;
       nvidiaSettings = true;
-      package = config.boot.kernelPackages.nvidiaPackages.production;
+      # Apply scrubKernelDevRefs to the .open / .mod kernel module variants —
+      # bypass boot.kernelPackages.apply (which chains another `.extend` and
+      # re-evaluates `nvidiaPackages` through the makeExtensible fixed point,
+      # discarding any overrides we'd put on the kernel package set itself).
+      package =
+        let
+          prod = config.boot.kernelPackages.nvidiaPackages.production;
+        in
+        prod
+        // {
+          open = scrubKernelDevRefs prod.open;
+          mod = scrubKernelDevRefs prod.mod;
+        };
     };
 
     hardware.enableRedistributableFirmware = true;
