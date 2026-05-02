@@ -108,6 +108,17 @@ in
 
     boot.kernelParams = [
       "console=tty1"
+      # CVE-2026-31431 "Copy Fail" — local privilege escalation via the
+      # AF_ALG AEAD socket interface. No upstream kernel patch shipped at
+      # the time of writing. `module_blacklist=` is a kernel-level kill
+      # switch: request_module() refuses to invoke modprobe at all, so
+      # this is robust against both autoload (socket(AF_ALG)+bind("aead"))
+      # and explicit `modprobe algif_aead`. NB: `boot.blacklistedKernelModules`
+      # alone is NOT sufficient — modprobe's `blacklist` directive only
+      # blocks alias-based autoloads, and the kernel's AF_ALG path requests
+      # the module by name (after dash/underscore normalization), bypassing
+      # it. Requires a reboot to apply.
+      "module_blacklist=algif_aead"
     ];
 
     boot.blacklistedKernelModules = [
