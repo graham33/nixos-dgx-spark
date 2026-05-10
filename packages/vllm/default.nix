@@ -578,9 +578,7 @@ buildPythonPackage.override { stdenv = torch.stdenv; } (finalAttrs: {
   preConfigure = ''
     # See: https://github.com/vllm-project/vllm/blob/v0.7.1/setup.py#L75-L109
     # There's also NVCC_THREADS but Nix/Nixpkgs doesn't really have this concept.
-    # Cap parallelism: nvcc's cicc uses ~6 GiB per process, so on a
-    # 128 GiB system 20 parallel compilations OOM-kills the build.
-    export MAX_JOBS="''${MAX_JOBS:-4}"
+    export MAX_JOBS="$NIX_BUILD_CORES"
   '';
 
   pythonRelaxDeps = true;

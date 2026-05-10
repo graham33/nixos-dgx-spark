@@ -94,7 +94,7 @@ final: prev: {
         meta = oldAttrs.meta // { badPlatforms = [ ]; };
       });
 
-# Override cupy to use cudaPackages from final scope instead of hardcoded cuDNN 8.9.7
+      # Override cupy to use cudaPackages from final scope instead of hardcoded cuDNN 8.9.7
       # This is needed for CUDA 13 compatibility where cuDNN 8.9.7 is not available
       cupy = python-prev.cupy.override {
         cudaPackages = final.cudaPackages;
@@ -173,7 +173,13 @@ final: prev: {
       # gpuTargets is set to just "12.0" (Blackwell/Spark) to avoid
       # compiling SM90 (Hopper) CUTLASS kernels which take 16+ hours
       # on aarch64 and aren't needed on this hardware.
-      vllm = python-final.callPackage ../packages/vllm {
+      #
+      # MAX_JOBS=8 caps build parallelism: vllm's nvcc/cicc uses ~6 GiB
+      # per job, so unconstrained on Spark (20 cores, 128 GiB) the build
+      # OOM-kills itself (~120 GiB needed). 8 leaves ~48 GiB headroom.
+      # Done as an overlay-level override so packages/vllm itself matches
+      # upstream nixpkgs (export MAX_JOBS="$NIX_BUILD_CORES").
+      vllm = (python-final.callPackage ../packages/vllm {
         inherit (final) cudaPackages;
         gpuTargets = [ "12.0" ];
         # ROCm-only deps — not needed for CUDA
@@ -182,7 +188,11 @@ final: prev: {
         amdsmi = null;
         rocmPackages = { };
         pybind11 = python-final.pybind11;
-      };
+      }).overrideAttrs (old: {
+        preConfigure = (old.preConfigure or "") + ''
+          export MAX_JOBS=8
+        '';
+      });
     })
   ];
 }
