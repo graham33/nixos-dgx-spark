@@ -168,11 +168,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1769630654,
-        "narHash": "sha256-bcZIn2PyW0vJ0VnMb94ooWa7kmaR8+IQPNLW+j4Xjrc=",
+        "lastModified": 1779382658,
+        "narHash": "sha256-sPYOWKQn/tL1R+ZlXXKOtN5Sql7WqzWCa4nhZeC3FOw=",
         "owner": "nixified-ai",
         "repo": "flake",
-        "rev": "0cc4031a34a8bec924f7045a865ce25b47ea9f42",
+        "rev": "49c82400f98718f2ddd57c49e03fd4c0e8dde0b3",
         "type": "github"
       },
       "original": {
