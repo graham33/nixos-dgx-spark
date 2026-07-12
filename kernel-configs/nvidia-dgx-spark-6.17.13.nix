@@ -1,10 +1,10 @@
 # Generated NVIDIA DGX Spark kernel configuration (terse)
-# Kernel Version: 6.17.1
-# Generated: 2026-02-15 19:05:19 UTC
+# Kernel Version: 6.17.13
+# Generated: 2026-07-11 21:50:49 UTC
 #
 # This file contains only options that differ from NixOS defaults.
 # Options matching NixOS defaults are omitted for clarity.
-# Total options: 2412
+# Total options: 2424
 
 { lib }: with lib.kernel; {
   "6LOWPAN_GHC_EXT_HDR_DEST" = lib.mkForce no;
@@ -18,7 +18,6 @@
   "9P_FS_SECURITY" = lib.mkForce yes;
   A64FX_DIAG = lib.mkForce yes;
   ACPI_AGDI = lib.mkForce yes;
-  ACPI_APEI_EINJ = lib.mkForce module;
   ACPI_APEI_ERST_DEBUG = lib.mkForce no;
   ACPI_BGRT = lib.mkForce yes;
   ACPI_DEBUG = lib.mkForce no;
@@ -26,6 +25,8 @@
   ACPI_EC = lib.mkForce yes;
   ACPI_EC_DEBUGFS = lib.mkForce module;
   ACPI_FFH = lib.mkForce yes;
+  ACPI_MPAM = lib.mkForce yes;
+  ACPI_NFIT = lib.mkForce module;
   ACPI_PCI_SLOT = lib.mkForce yes;
   AFS_FSCACHE = lib.mkForce yes;
   AF_RXRPC_IPV6 = lib.mkForce yes;
@@ -59,6 +60,9 @@
   ARCH_BCM = lib.mkForce no;
   ARCH_BITMAIN = lib.mkForce yes;
   ARCH_EXYNOS = lib.mkForce no;
+  ARCH_HAS_CPU_RESCTRL = lib.mkForce yes;
+  ARCH_HAS_PMEM_API = lib.mkForce yes;
+  ARCH_HAS_UACCESS_FLUSHCACHE = lib.mkForce yes;
   ARCH_MMAP_RND_BITS = lib.mkForce (freeform "33");
   ARCH_MMAP_RND_COMPAT_BITS = lib.mkForce (freeform "16");
   ARCH_MMP = lib.mkForce yes;
@@ -71,8 +75,13 @@
   ARM64_ERRATUM_2441007 = lib.mkForce yes;
   ARM64_ERRATUM_2441009 = lib.mkForce yes;
   ARM64_ERRATUM_834220 = lib.mkForce yes;
+  ARM64_MPAM = lib.mkForce yes;
+  ARM64_MPAM_DRIVER = lib.mkForce yes;
+  ARM64_MPAM_DRIVER_DEBUG = lib.mkForce no;
+  ARM64_MPAM_RESCTRL_FS = lib.mkForce yes;
   ARM64_PA_BITS = lib.mkForce (freeform "48");
   ARM64_PA_BITS_48 = lib.mkForce yes;
+  ARM64_PMEM = lib.mkForce yes;
   ARM64_PSEUDO_NMI = lib.mkForce yes;
   ARM64_RELOC_TEST = lib.mkForce no;
   ARM64_SW_TTBR0_PAN = lib.mkForce yes;
@@ -239,9 +248,6 @@
   CDROM = lib.mkForce yes;
   CDX_BUS = lib.mkForce yes;
   CDX_CONTROLLER = lib.mkForce module;
-  CEC_GPIO = lib.mkForce module;
-  CEC_PIN = lib.mkForce yes;
-  CEC_PIN_ERROR_INJ = lib.mkForce no;
   CEPH_FS_SECURITY_LABEL = lib.mkForce yes;
   CEPH_LIB_USE_DNS_RESOLVER = lib.mkForce yes;
   CFG80211_CERTIFICATION_ONUS = lib.mkForce no;
@@ -504,8 +510,13 @@
   CRYPTO_USER = lib.mkForce module;
   CRYPTO_USER_API_ENABLE_OBSOLETE = lib.mkForce no;
   CRYPTO_ZSTD = lib.mkForce module;
+  CXL_BUS = lib.mkForce yes;
   CXL_EDAC_MEM_FEATURES = lib.mkForce no;
   CXL_FEATURES = lib.mkForce yes;
+  CXL_MEM = lib.mkForce yes;
+  CXL_MEM_RAW_COMMANDS = lib.mkForce yes;
+  CXL_PCI = lib.mkForce yes;
+  CXL_PORT = lib.mkForce yes;
   DA9052_WATCHDOG = lib.mkForce module;
   DA9055_WATCHDOG = lib.mkForce module;
   DAMON = lib.mkForce no;
@@ -519,7 +530,6 @@
   DEBUG_KERNEL_DC = lib.mkForce no;
   DEBUG_LIST = lib.mkForce no;
   DEBUG_MEMORY_INIT = lib.mkForce no;
-  DEBUG_PREEMPT = lib.mkForce no;
   DEBUG_WX = lib.mkForce yes;
   DEFAULT_SECURITY_SELINUX = lib.mkForce no;
   DEFAULT_SECURITY_SMACK = lib.mkForce no;
@@ -528,6 +538,9 @@
   DEVFREQ_GOV_PERFORMANCE = lib.mkForce yes;
   DEVFREQ_GOV_POWERSAVE = lib.mkForce yes;
   DEVTMPFS_SAFE = lib.mkForce yes;
+  DEV_DAX = lib.mkForce yes;
+  DEV_DAX_CXL = lib.mkForce yes;
+  DEV_DAX_KMEM = lib.mkForce yes;
   DM9102 = lib.mkForce module;
   DMABUF_HEAPS = lib.mkForce yes;
   DMABUF_HEAPS_CMA = lib.mkForce yes;
@@ -549,7 +562,6 @@
   DPAA2_CONSOLE = lib.mkForce module;
   DRM_CLIENT_DEFAULT_LOG = lib.mkForce no;
   DRM_CLIENT_LOG = lib.mkForce yes;
-  DRM_DW_MIPI_DSI2 = lib.mkForce module;
   DRM_HISI_HIBMC = lib.mkForce no;
   DRM_NOUVEAU = lib.mkForce no;
   DRM_PANEL_BOE_TV101WUM_LL2 = lib.mkForce no;
@@ -573,6 +585,7 @@
   E1000E = lib.mkForce module;
   ECRYPT_FS = lib.mkForce yes;
   ECRYPT_FS_MESSAGING = lib.mkForce yes;
+  EC_HUAWEI_GAOKUN = lib.mkForce no;
   EDAC_ALTERA = lib.mkForce yes;
   EDAC_ALTERA_ETHERNET = lib.mkForce yes;
   EDAC_ALTERA_NAND = lib.mkForce yes;
@@ -588,7 +601,6 @@
   EDAC_SCRUB = lib.mkForce yes;
   EEPROM_93CX6 = lib.mkForce module;
   EFI_ARMSTUB_DTB_LOADER = lib.mkForce no;
-  EFI_COCO_SECRET = lib.mkForce yes;
   EFI_TEST = lib.mkForce module;
   EFI_VARS_PSTORE = lib.mkForce module;
   ENCRYPTED_KEYS = lib.mkForce yes;
@@ -658,11 +670,15 @@
   FS_DAX = lib.mkForce yes;
   FS_DAX_PMD = lib.mkForce yes;
   FS_ENCRYPTION_INLINE_CRYPT = lib.mkForce yes;
+  FS_VERITY = lib.mkForce yes;
+  FS_VERITY_BUILTIN_SIGNATURES = lib.mkForce yes;
   FUNCTION_ERROR_INJECTION = lib.mkForce yes;
   FUNCTION_GRAPH_RETADDR = lib.mkForce yes;
+  FUNCTION_GRAPH_RETVAL = lib.mkForce yes;
   FUSE_DAX = lib.mkForce yes;
   FUSE_FS = lib.mkForce yes;
   FUSION_LOGGING = lib.mkForce yes;
+  FWCTL = lib.mkForce yes;
   GACT_PROB = lib.mkForce yes;
   GADGET_UAC1 = lib.mkForce yes;
   GADGET_UAC1_LEGACY = lib.mkForce no;
@@ -889,18 +905,11 @@
   INTERCONNECT_MTK_DVFSRC_EMI = lib.mkForce module;
   INTERCONNECT_MTK_MT8183 = lib.mkForce module;
   INTERCONNECT_MTK_MT8195 = lib.mkForce module;
-  INTERCONNECT_QCOM_BCM_VOTER = lib.mkForce module;
+  INTERCONNECT_QCOM_MILOS = lib.mkForce yes;
   INTERCONNECT_QCOM_MSM8996 = lib.mkForce module;
   INTERCONNECT_QCOM_QCM2290 = lib.mkForce module;
   INTERCONNECT_QCOM_QCS615 = lib.mkForce module;
-  INTERCONNECT_QCOM_QCS8300 = lib.mkForce module;
   INTERCONNECT_QCOM_QDU1000 = lib.mkForce module;
-  INTERCONNECT_QCOM_RPMH = lib.mkForce module;
-  INTERCONNECT_QCOM_SA8775P = lib.mkForce module;
-  INTERCONNECT_QCOM_SC7180 = lib.mkForce module;
-  INTERCONNECT_QCOM_SC7280 = lib.mkForce module;
-  INTERCONNECT_QCOM_SC8180X = lib.mkForce module;
-  INTERCONNECT_QCOM_SC8280XP = lib.mkForce module;
   INTERCONNECT_QCOM_SDM845 = lib.mkForce module;
   INTERCONNECT_QCOM_SDX75 = lib.mkForce module;
   INTERCONNECT_QCOM_SM6115 = lib.mkForce module;
@@ -915,6 +924,7 @@
   INTERCONNECT_QCOM_X1E80100 = lib.mkForce module;
   INTERVAL_TREE_TEST = lib.mkForce no;
   IOMMUFD = lib.mkForce module;
+  IOMMUFD_VFIO_CONTAINER = lib.mkForce yes;
   IOMMU_DEFAULT_DMA_STRICT = lib.mkForce no;
   IOMMU_DEFAULT_PASSTHROUGH = lib.mkForce yes;
   IOMMU_IOPF = lib.mkForce yes;
@@ -931,7 +941,10 @@
   IP6_NF_TARGET_MASQUERADE = lib.mkForce module;
   IPE_POLICY_SIG_PLATFORM_KEYRING = lib.mkForce yes;
   IPE_POLICY_SIG_SECONDARY_KEYRING = lib.mkForce yes;
+  IPE_PROP_DM_VERITY = lib.mkForce yes;
   IPE_PROP_DM_VERITY_SIGNATURE = lib.mkForce yes;
+  IPE_PROP_FS_VERITY = lib.mkForce yes;
+  IPE_PROP_FS_VERITY_BUILTIN_SIG = lib.mkForce yes;
   IPQ_APSS_6018 = lib.mkForce module;
   IPQ_APSS_PLL = lib.mkForce module;
   IPQ_GCC_5018 = lib.mkForce module;
@@ -985,6 +998,7 @@
   KDB_CONTINUE_CATASTROPHIC = lib.mkForce (freeform "0");
   KDB_DEFAULT_ENABLE = lib.mkForce (freeform "0x1");
   KDB_KEYBOARD = lib.mkForce yes;
+  KEXEC_HANDOVER = lib.mkForce yes;
   KEXEC_IMAGE_VERIFY_SIG = lib.mkForce yes;
   KEXEC_SIG = lib.mkForce yes;
   KEYBOARD_ADP5520 = lib.mkForce module;
@@ -1066,6 +1080,7 @@
   MEDIA_TEST_SUPPORT = lib.mkForce yes;
   MEGARAID_SAS = lib.mkForce module;
   MELLANOX_PLATFORM = lib.mkForce yes;
+  MEMBLOCK_KHO_SCRATCH = lib.mkForce yes;
   MEMORY_NOTIFIER_ERROR_INJECT = lib.mkForce module;
   MEM_ALLOC_PROFILING = lib.mkForce no;
   MESON_SARADC = lib.mkForce module;
@@ -1346,6 +1361,7 @@
   NFC_SHDLC = lib.mkForce yes;
   NFC_ST21NFCA = lib.mkForce module;
   NFC_ST21NFCA_I2C = lib.mkForce module;
+  NFIT_SECURITY_DEBUG = lib.mkForce no;
   NFSD_BLOCKLAYOUT = lib.mkForce yes;
   NFSD_FLEXFILELAYOUT = lib.mkForce yes;
   NFSD_LEGACY_CLIENT_TRACKING = lib.mkForce no;
@@ -1524,7 +1540,6 @@
   PINCTRL_QCOM_SPMI_PMIC = lib.mkForce module;
   PINCTRL_QCS404 = lib.mkForce module;
   PINCTRL_QCS615 = lib.mkForce module;
-  PINCTRL_QCS8300 = lib.mkForce module;
   PINCTRL_QDF2XXX = lib.mkForce module;
   PINCTRL_QDU1000 = lib.mkForce module;
   PINCTRL_RTD = lib.mkForce module;
@@ -1533,11 +1548,6 @@
   PINCTRL_RTD1619B = lib.mkForce module;
   PINCTRL_S32CC = lib.mkForce yes;
   PINCTRL_S32G2 = lib.mkForce yes;
-  PINCTRL_SA8775P = lib.mkForce module;
-  PINCTRL_SC7180 = lib.mkForce module;
-  PINCTRL_SC7280 = lib.mkForce module;
-  PINCTRL_SC8180X = lib.mkForce module;
-  PINCTRL_SC8280XP = lib.mkForce module;
   PINCTRL_SDM660 = lib.mkForce module;
   PINCTRL_SDM670 = lib.mkForce module;
   PINCTRL_SDM845 = lib.mkForce module;
@@ -1599,17 +1609,14 @@
   POWER_RESET_XGENE = lib.mkForce no;
   PPP = lib.mkForce yes;
   PPS_CLIENT_KTIMER = lib.mkForce no;
-  PREEMPTION = lib.mkForce yes;
   PREEMPTIRQ_DELAY_TEST = lib.mkForce no;
-  PREEMPT_BUILD = lib.mkForce yes;
-  PREEMPT_COUNT = lib.mkForce yes;
   PREEMPT_DYNAMIC = lib.mkForce yes;
+  PREEMPT_LAZY = lib.mkForce no;
   PREEMPT_NONE = lib.mkForce yes;
   PREEMPT_RCU = lib.mkForce yes;
-  PREEMPT_TRACER = lib.mkForce no;
-  PREEMPT_VOLUNTARY = lib.mkForce no;
   PRIME_NUMBERS = lib.mkForce no;
   PRINTK_INDEX = lib.mkForce no;
+  PROC_CPU_RESCTRL = lib.mkForce yes;
   PROC_KCORE = lib.mkForce yes;
   PROC_VMCORE_DEVICE_DUMP = lib.mkForce yes;
   PSE_CONTROLLER = lib.mkForce yes;
@@ -1659,7 +1666,6 @@
   QCOM_WCNSS_PIL = lib.mkForce no;
   QCS_GCC_404 = lib.mkForce module;
   QCS_GCC_615 = lib.mkForce module;
-  QCS_GCC_8300 = lib.mkForce module;
   QDU_GCC_1000 = lib.mkForce module;
   QE_TDM = lib.mkForce yes;
   QORIQ_CPUFREQ = lib.mkForce module;
@@ -1755,6 +1761,9 @@
   RENESAS_RZG2LWDT = lib.mkForce module;
   RENESAS_RZV2HWDT = lib.mkForce module;
   RENESAS_WDT = lib.mkForce module;
+  RESCTRL_FS = lib.mkForce yes;
+  RESCTRL_IOMMU = lib.mkForce yes;
+  RESCTRL_RMID_DEPENDS_ON_CLOSID = lib.mkForce yes;
   RESET_A10SR = lib.mkForce module;
   RESET_ATTACK_MITIGATION = lib.mkForce yes;
   RESET_BERLIN = lib.mkForce yes;
@@ -1769,7 +1778,6 @@
   RMI4_F54 = lib.mkForce yes;
   RMI4_F55 = lib.mkForce yes;
   ROCKCHIP_DTPM = lib.mkForce module;
-  ROCKCHIP_DW_MIPI_DSI2 = lib.mkForce yes;
   ROCKCHIP_IODOMAIN = lib.mkForce module;
   ROCKCHIP_MBOX = lib.mkForce yes;
   ROCKCHIP_PHY = lib.mkForce module;
@@ -1869,7 +1877,6 @@
   SATA_RCAR = lib.mkForce module;
   SATA_SIL24 = lib.mkForce module;
   SATA_ZPODD = lib.mkForce yes;
-  SA_GCC_8775P = lib.mkForce module;
   SCF_TORTURE_TEST = lib.mkForce no;
   SCHED_CLUSTER = lib.mkForce yes;
   SCSI_CONSTANTS = lib.mkForce yes;
@@ -1897,9 +1904,6 @@
   SCTP_COOKIE_HMAC_SHA1 = lib.mkForce yes;
   SCTP_DEFAULT_COOKIE_HMAC_MD5 = lib.mkForce no;
   SCTP_DEFAULT_COOKIE_HMAC_SHA1 = lib.mkForce yes;
-  SC_GCC_7180 = lib.mkForce module;
-  SC_GCC_8180X = lib.mkForce module;
-  SC_GCC_8280XP = lib.mkForce module;
   SDM_DISPCC_845 = lib.mkForce module;
   SDM_GCC_845 = lib.mkForce module;
   SDM_GPUCC_845 = lib.mkForce module;
@@ -1909,6 +1913,7 @@
   SECONDARY_TRUSTED_KEYRING_SIGNED_BY_BUILTIN = lib.mkForce no;
   SECURITY_APPARMOR_RESTRICT_USERNS = lib.mkForce no;
   SECURITY_INFINIBAND = lib.mkForce yes;
+  SECURITY_IPE = lib.mkForce yes;
   SECURITY_LOCKDOWN_LSM = lib.mkForce yes;
   SECURITY_LOCKDOWN_LSM_EARLY = lib.mkForce yes;
   SECURITY_NETWORK_XFRM = lib.mkForce yes;
@@ -1976,11 +1981,13 @@
   SERIAL_SCCNXP = lib.mkForce yes;
   SERIAL_SCCNXP_CONSOLE = lib.mkForce yes;
   SERIAL_STM32 = lib.mkForce module;
+  SERIAL_STM32_CONSOLE = lib.mkForce no;
   SERIAL_TEGRA = lib.mkForce module;
   SERIO_AMBAKMI = lib.mkForce module;
   SERIO_OLPC_APSP = lib.mkForce module;
   SERIO_SUN4I_PS2 = lib.mkForce no;
   SETEND_EMULATION = lib.mkForce yes;
+  SFC_CXL = lib.mkForce no;
   SFC_SIENA_SRIOV = lib.mkForce yes;
   SGETMASK_SYSCALL = lib.mkForce yes;
   SGI_PARTITION = lib.mkForce yes;
@@ -2117,7 +2124,6 @@
   TABLET_USB_KBTAB = lib.mkForce module;
   TABLET_USB_PEGASUS = lib.mkForce module;
   TAHVO_USB_HOST_BY_DEFAULT = lib.mkForce yes;
-  TASKS_RCU = lib.mkForce yes;
   TCG_ARM_CRB_FFA = lib.mkForce yes;
   TCG_CRB = lib.mkForce yes;
   TCG_TIS = lib.mkForce yes;
@@ -2166,6 +2172,10 @@
   TEST_UUID = lib.mkForce no;
   TEST_VMALLOC = lib.mkForce no;
   TEST_XARRAY = lib.mkForce no;
+  THERMAL_DEFAULT_GOV_BANG_BANG = lib.mkForce no;
+  THERMAL_GOV_BANG_BANG = lib.mkForce yes;
+  THERMAL_GOV_FAIR_SHARE = lib.mkForce yes;
+  THERMAL_GOV_USER_SPACE = lib.mkForce yes;
   THERMAL_STATISTICS = lib.mkForce yes;
   THUNDER_NIC_BGX = lib.mkForce module;
   THUNDER_NIC_PF = lib.mkForce module;
@@ -2224,7 +2234,6 @@
   ULI526X = lib.mkForce module;
   ULTRASOC_SMB = lib.mkForce no;
   ULTRIX_PARTITION = lib.mkForce yes;
-  UNINLINE_SPIN_UNLOCK = lib.mkForce yes;
   UNIXWARE_DISKLABEL = lib.mkForce yes;
   USB4_DMA_TEST = lib.mkForce no;
   USB_ALI_M5632 = lib.mkForce yes;
@@ -2326,6 +2335,8 @@
   VDPA_SIM_NET = lib.mkForce module;
   VFIO = lib.mkForce module;
   VFIO_CDX = lib.mkForce module;
+  VFIO_CONTAINER = lib.mkForce no;
+  VFIO_CXL_CORE = lib.mkForce yes;
   VFIO_PCI = lib.mkForce module;
   VFIO_PCI_CORE = lib.mkForce module;
   VIA_RHINE_MMIO = lib.mkForce yes;
