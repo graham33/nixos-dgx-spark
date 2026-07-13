@@ -89,6 +89,24 @@ in
       default = true;
       description = "Whether to use the NVIDIA kernel instead of the standard NixOS kernel";
     };
+
+    cppcAutonomousMode = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Enable CPPC autonomous selection mode (`cppc_cpufreq.auto_sel_mode=1`).
+
+        On the GB10, without autonomous CPPC the memory fabric never enters
+        autonomous performance management, which cripples single-thread memory
+        bandwidth (~3x lower) and llama.cpp prompt-processing (~4% lower) vs
+        stock DGX OS. Stock DGX OS boots with autonomous mode enabled; the
+        NVIDIA `-next` kernel ships the driver support but defaults it off, so
+        it must be enabled explicitly.
+
+        Requires the NVIDIA kernel (`useNvidiaKernel = true`), whose cppc_cpufreq
+        driver carries the autonomous-mode series.
+      '';
+    };
   };
 
   config = mkIf cfg.enable {
@@ -126,7 +144,7 @@ in
       # by name (after dash/underscore normalisation), bypassing it.
       # Requires a reboot to apply.
       "module_blacklist=algif_aead,esp4,esp6,rxrpc"
-    ];
+    ] ++ lib.optional (cfg.useNvidiaKernel && cfg.cppcAutonomousMode) "cppc_cpufreq.auto_sel_mode=1";
 
     boot.blacklistedKernelModules = [
       "nouveau"
