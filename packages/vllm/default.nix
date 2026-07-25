@@ -223,6 +223,11 @@ let
       buildPhase = ''
         rm -rf csrc/cutlass
         ln -sf ${cutlass} csrc/cutlass
+
+        # 2.7.2.post1's PYTHON_SUPPORTED_VERSIONS caps at 3.13, so its CMake
+        # rejects Python 3.14 (which nixpkgs now defaults to). Extend the list.
+        substituteInPlace CMakeLists.txt \
+          --replace-fail '"3.9" "3.10" "3.11" "3.12" "3.13"' '"3.9" "3.10" "3.11" "3.12" "3.13" "3.14"'
       ''
       + lib.optionalString rocmSupport ''
         rm -rf csrc/composable_kernel;

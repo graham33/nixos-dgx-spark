@@ -71,10 +71,40 @@ final: prev: {
 
       # Disable tests that fail on aarch64 (cpuinfo init failure in nix build sandbox)
       accelerate = python-prev.accelerate.overridePythonAttrs { doCheck = false; };
-      compressed-tensors = python-prev.compressed-tensors.overridePythonAttrs { doCheck = false; };
+      # compressed-tensors 0.17.1 imports psutil in its offload code but the
+      # nixpkgs derivation doesn't propagate it — add it here in addition to
+      # skipping the sandbox-fragile tests.
+      compressed-tensors = python-prev.compressed-tensors.overridePythonAttrs (oldAttrs: {
+        doCheck = false;
+        dependencies = (oldAttrs.dependencies or [ ]) ++ [ python-final.psutil ];
+      });
       peft = python-prev.peft.overridePythonAttrs { doCheck = false; };
       # Disable torchaudio tests (too slow)
       torchaudio = python-prev.torchaudio.overridePythonAttrs { doCheck = false; };
+      # model-hosting-container-standards' handler-override / SageMaker LoRA
+      # tests are sandbox-fragile (upstream disables 2 of them; the remaining
+      # 10 also fail without a proper subprocess environment).
+      model-hosting-container-standards =
+        python-prev.model-hosting-container-standards.overridePythonAttrs {
+          doCheck = false;
+        };
+      # jupyter-server enters the vLLM closure via einops' test deps. Two
+      # orphaned-kernel FD-leak / timeout tests are flaky under the nix
+      # sandbox's low FD limits.
+      jupyter-server = python-prev.jupyter-server.overridePythonAttrs (oldAttrs: {
+        disabledTests = (oldAttrs.disabledTests or [ ]) ++ [
+          "test_no_fd_leak_on_disconnect_with_orphaned_kernel_info_channel"
+          "test_disconnect_resolves_orphaned_kernel_info_future"
+        ];
+      });
+      # flashinfer 0.6.4's wheel METADATA declares requests as a runtime dep
+      # but the nixpkgs derivation doesn't propagate it. Also, the wheel
+      # installs as `flashinfer_python`, not `flashinfer`, so
+      # pythonMetadataCheckPhase can't find it by pname.
+      flashinfer = python-prev.flashinfer.overridePythonAttrs (oldAttrs: {
+        dependencies = (oldAttrs.dependencies or [ ]) ++ [ python-final.requests ];
+        pythonMetadataCheckPhase = ":";
+      });
 
       # Bump kornia-rs to 0.1.10 to fix Rust compiler SIGSEGV on aarch64
       kornia-rs = python-prev.kornia-rs.overridePythonAttrs (oldAttrs: rec {
@@ -117,10 +147,14 @@ final: prev: {
           (oldAttrs.optional-dependencies or { });
       });
 
-      # Override outlines to not include tensorflow in tests
+      # Override outlines to not include tensorflow in tests. Also add
+      # pillow: 1.2.12's wheel METADATA declares it as a runtime dep but
+      # the nixpkgs derivation doesn't propagate it, so
+      # pythonRuntimeDepsCheckHook fails.
       outlines = python-prev.outlines.overridePythonAttrs (oldAttrs: {
         doCheck = false;
         nativeCheckInputs = [ ];
+        dependencies = (oldAttrs.dependencies or [ ]) ++ [ python-final.pillow ];
       });
 
       # Bump mistral-common to 1.11.0 — vLLM 0.19.0 uses ReasoningEffort
