@@ -1613,6 +1613,7 @@
   PREEMPT_DYNAMIC = lib.mkForce yes;
   PREEMPT_LAZY = lib.mkForce no;
   PREEMPT_NONE = lib.mkForce yes;
+  PREEMPT_VOLUNTARY = lib.mkForce no;
   PREEMPT_RCU = lib.mkForce yes;
   PRIME_NUMBERS = lib.mkForce no;
   PRINTK_INDEX = lib.mkForce no;
