@@ -193,6 +193,7 @@
           devShells.trt-llm = pkgs.callPackage ./playbooks/trt-llm/shell.nix { inherit nixglhost; };
           devShells.nccl-two-sparks = pkgs.callPackage ./playbooks/nccl-two-sparks/shell.nix {
             inherit nixglhost;
+            perftest = pkgs.callPackage ./packages/perftest { };
           };
           devShells.multi-agent-chatbot = pkgs.callPackage ./playbooks/multi-agent-chatbot/shell.nix {
             inherit nixglhost;
@@ -205,6 +206,7 @@
           packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
           packages.dgx-dashboard = pkgs.callPackage ./packages/dgx-dashboard { };
           packages.openshell = pkgs.callPackage ./packages/openshell { };
+          packages.perftest = pkgs.callPackage ./packages/perftest { };
 
           # Expose pkgs for downstream flakes to access ComfyUI packages, models, and fetchers
           legacyPackages = {
