@@ -191,6 +191,19 @@ in
 
     hardware.nvidia-container-toolkit.enable = true;
 
+    # RDMA over the ConnectX ports needs to pin the memory it registers, and
+    # the NixOS default memlock ceiling of 8 MB is far too low: ibv_reg_mr
+    # fails and UCX floods the log with "Cannot allocate memory ... Please set
+    # max locked memory (ulimit -l) to 'unlimited'", which then looks like a
+    # network fault further up. Stock DGX OS sets a limit of roughly the whole
+    # of RAM, so without this a Spark pair is asymmetric and multi-node runs
+    # fail on the NixOS side only. Note the *hard* limit matters -- an
+    # unprivileged `ulimit -l` cannot raise it.
+    security.pam.loginLimits = [
+      { domain = "*"; type = "soft"; item = "memlock"; value = "unlimited"; }
+      { domain = "*"; type = "hard"; item = "memlock"; value = "unlimited"; }
+    ];
+
     environment.systemPackages = with pkgs; [
       nvtopPackages.nvidia
       iperf3
