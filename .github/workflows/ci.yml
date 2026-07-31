@@ -107,10 +107,21 @@ jobs:
       - uses: actions/checkout@v7
 
       - uses: nixbuild/nix-quick-install-action@v35
+        with:
+          nix_conf: |
+            extra-system-features = kvm nixos-test
+            extra-substituters = https://cache.flox.dev
+            extra-trusted-public-keys = flox-cache-public-1:7F4OyH7ZCnFhcze3fJdfyXYLQw/aV7GEed86nQ7IsOs=
 
       - uses: nixbuild/nixbuild-action@v25
         with:
           nixbuild_token: ${{ secrets.NIXBUILD_TOKEN }}
+
+      # Pull-only: lets the boot VM test substitute the kernel and driver
+      # closure that nixbuild.net auto-pushed while building usb-image.
+      - uses: cachix/cachix-action@v17
+        with:
+          name: graham33
 
       - name: Build usb-image on nixbuild.net
         run: |
@@ -119,3 +130,22 @@ jobs:
             --eval-store auto \
             --builders "" --max-jobs 2 \
             .#usb-image
+
+      # Build the boot test's dependency closure (custom kernel, NVIDIA
+      # driver userspace, system toplevel) remotely first, so the local
+      # test run below only substitutes -- the runner must never compile
+      # the kernel itself.
+      - name: Build boot VM test closure on nixbuild.net
+        run: |
+          nix build -L --no-link \
+            --store ssh-ng://eu.nixbuild.net \
+            --eval-store auto \
+            --builders "" --max-jobs 2 \
+            .#checks.aarch64-linux.dgx-spark-boot-vm.driver
+
+      # Boots the template-based system on the custom NVIDIA kernel.
+      # --builders "" keeps the test itself on the runner (QEMU TCG).
+      - name: Run dgx-spark boot VM test (QEMU TCG)
+        run: |
+          nix build -L --no-link --max-jobs 1 --builders "" \
+            .#checks.aarch64-linux.dgx-spark-boot-vm

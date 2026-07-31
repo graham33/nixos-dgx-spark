@@ -231,6 +231,7 @@
             '';
 
             dgx-dashboard-vm = import ./checks/dgx-dashboard-vm.nix { pkgs = testPkgs; };
+            dgx-spark-boot-vm = import ./checks/dgx-spark-boot-vm.nix { pkgs = testPkgs; };
             vllm-units = import ./checks/vllm-units.nix { inherit nixpkgs system pkgs; };
             dgx-spark-eval = import ./checks/dgx-spark-eval.nix { inherit pkgs self; };
           };
