@@ -8,12 +8,19 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
+        with:
+          # A PAT rather than the default GITHUB_TOKEN, so the resulting
+          # PR triggers the CI workflow (PRs opened with GITHUB_TOKEN
+          # deliberately don't trigger workflows).
+          token: ${{ secrets.FLAKE_UPDATE_TOKEN }}
 
       - uses: DeterminateSystems/nix-installer-action@main
 
       - uses: DeterminateSystems/update-flake-lock@main
         with:
+          token: ${{ secrets.FLAKE_UPDATE_TOKEN }}
           pr-title: "chore: update flake.lock"
           pr-labels: dependencies

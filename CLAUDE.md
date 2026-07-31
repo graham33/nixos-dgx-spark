@@ -35,6 +35,11 @@ When writing the shell.nix:
 - Skip unnecessary CUDA env vars -- they're handled automatically by Nix's CUDA packages.
 - **Never fall back to CPU-only.** Always use the CUDA/GPU variant of a package; if the GPU build is broken, fix it rather than papering over with a CPU fallback.
 
+## CI and automated updates
+
+- The weekly flake.lock update PRs are opened with a PAT (`FLAKE_UPDATE_TOKEN`) precisely so CI runs on them. Commenting `@claude` on an issue or PR triggers the Claude workflow, which can read failing CI logs and push fixes.
+- Pushes made by the Claude workflow use the default `GITHUB_TOKEN`, which does **not** re-trigger CI. To get a fresh CI run on such a PR, close and reopen it, or push an empty commit.
+
 ## DGX Spark networking quirks
 
 - The dgx-spark NixOS module enables **rootful podman** with `dockerSocket.enable`, exposing `/run/docker.sock`. The Docker API client used by `openshell` reads `DOCKER_HOST` correctly. The `docker` CLI alias (which is podman) ignores `DOCKER_HOST` and shows the user's rootless instance instead -- to inspect rootful containers from the shell, use `CONTAINER_HOST=unix:///run/podman/podman.sock podman --remote ps`.
