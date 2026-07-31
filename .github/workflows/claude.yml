@@ -14,8 +14,8 @@ jobs:
       (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
       (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
       (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 60
     permissions:
       contents: write
       pull-requests: write
@@ -29,6 +29,27 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Give Claude a working nix with nixbuild.net as remote builder
+      # (classic mode: plain 'nix build' dispatches to nixbuild.net) and
+      # the cachix/flox caches for substitution, so it can verify fixes
+      # with real evals and cheap builds.
+      - uses: nixbuild/nix-quick-install-action@v35
+        with:
+          nix_conf: |
+            extra-system-features = kvm nixos-test
+            extra-substituters = https://cache.flox.dev
+            extra-trusted-public-keys = flox-cache-public-1:7F4OyH7ZCnFhcze3fJdfyXYLQw/aV7GEed86nQ7IsOs=
+
+      - uses: nixbuild/nixbuild-action@v25
+        with:
+          nixbuild_token: ${{ secrets.NIXBUILD_TOKEN }}
+
+      - uses: cachix/cachix-action@v17
+        with:
+          name: graham33
+
       - uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: |
+            --allowedTools "Bash(nix:*),Bash(nix-instantiate:*),Bash(nix-store:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git status:*)"

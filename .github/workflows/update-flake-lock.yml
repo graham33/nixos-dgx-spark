@@ -20,6 +20,7 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@main
 
       - uses: DeterminateSystems/update-flake-lock@main
+        id: update
         with:
           token: ${{ secrets.FLAKE_UPDATE_TOKEN }}
           pr-title: "chore: update flake.lock"
@@ -30,3 +31,20 @@ jobs:
           pr-labels: |
             dependencies
             full-build
+
+      # Comment as the PAT user so the Claude workflow triggers (comments
+      # from the default GITHUB_TOKEN would not). This drives the agentic
+      # part of the upgrade: fix failures, then prune obsolete workarounds.
+      - name: Brief Claude on the update PR
+        if: steps.update.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ secrets.FLAKE_UPDATE_TOKEN }}
+        run: |
+          gh pr comment "${{ steps.update.outputs.pull-request-number }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --body "@claude This is the automated weekly flake.lock bump. Work in this order:
+
+          1. **Failures first.** Check this PR's CI. If anything is red, diagnose from the logs and push fixes to this branch. Do not review the nixpkgs commit range up front -- it is far too large; let failures tell you what changed.
+          2. **Then audit workarounds.** Go through our local workarounds and TODOs -- overlays/fixes.nix, patches/, version pins and overrides, disabled tests, and TODO/FIXME comments -- and for each one investigate specifically (targeted upstream check of the relevant package or module, e.g. its file history in nixpkgs) whether this bump makes it unnecessary. Remove or simplify what is obsolete.
+          3. **Verify cheaply.** Use 'nix flake check --no-build', targeted 'nix eval', and remote builds of cheap outputs (nix is configured with nixbuild.net as a remote builder). Never build usb-image, the kernel, vllm, or the CUDA devShells -- CI's full-build job covers the kernel.
+          4. **Summarise.** Finish with a comment: failures fixed, workarounds removed/kept and why, anything needing human attention. Note that your pushes do not re-trigger CI, so ask for a close/reopen to get a fresh run."
