@@ -37,7 +37,8 @@ When writing the shell.nix:
 
 ## CI and automated updates
 
-- The weekly flake.lock update PRs are opened with a PAT (`FLAKE_UPDATE_TOKEN`) precisely so CI runs on them. Commenting `@claude` on an issue or PR triggers the Claude workflow, which can read failing CI logs and push fixes.
+- The weekly flake.lock update PRs are opened with a PAT (`FLAKE_UPDATE_TOKEN`) precisely so CI runs on them, and the update workflow automatically posts an `@claude` brief on each one: fix CI failures first, then audit local workarounds/TODOs (overlays/fixes.nix, patches/, pins, disabled tests) for ones made obsolete by the bump. Commenting `@claude` on any issue or PR also triggers the Claude workflow.
+- The Claude workflow runs on an ARM runner with nix installed and nixbuild.net configured as a remote builder (plain `nix build` dispatches remotely), plus the cachix/flox caches. Agent runs must never build expensive outputs (usb-image, the kernel, vllm, CUDA devShells) -- CI's label-gated full-build job covers the kernel.
 - Pushes made by the Claude workflow use the default `GITHUB_TOKEN`, which does **not** re-trigger CI. To get a fresh CI run on such a PR, close and reopen it, or push an empty commit.
 
 ## DGX Spark networking quirks
