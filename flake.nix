@@ -92,6 +92,13 @@
 
           pythonForKernelConfig = pkgs.python3.withPackages (ps: [ ps.pytest ]);
 
+          # Plain nixpkgs for VM tests: no CUDA, no overlays, so the whole
+          # test closure substitutes from cache.nixos.org.
+          testPkgs = import nixpkgs {
+            inherit system;
+            config = { };
+          };
+
           nixglhost = nix-gl-host.packages.${system}.default;
 
           pre-commit-check = pre-commit-hooks.lib.${system}.run {
@@ -222,6 +229,10 @@
               ${pythonForKernelConfig}/bin/python3 -m pytest test_generate_config.py -v
               touch $out
             '';
+
+            dgx-dashboard-vm = import ./checks/dgx-dashboard-vm.nix { pkgs = testPkgs; };
+            vllm-units = import ./checks/vllm-units.nix { inherit nixpkgs system pkgs; };
+            dgx-spark-eval = import ./checks/dgx-spark-eval.nix { inherit pkgs self; };
           };
 
           apps.pytorch-container = {

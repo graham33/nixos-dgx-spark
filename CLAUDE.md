@@ -9,7 +9,8 @@ Use British English spelling throughout documentation, comments, and commit mess
 ## Working with the flake
 
 - **`git add` new and modified files before running `nix develop` or `nix build`.** This is a flake repo, so nix only sees files tracked in git. Untracked files cause confusing "path does not exist" errors at evaluation time.
-- The flake outputs are built up from two flake-utils blocks (`eachSystem ["aarch64-linux"]` and `eachDefaultSystem`) merged with `nixpkgs.lib.recursiveUpdate`. Use `recursiveUpdate` (not `//`) when adding more blocks -- shallow merge would silently shadow per-system attrsets.
+- The flake uses flake-parts: system-independent outputs (nixosModules, overlays, templates, nixosConfigurations) live in the `flake` block, and per-system outputs (packages, devShells, checks, apps) live in `perSystem`. `systems = [ "aarch64-linux" ]` only.
+- VM and evaluation tests live in `checks/` (not `tests/`, which holds the pytest suite for the kernel-config scripts). VM tests are built with the plain `testPkgs` (no CUDA, no overlays) so their closures substitute from cache.nixos.org.
 - To build/test a devShell without entering it: `nix build .#devShells.aarch64-linux.<name>.inputDerivation --builders ""`.
 
 ## Pre-commit hooks
