@@ -15,8 +15,10 @@ on:
         type: boolean
         default: false
 
+# Include the event name in the group so pushes to main cannot cancel a
+# long-running manually-dispatched full build on the same ref.
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 jobs:
