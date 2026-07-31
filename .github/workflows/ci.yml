@@ -5,14 +5,21 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      nixbuild_smoke:
+        description: "Run the nixbuild.net connectivity smoke test"
+        type: boolean
+        default: false
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   check:
-    strategy:
-      fail-fast: false
-      matrix:
-        runner: [ubuntu-latest, ubuntu-24.04-arm]
-    runs-on: ${{ matrix.runner }}
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
 
@@ -24,11 +31,35 @@ jobs:
             extra-substituters = https://cache.flox.dev
             extra-trusted-public-keys = flox-cache-public-1:7F4OyH7ZCnFhcze3fJdfyXYLQw/aV7GEed86nQ7IsOs=
 
-      - uses: DeterminateSystems/magic-nix-cache-action@main
-
       - uses: cachix/cachix-action@v17
         with:
           name: graham33
 
-      - name: Run flake checks
+      - name: Run flake checks (evaluation only)
         run: nix flake check --no-build
+
+      - name: Evaluate the full dgx-spark configuration
+        run: nix eval --raw .#nixosConfigurations.dgx-spark.config.system.build.toplevel.drvPath
+
+  # Temporary smoke test to prove nixbuild.net token auth works before any
+  # real builds depend on it. Trigger manually via workflow_dispatch.
+  nixbuild-smoke:
+    if: github.event_name == 'workflow_dispatch' && inputs.nixbuild_smoke
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: nixbuild/nix-quick-install-action@v35
+
+      - uses: nixbuild/nixbuild-action@v25
+        with:
+          nixbuild_token: ${{ secrets.NIXBUILD_TOKEN }}
+
+      - name: Build a trivial derivation on nixbuild.net
+        run: |
+          nix build -L --no-link \
+            --store ssh-ng://eu.nixbuild.net \
+            --eval-store auto \
+            --builders "" --max-jobs 2 \
+            nixpkgs#hello
