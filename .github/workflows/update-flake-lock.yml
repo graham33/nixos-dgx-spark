@@ -23,4 +23,10 @@ jobs:
         with:
           token: ${{ secrets.FLAKE_UPDATE_TOKEN }}
           pr-title: "chore: update flake.lock"
-          pr-labels: dependencies
+          # full-build makes CI also build usb-image (custom kernel) on
+          # nixbuild.net -- a nixpkgs bump is the change most likely to
+          # break the kernel build, and a green full-build auto-pushes
+          # the new kernel to cachix for local machines to substitute.
+          pr-labels: |
+            dependencies
+            full-build

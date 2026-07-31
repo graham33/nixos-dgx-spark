@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
   pull_request:
+    # 'labeled' is not in the default types; without it, adding the
+    # full-build label to a PR would not trigger a run.
+    types: [opened, synchronize, reopened, labeled]
     branches: [main]
   workflow_dispatch:
     inputs:
