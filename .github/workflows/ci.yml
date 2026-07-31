@@ -54,20 +54,27 @@ jobs:
             extra-substituters = https://cache.flox.dev
             extra-trusted-public-keys = flox-cache-public-1:7F4OyH7ZCnFhcze3fJdfyXYLQw/aV7GEed86nQ7IsOs=
 
-      # Classic remote-builder mode: outputs are copied back to the runner's
-      # store, where the cachix post-build hook can see and push them.
       - uses: nixbuild/nixbuild-action@v25
         with:
           nixbuild_token: ${{ secrets.NIXBUILD_TOKEN }}
 
+      # Pull-only: lets the VM test step below substitute inputs (e.g. the
+      # dgx-dashboard package) that nixbuild.net has just auto-pushed.
       - uses: cachix/cachix-action@v17
         with:
           name: graham33
-          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
+      # Remote-store building: outputs stay on nixbuild.net rather than
+      # round-tripping through the runner. The nixbuild.net account is
+      # configured (caches = cachix://graham33) to substitute from and
+      # auto-push all build results to the cachix cache, so no CI-side
+      # cachix push is needed.
       - name: Build packages and checks on nixbuild.net
         run: |
           nix build -L --no-link --keep-going \
+            --store ssh-ng://eu.nixbuild.net \
+            --eval-store auto \
+            --builders "" --max-jobs 2 \
             .#perftest .#openshell .#dgx-dashboard .#cuda-debug \
             .#checks.aarch64-linux.kernel-config-tests \
             .#checks.aarch64-linux.pre-commit-check \
