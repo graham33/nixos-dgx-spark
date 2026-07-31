@@ -1,3 +1,5 @@
 result*
 .pre-commit-config.yaml
 __pycache__/
+.pytest_cache/
+debug*.log
