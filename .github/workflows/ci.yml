@@ -7,8 +7,8 @@ on:
     branches: [main]
   workflow_dispatch:
     inputs:
-      nixbuild_smoke:
-        description: "Run the nixbuild.net connectivity smoke test"
+      full_build:
+        description: "Also build usb-image on nixbuild.net"
         type: boolean
         default: false
 
@@ -41,12 +41,56 @@ jobs:
       - name: Evaluate the full dgx-spark configuration
         run: nix eval --raw .#nixosConfigurations.dgx-spark.config.system.build.toplevel.drvPath
 
-  # Temporary smoke test to prove nixbuild.net token auth works before any
-  # real builds depend on it. Trigger manually via workflow_dispatch.
-  nixbuild-smoke:
-    if: github.event_name == 'workflow_dispatch' && inputs.nixbuild_smoke
+  build:
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 10
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: nixbuild/nix-quick-install-action@v35
+        with:
+          nix_conf: |
+            extra-system-features = kvm nixos-test
+            extra-substituters = https://cache.flox.dev
+            extra-trusted-public-keys = flox-cache-public-1:7F4OyH7ZCnFhcze3fJdfyXYLQw/aV7GEed86nQ7IsOs=
+
+      # Classic remote-builder mode: outputs are copied back to the runner's
+      # store, where the cachix post-build hook can see and push them.
+      - uses: nixbuild/nixbuild-action@v25
+        with:
+          nixbuild_token: ${{ secrets.NIXBUILD_TOKEN }}
+
+      - uses: cachix/cachix-action@v17
+        with:
+          name: graham33
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - name: Build packages and checks on nixbuild.net
+        run: |
+          nix build -L --no-link --keep-going \
+            .#perftest .#openshell .#dgx-dashboard .#cuda-debug \
+            .#checks.aarch64-linux.kernel-config-tests \
+            .#checks.aarch64-linux.pre-commit-check \
+            .#checks.aarch64-linux.vllm-units
+
+      # --builders "" keeps the VM test on the runner (QEMU TCG, no KVM on
+      # GitHub ARM runners) rather than dispatching it to nixbuild.net,
+      # whose aarch64 KVM support is unconfirmed.
+      - name: Run NixOS VM tests (QEMU TCG)
+        run: |
+          nix build -L --no-link --max-jobs 1 --builders "" \
+            .#checks.aarch64-linux.dgx-dashboard-vm
+
+  # Expensive: builds the USB image (including the custom kernel) entirely
+  # on nixbuild.net. Runs only for PRs labelled 'full-build' or manual
+  # dispatch with full_build enabled. Remote-store building keeps the
+  # multi-GB closure off the runner; outputs stay on nixbuild.net.
+  full-build:
+    if: >
+      (github.event_name == 'workflow_dispatch' && inputs.full_build) ||
+      contains(github.event.pull_request.labels.*.name, 'full-build')
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 240
     steps:
       - uses: actions/checkout@v7
 
@@ -56,10 +100,10 @@ jobs:
         with:
           nixbuild_token: ${{ secrets.NIXBUILD_TOKEN }}
 
-      - name: Build a trivial derivation on nixbuild.net
+      - name: Build usb-image on nixbuild.net
         run: |
           nix build -L --no-link \
             --store ssh-ng://eu.nixbuild.net \
             --eval-store auto \
             --builders "" --max-jobs 2 \
-            nixpkgs#hello
+            .#usb-image
