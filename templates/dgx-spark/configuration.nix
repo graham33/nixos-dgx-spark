@@ -72,9 +72,6 @@
     options = "--delete-older-than 30d";
   };
 
-  # Enable Firefox web browser
-  programs.firefox.enable = true;
-
   # Enable Zsh (optional)
   # programs.zsh.enable = true;
 
