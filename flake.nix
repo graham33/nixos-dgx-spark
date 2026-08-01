@@ -256,28 +256,38 @@
             let
               targetSystem = "aarch64-linux";
             in
-            (nixpkgs.lib.nixosSystem {
-              system = targetSystem;
-              modules = [
-                ./usb-configuration.nix
-                (
-                  { modulesPath, ... }:
-                  {
-                    imports = [ "${modulesPath}/installer/cd-dvd/iso-image.nix" ];
-                    isoImage.makeEfiBootable = true;
-                    isoImage.makeUsbBootable = true;
-                  }
-                )
-                (
-                  { lib, ... }:
-                  {
-                    nixpkgs.buildPlatform = lib.mkIf (system != targetSystem) {
-                      system = system;
-                    };
-                  }
-                )
-              ];
-            }).config.system.build.isoImage;
+            (
+              (nixpkgs.lib.nixosSystem {
+                system = targetSystem;
+                modules = [
+                  ./usb-configuration.nix
+                  (
+                    { modulesPath, ... }:
+                    {
+                      imports = [ "${modulesPath}/installer/cd-dvd/iso-image.nix" ];
+                      isoImage.makeEfiBootable = true;
+                      isoImage.makeUsbBootable = true;
+                    }
+                  )
+                  (
+                    { lib, ... }:
+                    {
+                      nixpkgs.buildPlatform = lib.mkIf (system != targetSystem) {
+                        system = system;
+                      };
+                    }
+                  )
+                ];
+              }).config.system.build.isoImage
+            ).overrideAttrs {
+              # Squashing the multi-GB closure needs more than the 7 GB a
+              # fresh 2-CPU nixbuild.net allocation provides; each nixpkgs
+              # bump mints a new drv with no build history, so without this
+              # hint every bump wastes ~30 min on an OutOfMemory attempt
+              # before the auto-retry succeeds. Requires the account setting
+              # settings-from-drv-env to be enabled. Harmless elsewhere.
+              NIXBUILDNET_MIN_MEM = "16000";
+            };
 
           packages.default = self.packages.${system}.usb-image;
         };
