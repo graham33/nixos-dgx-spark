@@ -44,17 +44,6 @@
     efiInstallAsRemovable = true;
   };
 
-  # onnxruntime (pulled in by Firefox's optional ML features) drags in
-  # cudnn-frontend and other CUDA-only packages that hit a
-  # FindCUDAToolkit-can't-find-nvcc bug on aarch64 / CMake 4.3. Firefox is
-  # the only consumer in this image, so disable CUDA in onnxruntime to
-  # sidestep the whole toolchain path.
-  nixpkgs.overlays = [
-    (final: prev: {
-      onnxruntime = prev.onnxruntime.override { cudaSupport = false; };
-    })
-  ];
-
   # File systems configuration handled automatically by ISO image
 
   # Networking
@@ -109,8 +98,8 @@
     pciutils
     usbutils
 
-    # GUI applications for live environment
-    firefox
+    # GUI applications for live environment (GNOME core apps already
+    # provide a browser, Epiphany)
     gnome-terminal
     nautilus
     gnome-text-editor
