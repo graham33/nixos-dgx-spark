@@ -27,36 +27,6 @@ final: prev: {
     }
   );
 
-  # Header-only tensor sharing library (not yet in nixpkgs)
-  dlpack = prev.stdenv.mkDerivation rec {
-    pname = "dlpack";
-    version = "1.2";
-
-    src = prev.fetchFromGitHub {
-      owner = "dmlc";
-      repo = "dlpack";
-      rev = "v${version}";
-      hash = "sha256-9sKjRGnoaHLUXjDahyWrYYYdDQuqwJyL0hFo1YhGov4=";
-    };
-
-    nativeBuildInputs = [ prev.cmake ];
-
-    # Header-only library
-    dontBuild = true;
-
-    installPhase = ''
-      mkdir -p $out/include
-      cp -r $src/include/dlpack $out/include/
-    '';
-
-    meta = with prev.lib; {
-      description = "Open in-memory tensor structure for sharing tensors among frameworks";
-      homepage = "https://github.com/dmlc/dlpack";
-      license = licenses.asl20;
-      platforms = platforms.all;
-    };
-  };
-
   # Disable CUDA support in OpenCV (not compatible with CUDA 13)
   opencv4 = prev.opencv4.override {
     enableCuda = false;
@@ -64,11 +34,6 @@ final: prev: {
 
   pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
     (python-final: python-prev: {
-      # Mark torch as not broken (upstream marks it broken for CUDA 13)
-      torch = python-prev.torch.overridePythonAttrs (oldAttrs: {
-        meta = oldAttrs.meta // { broken = false; };
-      });
-
       # Disable tests that fail on aarch64 (cpuinfo init failure in nix build sandbox)
       accelerate = python-prev.accelerate.overridePythonAttrs { doCheck = false; };
       # compressed-tensors 0.17.1 imports psutil in its offload code but the
