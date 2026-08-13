@@ -71,24 +71,6 @@ final: prev: {
         pythonMetadataCheckPhase = ":";
       });
 
-      # Bump kornia-rs to 0.1.10 to fix Rust compiler SIGSEGV on aarch64
-      kornia-rs = python-prev.kornia-rs.overridePythonAttrs (oldAttrs: rec {
-        version = "0.1.10";
-        src = final.fetchFromGitHub {
-          owner = "kornia";
-          repo = "kornia-rs";
-          tag = "v${version}";
-          hash = "sha256-rC5NqyQah3D4tGLefS4cSIXA3+gQ0+4RNcXOcEYxryg=";
-        };
-        cargoDeps = final.rustPlatform.importCargoLock {
-          lockFile = ../vendor/kornia-rs-0.1.10-Cargo.lock;
-        };
-        postPatch = ''
-          ln -s ${../vendor/kornia-rs-0.1.10-Cargo.lock} kornia-py/Cargo.lock
-        '';
-        meta = oldAttrs.meta // { badPlatforms = [ ]; };
-      });
-
       # Override cupy to use cudaPackages from final scope instead of hardcoded cuDNN 8.9.7
       # This is needed for CUDA 13 compatibility where cuDNN 8.9.7 is not available
       cupy = python-prev.cupy.override {
