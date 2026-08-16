@@ -40,7 +40,7 @@ jobs:
             extra-substituters = https://cache.flox.dev
             extra-trusted-public-keys = flox-cache-public-1:7F4OyH7ZCnFhcze3fJdfyXYLQw/aV7GEed86nQ7IsOs=
 
-      - uses: nixbuild/nixbuild-action@v25
+      - uses: nixbuild/nixbuild-action@v26
         with:
           nixbuild_token: ${{ secrets.NIXBUILD_TOKEN }}
 
