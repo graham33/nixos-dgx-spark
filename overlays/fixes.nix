@@ -11,18 +11,6 @@ final: prev: {
         # cuda_compat has src = null for linux-sbsa even though meta.platforms claims support
         (prev.lib.optionalAttrs (prev.stdenv.hostPlatform.system == "aarch64-linux")
           (_: _: { cuda_compat = null; }))
-        # Bump NCCL to v2.28.9-1 (nixpkgs has v2.28.7-1)
-        (_: cudaPrev: {
-          nccl = cudaPrev.nccl.overrideAttrs (oldAttrs: {
-            version = "2.28.9-1";
-            src = prev.fetchFromGitHub {
-              owner = "NVIDIA";
-              repo = "nccl";
-              rev = "v2.28.9-1";
-              hash = "sha256-1nNLcS/F0HsGbYf327TLX+ZVI13YcrrhpLqbGVuml2g=";
-            };
-          });
-        })
       ];
     }
   );
@@ -34,25 +22,11 @@ final: prev: {
 
   pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
     (python-final: python-prev: {
-      # Disable tests that fail on aarch64 (cpuinfo init failure in nix build sandbox)
-      accelerate = python-prev.accelerate.overridePythonAttrs { doCheck = false; };
       # compressed-tensors 0.17.1 imports psutil in its offload code but the
-      # nixpkgs derivation doesn't propagate it — add it here in addition to
-      # skipping the sandbox-fragile tests.
+      # nixpkgs derivation doesn't propagate it.
       compressed-tensors = python-prev.compressed-tensors.overridePythonAttrs (oldAttrs: {
-        doCheck = false;
         dependencies = (oldAttrs.dependencies or [ ]) ++ [ python-final.psutil ];
       });
-      peft = python-prev.peft.overridePythonAttrs { doCheck = false; };
-      # Disable torchaudio tests (too slow)
-      torchaudio = python-prev.torchaudio.overridePythonAttrs { doCheck = false; };
-      # model-hosting-container-standards' handler-override / SageMaker LoRA
-      # tests are sandbox-fragile (upstream disables 2 of them; the remaining
-      # 10 also fail without a proper subprocess environment).
-      model-hosting-container-standards =
-        python-prev.model-hosting-container-standards.overridePythonAttrs {
-          doCheck = false;
-        };
       # jupyter-server enters the vLLM closure via einops' test deps. Two
       # orphaned-kernel FD-leak / timeout tests are flaky under the nix
       # sandbox's low FD limits.
@@ -62,15 +36,6 @@ final: prev: {
           "test_disconnect_resolves_orphaned_kernel_info_future"
         ];
       });
-      # flashinfer 0.6.4's wheel METADATA declares requests as a runtime dep
-      # but the nixpkgs derivation doesn't propagate it. Also, the wheel
-      # installs as `flashinfer_python`, not `flashinfer`, so
-      # pythonMetadataCheckPhase can't find it by pname.
-      flashinfer = python-prev.flashinfer.overridePythonAttrs (oldAttrs: {
-        dependencies = (oldAttrs.dependencies or [ ]) ++ [ python-final.requests ];
-        pythonMetadataCheckPhase = ":";
-      });
-
       # Override cupy to use cudaPackages from final scope instead of hardcoded cuDNN 8.9.7
       # This is needed for CUDA 13 compatibility where cuDNN 8.9.7 is not available
       cupy = python-prev.cupy.override {
@@ -83,71 +48,9 @@ final: prev: {
         buildInputs = (oldAttrs.buildInputs or [ ]) ++ [ final.cudaPackages.cuda_crt ];
       });
 
-      # Override transformers to not include tensorflow in optional dependencies
-      transformers = python-prev.transformers.overridePythonAttrs (oldAttrs: {
-        optional-dependencies = prev.lib.mapAttrs
-          (name: deps:
-            if name == "tf" then
-              prev.lib.filter (dep: !(prev.lib.hasInfix "tensorflow" (dep.pname or ""))) deps
-            else deps
-          )
-          (oldAttrs.optional-dependencies or { });
-      });
-
-      # Override outlines to not include tensorflow in tests. Also add
-      # pillow: 1.2.12's wheel METADATA declares it as a runtime dep but
-      # the nixpkgs derivation doesn't propagate it, so
-      # pythonRuntimeDepsCheckHook fails.
-      outlines = python-prev.outlines.overridePythonAttrs (oldAttrs: {
-        doCheck = false;
-        nativeCheckInputs = [ ];
-        dependencies = (oldAttrs.dependencies or [ ]) ++ [ python-final.pillow ];
-      });
-
-      # Bump mistral-common to 1.11.0 — vLLM 0.19.0 uses ReasoningEffort
-      # which was added after 1.8.8.
-      mistral-common = python-prev.mistral-common.overridePythonAttrs (oldAttrs: rec {
-        version = "1.11.0";
-        src = prev.fetchFromGitHub {
-          owner = "mistralai";
-          repo = "mistral-common";
-          tag = "v${version}";
-          hash = "sha256-DejbLY2i6Hp1J+spxMut5RKugj7rDyrZmp6v+5wqyWY=";
-        };
-        # 1.11.0 adds guidance tests that need llguidance (not yet packaged).
-        # Skip those specific test dirs rather than disabling checks entirely.
-        disabledTestPaths = (oldAttrs.disabledTestPaths or [ ]) ++ [
-          "tests/guidance"
-        ];
-      });
-
       # New deps required by vLLM 0.19.0
       kaldi-native-fbank = python-final.callPackage ../packages/kaldi-native-fbank { };
       opentelemetry-semantic-conventions-ai = python-final.callPackage ../packages/opentelemetry-semantic-conventions-ai { };
-
-      # Bump opentelemetry-api to 1.40.0 (vLLM 0.19.0 requires >= 1.40)
-      opentelemetry-api = python-prev.opentelemetry-api.overridePythonAttrs (oldAttrs: rec {
-        version = "1.40.0";
-        src = prev.fetchFromGitHub {
-          owner = "open-telemetry";
-          repo = "opentelemetry-python";
-          tag = "v${version}";
-          hash = "sha256-1KVy9s+zjlB4w7E45PMCWRxPus24bgBmmM3k2R9d+Jg=";
-        };
-        sourceRoot = "${src.name}/opentelemetry-api";
-      });
-
-      # Bump opentelemetry-instrumentation to 0.61b0 (matches opentelemetry-api 1.40.0)
-      opentelemetry-instrumentation = python-prev.opentelemetry-instrumentation.overridePythonAttrs (oldAttrs: rec {
-        version = "0.61b0";
-        src = prev.fetchFromGitHub {
-          owner = "open-telemetry";
-          repo = "opentelemetry-python-contrib";
-          tag = "v${version}";
-          hash = "sha256-DT13gcYPNYXBPnf622WsA16C+7sabJfOshDquHn06Ok=";
-        };
-        sourceRoot = "${src.name}/opentelemetry-instrumentation";
-      });
 
       # Bump vLLM to 0.19.0 for Qwen3.5 and Gemma 4 model support.
       # Uses the package definition from NixOS/nixpkgs#498040.
