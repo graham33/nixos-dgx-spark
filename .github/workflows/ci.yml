@@ -46,7 +46,13 @@ jobs:
       - name: Evaluate the full dgx-spark configuration
         run: nix eval --raw .#nixosConfigurations.dgx-spark.config.system.build.toplevel.drvPath
 
+  # Dependabot-triggered runs read from the Dependabot secrets store, not the
+  # Actions one, so secrets.NIXBUILD_TOKEN is empty and nixbuild-action fails
+  # immediately. Skip rather than report a red build nobody can act on; the
+  # 'check' job still runs, and the post-merge push to main does the real
+  # build with the token in scope.
   build:
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 60
     steps:
@@ -99,8 +105,9 @@ jobs:
   # multi-GB closure off the runner; outputs stay on nixbuild.net.
   full-build:
     if: >
-      (github.event_name == 'workflow_dispatch' && inputs.full_build) ||
-      contains(github.event.pull_request.labels.*.name, 'full-build')
+      github.actor != 'dependabot[bot]' &&
+      ((github.event_name == 'workflow_dispatch' && inputs.full_build) ||
+      contains(github.event.pull_request.labels.*.name, 'full-build'))
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 240
     steps:
