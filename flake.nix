@@ -36,6 +36,7 @@
       linux617Overlay = import ./overlays/linux-6.17.nix;
       fixesOverlay = import ./overlays/fixes.nix;
       comfyuiModelsOverlay = import ./overlays/comfyui-models.nix;
+      nixifiedAiFixesOverlay = import ./overlays/nixified-ai-fixes.nix;
     in
     flake-parts.lib.mkFlake { inherit inputs; } {
       flake = {
@@ -62,7 +63,7 @@
       };
       systems = [ "aarch64-linux" ];
       perSystem =
-        { system, ... }:
+        { config, system, ... }:
         let
           commonConfig = {
             allowUnfree = true;
@@ -81,6 +82,7 @@
               nixified-ai.overlays.models
               nixified-ai.overlays.fetchers
               comfyuiModelsOverlay
+              nixifiedAiFixesOverlay
             ];
           };
 
