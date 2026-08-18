@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       full_build:
-        description: "Also build usb-image on nixbuild.net"
+        description: "Also build usb-image and the playbook devShells on nixbuild.net"
         type: boolean
         default: false
 
@@ -99,17 +99,19 @@ jobs:
           nix build -L --no-link --max-jobs 1 --builders "" \
             .#checks.aarch64-linux.dgx-dashboard-vm
 
-  # Expensive: builds the USB image (including the custom kernel) entirely
-  # on nixbuild.net. Runs only for PRs labelled 'full-build' or manual
-  # dispatch with full_build enabled. Remote-store building keeps the
-  # multi-GB closure off the runner; outputs stay on nixbuild.net.
+  # Expensive: builds the USB image (including the custom kernel) and the
+  # build closure of every playbook devShell (including CUDA torch and
+  # vllm) entirely on nixbuild.net. Runs only for PRs labelled
+  # 'full-build' or manual dispatch with full_build enabled. Remote-store
+  # building keeps the multi-GB closure off the runner; outputs stay on
+  # nixbuild.net.
   full-build:
     if: >
       github.actor != 'dependabot[bot]' &&
       ((github.event_name == 'workflow_dispatch' && inputs.full_build) ||
       contains(github.event.pull_request.labels.*.name, 'full-build'))
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 240
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v7
 
@@ -156,3 +158,16 @@ jobs:
         run: |
           nix build -L --no-link --max-jobs 1 --builders "" \
             .#checks.aarch64-linux.dgx-spark-boot-vm
+
+      # devshell-closures aggregates every devShell's .inputDerivation
+      # (plus a weights-free comfyui), so this proves the playbooks still
+      # build rather than merely still evaluate. Runs last and with
+      # --keep-going: it is the longest step by far, and one broken
+      # playbook should not hide the state of the others.
+      - name: Build playbook devShell closures on nixbuild.net
+        run: |
+          nix build -L --no-link --keep-going \
+            --store ssh-ng://eu.nixbuild.net \
+            --eval-store auto \
+            --builders "" --max-jobs 2 \
+            .#devshell-closures

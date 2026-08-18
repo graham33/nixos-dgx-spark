@@ -29,6 +29,8 @@ If you get "No .pre-commit-config.yaml file was found" when committing, run `nix
 
 Each playbook lives in `playbooks/<name>/` with `shell.nix` and `README.md`. Register it in `flake.nix` under the aarch64-linux block as `devShells.<name> = pkgs.callPackage ./playbooks/<name>/shell.nix { inherit nixglhost; };`. Also add a row to the playbook table in the top-level `README.md`.
 
+No CI change is needed: `packages.devshell-closures` is derived from `config.devShells`, so registering the shell also enrols it in the label-gated `full-build` job.
+
 When writing the shell.nix:
 
 - Use `pkgs.python3Packages.<package>` (not `python3xxPackages`). Focus on Python 3.12+; ignore older versions.
@@ -38,6 +40,7 @@ When writing the shell.nix:
 ## CI and automated updates
 
 - The weekly flake.lock update PRs are opened with a PAT (`FLAKE_UPDATE_TOKEN`) precisely so CI runs on them, and the update workflow automatically posts an `@claude` brief on each one: fix CI failures first, then audit local workarounds/TODOs (overlays/fixes.nix, patches/, pins, disabled tests) for ones made obsolete by the bump. Commenting `@claude` on any issue or PR also triggers the Claude workflow.
+- The label-gated `full-build` job covers the usb-image, the boot VM test, and `packages.devshell-closures` (every devShell's build inputs, plus a weights-free comfyui). It is the only job that builds CUDA torch and vllm.
 - The Claude workflow runs on an ARM runner with nix installed and nixbuild.net configured as a remote builder (plain `nix build` dispatches remotely), plus the cachix/flox caches. Agent runs must never build expensive outputs (usb-image, the kernel, vllm, CUDA devShells) -- CI's label-gated full-build job covers the kernel.
 - Pushes made by the Claude workflow use the default `GITHUB_TOKEN`, which does **not** re-trigger CI. To get a fresh CI run on such a PR, close and reopen it, or push an empty commit.
 
