@@ -212,6 +212,31 @@
             openshell = pkgs.callPackage ./packages/openshell { };
           };
 
+          # Aggregate of every devShell's build closure, so CI can prove the
+          # playbooks still build rather than merely still evaluate. mkShell
+          # derivations are not themselves buildable, hence .inputDerivation.
+          # Derived from config.devShells, so a newly registered playbook is
+          # covered automatically.
+          #
+          # comfyui is special-cased: its devShell pins withModels =
+          # [ comfyuiModels.sd15-fp16 ], a ~2 GB weights fetch that is pure
+          # bandwidth in CI. The unoverridden package has the same code
+          # closure minus the weights, so it is built instead.
+          packages.devshell-closures = pkgs.linkFarm "devshell-closures" (
+            nixpkgs.lib.mapAttrsToList
+              (name: shell: {
+                inherit name;
+                path = shell.inputDerivation;
+              })
+              (removeAttrs config.devShells [ "comfyui" ])
+            ++ [
+              {
+                name = "comfyui";
+                path = pkgs.comfyuiPackages.comfyui;
+              }
+            ]
+          );
+
           packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
           packages.dgx-dashboard = pkgs.callPackage ./packages/dgx-dashboard { };
           packages.openshell = pkgs.callPackage ./packages/openshell { };
