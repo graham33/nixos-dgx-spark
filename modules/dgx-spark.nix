@@ -18,6 +18,8 @@ let
     )
     { inherit lib; };
 
+  pageSize64kConfig = import ../kernel-configs/page-size-64k.nix { inherit lib; };
+
   nvidiaKernelPatches = [
     {
       name = "rust-gendwarfksyms-fix";
@@ -25,7 +27,14 @@ let
     }
   ];
 
-  rawNvidiaKernel = pkgs.linuxPackagesFor (
+  # NVIDIA ships the DGX kernel in two arm64 flavours, 4K- and 64K-page. Build
+  # the selected one: the page size is a compile-time property of the kernel
+  # image, so the two flavours are separate kernel packages rather than a knob
+  # on a shared one (matching how nixos-apple-silicon bakes ARM64_16K_PAGES
+  # into `linux-asahi`, and how NVIDIA builds `arm64-nvidia` vs
+  # `arm64-nvidia-64k`). The `//` ordering matters: the 64K deltas replace the
+  # 4K values the generated config force-sets for PGTABLE_LEVELS and friends.
+  mkNvidiaKernel = pageSize: pkgs.linuxPackagesFor (
     baseKernel.override {
       argsOverride = {
         src = kernelSource.mkNvidiaKernelSource pkgs;
@@ -50,9 +59,12 @@ let
           UEVENT_HELPER = no;
 
           UBUNTU_HOST = no;
-        });
+        })
+        // lib.optionalAttrs (pageSize == "64k") pageSize64kConfig;
     }
   );
+
+  rawNvidiaKernel = mkNvidiaKernel cfg.kernelPageSize;
 
   # Strip embedded references to the kernel `-dev` output from .ko files. The
   # nvidia kernel-modules build (nixpkgs PR #498612) declares
@@ -90,6 +102,30 @@ in
       description = "Whether to use the NVIDIA kernel instead of the standard NixOS kernel";
     };
 
+    kernelPageSize = mkOption {
+      type = types.enum [ "4k" "64k" ];
+      default = "4k";
+      description = ''
+        Page size of the NVIDIA kernel, matching NVIDIA's `arm64-nvidia` and
+        `arm64-nvidia-64k` flavours. The default of 4K matches the stock
+        `arm64-nvidia` flavour and every other aarch64 kernel in nixpkgs.
+
+        64K pages cut TLB pressure and page-table walk depth (three levels
+        rather than four), which can help large-footprint GPU workloads, at
+        the cost of more memory wasted to internal fragmentation and no
+        AArch32 userspace. Note that a 64K-page kernel refuses to load ELF
+        binaries linked with 4K max-page-size alignment; the aarch64 toolchain
+        defaults to 64K so nixpkgs-built code is fine, but vendored binaries
+        (CUDA redistributables, prebuilt wheels) are worth checking.
+
+        Changing this rebuilds the kernel and all out-of-tree modules from
+        source -- there is no cached build for either flavour.
+
+        Requires the NVIDIA kernel (`useNvidiaKernel = true`); the stock NixOS
+        kernel is always 4K.
+      '';
+    };
+
     cppcAutonomousMode = mkOption {
       type = types.bool;
       default = true;
@@ -110,6 +146,19 @@ in
   };
 
   config = mkIf cfg.enable {
+    # The page size is set via the NVIDIA kernel's structuredExtraConfig, so
+    # it is silently ignored on the stock NixOS kernel path.
+    assertions = [
+      {
+        assertion = cfg.kernelPageSize == "64k" -> cfg.useNvidiaKernel;
+        message = ''
+          hardware.dgx-spark.kernelPageSize = "64k" requires
+          hardware.dgx-spark.useNvidiaKernel = true; the stock NixOS kernel is
+          always built with 4K pages.
+        '';
+      }
+    ];
+
     # Add the Flox binary cache as a substituter for pre-built CUDA packages.
     # Flox is authorized by NVIDIA to redistribute CUDA binaries, so packages
     # like cudatoolkit, nccl, cuDNN, torch, etc. can be fetched as pre-built
