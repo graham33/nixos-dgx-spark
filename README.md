@@ -93,6 +93,7 @@ This module provides configurable DGX Spark hardware support with options for ke
 hardware.dgx-spark = {
   enable = true;                 # Enable DGX Spark hardware support
   useNvidiaKernel = true;        # Use NVIDIA kernel (default: true)
+  connectx7Hotplug = true;       # Enable ConnectX-7 hot-plug (default: true)
 };
 ```
 

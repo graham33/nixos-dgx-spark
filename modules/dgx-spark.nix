@@ -74,6 +74,12 @@ let
     });
 
   nvidiaKernel = rawNvidiaKernel;
+
+  connectx7HotplugModule = pkgs.callPackage ../packages/dgx-spark-cx7-hotplug-module {
+    kernel = config.boot.kernelPackages.kernel;
+  };
+
+  connectx7Hotplug = pkgs.callPackage ../packages/dgx-spark-mlnx-hotplug { };
 in
 {
   imports = [
@@ -107,6 +113,15 @@ in
         driver carries the autonomous-mode series.
       '';
     };
+
+    connectx7Hotplug = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Enable ConnectX-7 PCIe hot-plug support using NVIDIA's udev helper
+        and the out-of-tree mtk-pcie-hotplug kernel module.
+      '';
+    };
   };
 
   config = mkIf cfg.enable {
@@ -123,6 +138,9 @@ in
     nixpkgs.overlays = [ (import ../overlays/linux-6.17.nix) ];
 
     boot.kernelPackages = if cfg.useNvidiaKernel then nvidiaKernel else pkgs.linuxPackages_6_17;
+
+    boot.extraModulePackages = mkIf cfg.connectx7Hotplug [ connectx7HotplugModule ];
+    boot.kernelModules = mkIf cfg.connectx7Hotplug [ "mtk-pcie-hotplug" ];
 
     boot.kernelParams = [
       "console=tty1"
@@ -190,6 +208,17 @@ in
     networking.firewall.trustedInterfaces = [ "podman+" ];
 
     hardware.nvidia-container-toolkit.enable = true;
+
+    services.udev.packages = mkIf cfg.connectx7Hotplug [ connectx7Hotplug ];
+
+    # NVIDIA's Debian package creates this marker in its post-install script.
+    # The helper deliberately leaves hot-plug disabled when the marker is absent.
+    environment.etc."nvidia/cx7-hotplug-enabled" = mkIf cfg.connectx7Hotplug {
+      text = ''
+        # CX7 Hotplug Configuration
+        # Presence of this file enables ConnectX-7 hot-plug power management.
+      '';
+    };
 
     # RDMA over the ConnectX ports needs to pin the memory it registers, and
     # the NixOS default memlock ceiling of 8 MB is far too low: ibv_reg_mr
