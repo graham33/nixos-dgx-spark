@@ -239,6 +239,7 @@
 
           packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
           packages.dgx-dashboard = pkgs.callPackage ./packages/dgx-dashboard { };
+          packages.dgx-spark-mlnx-hotplug = pkgs.callPackage ./packages/dgx-spark-mlnx-hotplug { };
           packages.openshell = pkgs.callPackage ./packages/openshell { };
           packages.perftest = pkgs.callPackage ./packages/perftest { };
 
