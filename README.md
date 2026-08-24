@@ -322,9 +322,19 @@ you compile CUDA packages that Flox does not ship (the OOM risk is real on a
 to avoid rebuilding them and their dependents.
 
 > [!NOTE]
-> The playbook devShells and packages in this repo are built with
-> `cudaCapabilities = [ "12.0" ]`, which matches neither of the above. They are
-> served from the graham33 Cachix cache instead.
+> The playbook devShells and packages in this repo are built with the same
+> `cudaCapabilities = [ "12.0" "12.1" ]` as the module, so they share build
+> results with the system closure rather than rebuilding every CUDA derivation
+> at a second capability list. That still matches neither Flox default above,
+> so they are served from the graham33 Cachix cache instead.
+>
+> `12.0` stays in the list even though the Spark's GB10 is SM 12.1. PyTorch
+> only appends its arch-specific `sm_120a`/`sm_121a` gencode flags — which is
+> how the FP8 GEMM in `RowwiseScaledMM.cu` reaches the Spark — when the
+> existing flags already mention `compute_120`, and flashinfer gates most of
+> its Blackwell modules on sm120 as well. Plain `12.0` was never wrong either:
+> a cubin built for compute capability X.y runs on any device X.z where
+> z >= y, so `sm_120` SASS already executes natively on `sm_121`.
 
 ### graham33 Cachix cache
 
