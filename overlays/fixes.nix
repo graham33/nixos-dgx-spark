@@ -62,12 +62,22 @@ final: prev: {
       # per job, so unconstrained on Spark (20 cores, 128 GiB) the build
       # OOM-kills itself (~120 GiB needed). 8 leaves ~48 GiB headroom,
       # overriding nixpkgs' export MAX_JOBS="$NIX_BUILD_CORES".
+      #
+      # Upstream marked vllm broken under CUDA and bad on aarch64-linux
+      # (NixOS/nixpkgs#553566), pending the 0.26.0 bump in
+      # NixOS/nixpkgs#549327. The 0.24.0 build succeeds here with CUDA 13
+      # and gpuTargets = [ "12.0" ], so unbreak it; drop this once the
+      # upstream bump lands.
       vllm = (python-prev.vllm.override {
         gpuTargets = [ "12.0" ];
       }).overrideAttrs (old: {
         preConfigure = (old.preConfigure or "") + ''
           export MAX_JOBS=8
         '';
+        meta = old.meta // {
+          broken = false;
+          badPlatforms = prev.lib.filter (p: p != "aarch64-linux") (old.meta.badPlatforms or [ ]);
+        };
       });
     })
   ];
