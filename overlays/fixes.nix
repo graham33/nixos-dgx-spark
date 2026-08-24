@@ -48,9 +48,15 @@ final: prev: {
         buildInputs = (oldAttrs.buildInputs or [ ]) ++ [ final.cudaPackages.cuda_crt ];
       });
 
-      # gpuTargets is set to just "12.0" (Blackwell/Spark) to avoid
-      # compiling SM90 (Hopper) CUTLASS kernels which take 16+ hours
-      # on aarch64 and aren't needed on this hardware.
+      # gpuTargets is set to just "12.0" (Blackwell/Spark). Originally this
+      # was to avoid compiling SM90 (Hopper) CUTLASS kernels, which take 16+
+      # hours on aarch64 and aren't needed here; that no longer applies now
+      # cudaCapabilities is [ "12.0" "12.1" ]. It still matters because under
+      # CUDA 13 vllm's CUDA_SUPPORTED_ARCHS stops at 12.0 and it compiles the
+      # family target 12.0f -- one cubin covering the whole SM12x family,
+      # including the Spark's sm_121. Passing 12.1 makes
+      # cuda_archs_loose_intersection fall back to a plain 12.1 target and
+      # lose the family-conditional kernels.
       #
       # MAX_JOBS=8 caps build parallelism: vllm's nvcc/cicc uses ~6 GiB
       # per job, so unconstrained on Spark (20 cores, 128 GiB) the build

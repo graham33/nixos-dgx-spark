@@ -69,7 +69,14 @@
             allowUnfree = true;
             allowUnsupportedSystem = true;
             cudaSupport = true;
-            cudaCapabilities = [ "12.0" ]; # TODO: try 12.1
+            # The Spark's GB10 is SM 12.1, but 12.0 has to stay in the list.
+            # PyTorch only emits its arch-specific sm_120a/sm_121a kernels
+            # (cmake/Codegen.cmake, e.g. the FP8 GEMM in RowwiseScaledMM.cu)
+            # when the gencode flags already mention compute_120, and
+            # flashinfer gates most of its Blackwell modules on sm120 too.
+            # Matches nixpkgs.config.cudaCapabilities in modules/dgx-spark.nix,
+            # so devShells share cache with the system closure.
+            cudaCapabilities = [ "12.0" "12.1" ];
           };
 
           pkgs = import nixpkgs {
