@@ -177,6 +177,15 @@ in
 
     nixpkgs.config.allowUnfree = true;
     nixpkgs.config.cudaSupport = true;
+    # Compile CUDA code only for the Spark's GB10 Blackwell GPU. Without this,
+    # packages like ucc build for all nine architectures nixpkgs supports
+    # (sm_75 through sm_121), which can exhaust memory and OOM a rebuild.
+    #
+    # NB: this does not match the Flox cache, which is built with nixpkgs'
+    # default (full) capability list, so CUDA-dependent packages are rebuilt
+    # from source. Set `nixpkgs.config.cudaCapabilities = [ ]` to restore the
+    # default and get the cache hits back -- see "Matching the Flox cache with
+    # cudaCapabilities" in the README for the trade-off.
     nixpkgs.config.cudaCapabilities = [ "12.0" "12.1" ];
 
     virtualisation.podman = {

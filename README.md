@@ -286,6 +286,47 @@ extra-substituters = https://cache.flox.dev
 extra-trusted-public-keys = flox-cache-public-1:7F4OyH7ZCnFhcze3fJdfyXYLQw/aV7GEed86nQ7IsOs=
 ```
 
+#### Matching the Flox cache with `cudaCapabilities`
+
+The DGX Spark module sets `nixpkgs.config.cudaCapabilities = [ "12.0" "12.1" ]`
+so CUDA code is compiled only for the Spark's GB10 Blackwell GPU. Without this,
+packages such as `ucc` compile for all nine architectures nixpkgs supports
+(sm_75 through sm_121), which can exhaust memory and trigger OOM kills during a
+rebuild.
+
+The trade-off is that Flox builds its cache with nixpkgs' **default** (full)
+capability list. Restricting the list changes the derivation hash of every
+CUDA-dependent package, so none of them match the Flox cache any more and they
+build from source instead — including large leaf packages that only pull CUDA
+in transitively, such as Firefox and Thunderbird.
+
+If you would rather have the cache hits, restore the default list in your own
+configuration:
+
+```nix
+{
+  hardware.dgx-spark.enable = true;
+
+  # Compile CUDA code for every capability nixpkgs supports, matching the
+  # builds in the Flox cache.
+  nixpkgs.config.cudaCapabilities = [ ];
+}
+```
+
+An empty list does not mean "no capabilities" — it means "unset", so nixpkgs
+falls back to its default list. A plain assignment is enough to override the
+module; `lib.mkForce` is not needed here.
+
+Which setting is better depends on what you build. Keep the module default if
+you compile CUDA packages that Flox does not ship (the OOM risk is real on a
+128 GB Spark); use `[ ]` if your CUDA packages come from the cache and you want
+to avoid rebuilding them and their dependents.
+
+> [!NOTE]
+> The playbook devShells and packages in this repo are built with
+> `cudaCapabilities = [ "12.0" ]`, which matches neither of the above. They are
+> served from the graham33 Cachix cache instead.
+
 ### graham33 Cachix cache
 
 For packages built by this repo (e.g. dgx-dashboard, openshell):
