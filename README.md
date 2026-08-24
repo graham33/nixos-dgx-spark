@@ -314,8 +314,7 @@ configuration:
 ```
 
 An empty list does not mean "no capabilities" — it means "unset", so nixpkgs
-falls back to its default list. A plain assignment is enough to override the
-module; `lib.mkForce` is not needed here.
+falls back to its default list.
 
 Which setting is better depends on what you build. Keep the module default if
 you compile CUDA packages that Flox does not ship (the OOM risk is real on a
