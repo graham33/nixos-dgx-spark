@@ -10,15 +10,26 @@ on:
     branches: [main]
   workflow_dispatch:
     inputs:
+      # Building a pull request runs its code -- Nix evaluation on the
+      # runner, derivation builders on nixbuild.net -- with
+      # NIXBUILD_TOKEN in scope, so only dispatch one after reading the
+      # diff. Dispatching requires write access, which is exactly what
+      # stops contributors from starting these builds themselves.
+      pr:
+        description: "PR number to build (blank = the dispatched branch)"
+        type: string
+        default: ""
       full_build:
         description: "Also build usb-image and the playbook devShells on nixbuild.net"
         type: boolean
         default: false
 
 # Include the event name in the group so pushes to main cannot cancel a
-# long-running manually-dispatched full build on the same ref.
+# long-running manually-dispatched full build on the same ref. Dispatched
+# PR builds are keyed on the PR number instead: they are all dispatched
+# against main, so sharing github.ref would make each one cancel the last.
 concurrency:
-  group: ci-${{ github.ref }}-${{ github.event_name }}
+  group: ci-${{ inputs.pr || github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 jobs:
@@ -27,6 +38,15 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.pr && format('refs/pull/{0}/merge', inputs.pr) || '' }}
+
+      - name: Record the built commit
+        if: inputs.pr
+        env:
+          PR: ${{ inputs.pr }}
+        run: |
+          echo "PR #$PR built at $(git rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
 
       - uses: DeterminateSystems/flake-checker-action@main
 
@@ -46,17 +66,39 @@ jobs:
       - name: Evaluate the full dgx-spark configuration
         run: nix eval --raw .#nixosConfigurations.dgx-spark.config.system.build.toplevel.drvPath
 
-  # Dependabot-triggered runs read from the Dependabot secrets store, not the
-  # Actions one, so secrets.NIXBUILD_TOKEN is empty and nixbuild-action fails
-  # immediately. Skip rather than report a red build nobody can act on; the
-  # 'check' job still runs, and the post-merge push to main does the real
-  # build with the token in scope.
+  # Two kinds of run reach nixbuild-action with an empty
+  # secrets.NIXBUILD_TOKEN, which makes it fail within seconds:
+  #
+  #   * pull requests from forks -- GitHub withholds every secret
+  #     (repository, organisation and environment alike) from a
+  #     pull_request run whose head is another repository, so no label or
+  #     approval gate can hand one back;
+  #   * Dependabot-triggered runs -- they read the Dependabot secrets
+  #     store rather than the Actions one.
+  #
+  # Skip rather than report a red build nobody can act on. 'check' still
+  # runs on both, and the real build comes either from a maintainer
+  # dispatching this workflow with 'pr' set -- that runs in this
+  # repository's context, so the token is in scope -- or from the
+  # post-merge push to main.
   build:
-    if: github.actor != 'dependabot[bot]'
+    if: >-
+      github.actor != 'dependabot[bot]'
+      && (github.event_name != 'pull_request'
+      || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.pr && format('refs/pull/{0}/merge', inputs.pr) || '' }}
+
+      - name: Record the built commit
+        if: inputs.pr
+        env:
+          PR: ${{ inputs.pr }}
+        run: |
+          echo "PR #$PR built at $(git rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
 
       - uses: nixbuild/nix-quick-install-action@v35
         with:
@@ -104,16 +146,29 @@ jobs:
   # vllm) entirely on nixbuild.net. Runs only for PRs labelled
   # 'full-build' or manual dispatch with full_build enabled. Remote-store
   # building keeps the multi-GB closure off the runner; outputs stay on
-  # nixbuild.net.
+  # nixbuild.net. The label only reaches this job for same-repository
+  # pull requests -- see the note on 'build' for why a labelled fork pull
+  # request cannot build; dispatch it with 'pr' and full_build instead.
   full-build:
-    if: >
-      github.actor != 'dependabot[bot]' &&
-      ((github.event_name == 'workflow_dispatch' && inputs.full_build) ||
-      contains(github.event.pull_request.labels.*.name, 'full-build'))
+    if: >-
+      github.actor != 'dependabot[bot]'
+      && (github.event_name != 'pull_request'
+      || github.event.pull_request.head.repo.full_name == github.repository)
+      && ((github.event_name == 'workflow_dispatch' && inputs.full_build)
+      || contains(github.event.pull_request.labels.*.name, 'full-build'))
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 360
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.pr && format('refs/pull/{0}/merge', inputs.pr) || '' }}
+
+      - name: Record the built commit
+        if: inputs.pr
+        env:
+          PR: ${{ inputs.pr }}
+        run: |
+          echo "PR #$PR built at $(git rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
 
       - uses: nixbuild/nix-quick-install-action@v35
         with:
