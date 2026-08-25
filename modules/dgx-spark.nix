@@ -78,6 +78,7 @@ in
 {
   imports = [
     ./dgx-dashboard.nix
+    ./dgx-spark-connectx7.nix
     ./vllm.nix
   ];
 
