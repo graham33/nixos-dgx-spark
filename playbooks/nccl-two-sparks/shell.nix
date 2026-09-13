@@ -14,12 +14,17 @@ let
   # then prints two separate single-rank results with 0 bus bandwidth instead
   # of one 2-rank result. Rebuild it with MPI so the ranks share a job.
   #
+  # MPI=1 also pulls in src/comm_ops.cu (the communicator-operations test,
+  # gated on MPI plus a recent-enough NCCL), which #includes <curand.h> but
+  # never calls into libcurand -- so only the header needs to be on the
+  # include path, not the library linked in.
+  #
   # NVCC_GENCODE is narrowed to the GB10's sm_121 at the same time -- the
   # default spans every capability from sm_75 up, which is a long compile for
   # architectures no Spark has.
   nccl-tests-mpi = cudaPackages.nccl-tests.overrideAttrs (old: {
     pname = "nccl-tests-mpi";
-    buildInputs = (old.buildInputs or [ ]) ++ [ openmpi ];
+    buildInputs = (old.buildInputs or [ ]) ++ [ openmpi cudaPackages.libcurand ];
     makeFlags = (old.makeFlags or [ ]) ++ [
       "MPI=1"
       "MPI_HOME=${openmpi}"
