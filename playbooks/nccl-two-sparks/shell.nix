@@ -17,9 +17,15 @@ let
   # NVCC_GENCODE is narrowed to the GB10's sm_121 at the same time -- the
   # default spans every capability from sm_75 up, which is a long compile for
   # architectures no Spark has.
+  #
+  # nccl-tests' Makefile conditionally builds src/comm_ops.cu (the
+  # communicator-lifecycle perf test) whenever MPI=1 and NCCL is new enough
+  # (>= 2.29, which this pin is); that file #includes <curand.h> even though
+  # it never calls into it, so libcurand's headers must be on the include
+  # path even though nothing gets linked against it.
   nccl-tests-mpi = cudaPackages.nccl-tests.overrideAttrs (old: {
     pname = "nccl-tests-mpi";
-    buildInputs = (old.buildInputs or [ ]) ++ [ openmpi ];
+    buildInputs = (old.buildInputs or [ ]) ++ [ openmpi cudaPackages.libcurand ];
     makeFlags = (old.makeFlags or [ ]) ++ [
       "MPI=1"
       "MPI_HOME=${openmpi}"
