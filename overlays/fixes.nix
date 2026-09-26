@@ -1,8 +1,8 @@
 # Nixpkgs fixes overlay
 # Workarounds for packages that are broken or need adjustments on aarch64-linux / CUDA 13
 final: prev: {
-  # Switch to CUDA 13.2
-  cudaPackages = prev.cudaPackages_13_2;
+  # Switch to CUDA 13.4
+  cudaPackages = prev.cudaPackages_13_4;
 
   _cuda = prev._cuda.extend (
     _: prevAttrs: {
@@ -47,6 +47,96 @@ final: prev: {
       bitsandbytes = python-prev.bitsandbytes.overridePythonAttrs (oldAttrs: prev.lib.optionalAttrs (final.cudaPackages ? cuda_crt) {
         buildInputs = (oldAttrs.buildInputs or [ ]) ++ [ final.cudaPackages.cuda_crt ];
       });
+
+      # nixpkgs picks cuda-bindings' source and patch from a table keyed on the
+      # CUDA major.minor version, and that table stops at 13.3 -- on nixpkgs
+      # master too, as of 2026-09-26. Under CUDA 13.4 it throws "Unsupported
+      # cuda-bindings version: 13.4" during evaluation, which takes vllm with
+      # it (via tokenspeed-mla -> nvidia-cutlass-dsl ->
+      # nvidia-cutlass-dsl-libs-base) and so breaks the vllm-nix devShell.
+      #
+      # cuda-python 13.4 also reworked how it opens libraries: cyruntime.pyx.in
+      # and _bindings/cydriver.pyx.in are gone, and every library now goes
+      # through cuda.pathfinder in _internal/<lib>_linux.pyx. Upstream's patch
+      # no longer applies, but the call sites are uniform now, so rewriting
+      # them is shorter than porting a static patch. The aim is the same as
+      # upstream's: cuda.pathfinder discovers libraries through pip wheels and
+      # the dynamic linker's search path, and finds nothing under /nix/store.
+      #
+      # Every attribute that reads the version table has to be replaced or
+      # evaluation re-throws, which is why the override is this broad. Drop it
+      # once nixpkgs ships a 13_4.nix.
+      cuda-bindings =
+        let
+          cudaPackages = final.cudaPackages;
+          libDir = pkg: "${prev.lib.getLib pkg}/lib";
+          driverDir = "${final.addDriverRunpath.driverLink}/lib";
+
+          # cuda.pathfinder library name -> the _internal/*_linux.pyx that
+          # loads it, and where that library actually lives. libcuda and
+          # libnvidia-ml come from the driver rather than the toolkit;
+          # cuda_compat is not an alternative here, as this overlay nulls it
+          # for linux-sbsa. cudla_linux.pyx is deliberately left alone --
+          # libcudla has no linux-sbsa source, so there is nothing to point
+          # it at.
+          loaders = {
+            cuda = { file = "driver"; path = "${driverDir}/libcuda.so.1"; };
+            cudart = { file = "runtime"; path = "${libDir cudaPackages.cuda_cudart}/libcudart.so"; };
+            cufile = { file = "cufile"; path = "${libDir cudaPackages.libcufile}/libcufile.so"; };
+            nvfatbin = { file = "nvfatbin"; path = "${libDir cudaPackages.libnvfatbin}/libnvfatbin.so"; };
+            nvJitLink = { file = "nvjitlink"; path = "${libDir cudaPackages.libnvjitlink}/libnvJitLink.so"; };
+            nvml = { file = "nvml"; path = "${driverDir}/libnvidia-ml.so"; };
+            nvrtc = { file = "nvrtc"; path = "${libDir cudaPackages.cuda_nvrtc}/libnvrtc.so"; };
+            nvvm = { file = "nvvm"; path = "${libDir cudaPackages.libnvvm}/libnvvm.so"; };
+          };
+
+          rewriteLoader = name: { file, path }: ''
+            substituteInPlace cuda/bindings/_internal/${file}_linux.pyx \
+              --replace-fail \
+                'from cuda.pathfinder import load_nvidia_dynamic_lib' \
+                'from ctypes import CDLL' \
+              --replace-fail \
+                'load_nvidia_dynamic_lib("${name}")' \
+                'CDLL("${path}")' \
+              --replace-fail '._handle_uint' '._handle'
+          '';
+        in
+        python-prev.cuda-bindings.overridePythonAttrs (_: {
+          version = "13.4.3";
+
+          src = final.fetchFromGitHub {
+            owner = "NVIDIA";
+            repo = "cuda-python";
+            tag = "v13.4.3";
+            hash = "sha256-U6n4qBnL3Nvd6BuTqeshpkLh9alPlkbuyuaJR3J/UPk=";
+          };
+
+          patches = [ ];
+
+          postPatch = prev.lib.concatStrings (prev.lib.mapAttrsToList rewriteLoader loaders)
+            + ''
+            # A ctypes CDLL has no abs_path; only the cudart loader reports
+            # one, in an error message.
+            substituteInPlace cuda/bindings/_internal/runtime_linux.pyx \
+              --replace-fail 'loaded_dl.abs_path' 'loaded_dl._name'
+          '';
+
+          pythonImportsCheck = [
+            "cuda"
+            "cuda.bindings.cufile"
+            "cuda.bindings.driver"
+            "cuda.bindings.nvfatbin"
+            "cuda.bindings.nvjitlink"
+            "cuda.bindings.nvml"
+            "cuda.bindings.nvrtc"
+            "cuda.bindings.nvvm"
+            "cuda.bindings.runtime"
+          ];
+
+          # doCheck is off upstream (the tests want a GPU), so this list only
+          # affects the passthru.gpuCheck variant.
+          disabledTests = [ ];
+        });
 
       # gpuTargets is set to just "12.0" (Blackwell/Spark). Originally this
       # was to avoid compiling SM90 (Hopper) CUTLASS kernels, which take 16+
