@@ -62,6 +62,34 @@ final: prev: {
           "test_disconnect_resolves_orphaned_kernel_info_future"
         ];
       });
+      # MAGMA is in torch's closure purely to provide GPU LAPACK, and nixpkgs
+      # adds it unconditionally under cudaSupport -- a ~3500-object CUDA build,
+      # about half an hour on the Spark. On CUDA 13.4 cuSOLVER covers the paths
+      # that matter: torch compiles its MAGMA torch.linalg.eig path only when
+      # CUSOLVER_VERSION < 11702, its MAGMA triangular_solve path is ROCm-only,
+      # and lu_factor's default backend falls through to cuSOLVER/cuBLAS when
+      # MAGMA is absent.
+      #
+      # What this gives up: torch.backends.cuda.preferred_linalg_library("magma")
+      # now raises rather than selecting a backend, and batched non-square
+      # lu_factor loses the MAGMA path that torch's own comment calls the
+      # fastest. Note 14 call sites guard on AT_MAGMA_ENABLED and only the four
+      # above were read, so treat the rest of torch.linalg on GPU as untested
+      # here.
+      #
+      # USE_MAGMA=0 on its own saves no build time, because nixpkgs would still
+      # realise magma as a declared input, so drop it from buildInputs too.
+      torch = python-prev.torch.overrideAttrs (oldAttrs: {
+        env = (oldAttrs.env or { }) // {
+          USE_MAGMA = "0";
+        };
+        buildInputs = prev.lib.filter
+          (
+            drv: drv == null || (drv.pname or drv.name or "") != "magma"
+          )
+          oldAttrs.buildInputs;
+      });
+
       # cupy 14.1.1 wraps its SpGEAM stub declarations in
       # "#ifndef CUSPARSE_SPGEAM_ALG_DEFAULT", assuming a cuSPARSE that
       # provides SpGEAM would define that name as a macro. cuSPARSE 12.8 (CUDA
