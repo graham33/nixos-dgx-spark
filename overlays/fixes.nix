@@ -1,8 +1,34 @@
 # Nixpkgs fixes overlay
 # Workarounds for packages that are broken or need adjustments on aarch64-linux / CUDA 13
 final: prev: {
-  # Switch to CUDA 13.4
-  cudaPackages = prev.cudaPackages_13_4;
+  # Switch to CUDA 13.4.
+  #
+  # nixpkgs builds cuda-samples from the v13.0 tag for every CUDA 13.x, and
+  # that release's 2_Concepts_and_Techniques/segmentationTreeThrust uses
+  # thrust::tuple and thrust::make_tuple, which the CCCL 3.x shipped with CUDA
+  # 13.4 has removed -- so it stopped compiling. Disable that one sample, the
+  # same way the upstream derivation already disables the cdp* samples and
+  # 7_libNVVM.
+  #
+  # Moving to a newer sample release is not the easier fix it looks like:
+  # upstream fixed this sample in v13.2, but v13.2 also added an unconditional
+  # file(READ /etc/os-release) to vulkanImageCUDA, which fails CMake outright
+  # in the sandbox, and v13.3 onwards reorganise Samples/ into cpp/ and
+  # python/, which nixpkgs' prePatch and installPhase are written against.
+  cudaPackages = prev.cudaPackages_13_4.overrideScope (
+    _: prevCuda: {
+      cuda-samples = prevCuda.cuda-samples.overrideAttrs (oldAttrs: {
+        prePatch = (oldAttrs.prePatch or "") + ''
+          nixLog "removing sample 2_Concepts_and_Techniques/segmentationTreeThrust which uses thrust::tuple, dropped in CCCL 3"
+          substituteInPlace \
+            "$NIX_BUILD_TOP/$sourceRoot/Samples/2_Concepts_and_Techniques/CMakeLists.txt" \
+            --replace-fail \
+              'add_subdirectory(segmentationTreeThrust)' \
+              '# add_subdirectory(segmentationTreeThrust)'
+        '';
+      });
+    }
+  );
 
   _cuda = prev._cuda.extend (
     _: prevAttrs: {
@@ -36,11 +62,28 @@ final: prev: {
           "test_disconnect_resolves_orphaned_kernel_info_future"
         ];
       });
-      # Override cupy to use cudaPackages from final scope instead of hardcoded cuDNN 8.9.7
-      # This is needed for CUDA 13 compatibility where cuDNN 8.9.7 is not available
-      cupy = python-prev.cupy.override {
-        cudaPackages = final.cudaPackages;
-      };
+      # cupy 14.1.1 wraps its SpGEAM stub declarations in
+      # "#ifndef CUSPARSE_SPGEAM_ALG_DEFAULT", assuming a cuSPARSE that
+      # provides SpGEAM would define that name as a macro. cuSPARSE 12.8 (CUDA
+      # 13.4) declares it as an enum member instead, so the guard stays true:
+      # cupy defines both algorithm names as macros and forward-declares the
+      # descriptor as void*, and the real header's enum body then expands to
+      # "{ 0 = 0, 1 = 1 }". Include the header and test its version instead.
+      # cupy 14.2.0 drops the stubs altogether, so this goes when nixpkgs
+      # moves off 14.1.1.
+      #
+      # This replaced an override passing cudaPackages from the final scope to
+      # work around a cuDNN 8.9.7 pin. nixpkgs now calls cupy with no
+      # arguments and its derivation mentions cuDNN nowhere, so that override
+      # produced a byte-identical derivation.
+      cupy = python-prev.cupy.overridePythonAttrs (oldAttrs: {
+        postPatch = (oldAttrs.postPatch or "") + ''
+          substituteInPlace cupy_backends/cuda/libs/cusparse.pxd \
+            --replace-fail \
+              '#ifndef CUSPARSE_SPGEAM_ALG_DEFAULT' \
+              '#include <cusparse.h>''\n    #if CUSPARSE_VERSION < 12806'
+        '';
+      });
 
       # Override bitsandbytes to add cuda_crt to build inputs for CUDA 13
       # CUDA 13 split crt headers into a separate package
