@@ -4,64 +4,57 @@ final: prev: {
   # Switch to CUDA 13.4.
   #
   # nixpkgs builds cuda-samples from the v13.0 tag for every CUDA 13.x, and
-  # that release's 2_Concepts_and_Techniques/segmentationTreeThrust uses
-  # thrust::tuple and thrust::make_tuple, which the CCCL 3.x shipped with CUDA
-  # 13.4 has removed -- so it stopped compiling. Disable that one sample, the
-  # same way the upstream derivation already disables the cdp* samples and
-  # 7_libNVVM.
+  # three of that release's samples (segmentationTreeThrust, particles and
+  # smokeParticles) no longer compile against the CCCL 3.x shipped with CUDA
+  # 13.4. Apply NVIDIA's fix, which moves them off thrust::make_tuple and
+  # thrust::tuple onto the cuda::std equivalents. It landed after v13.0 but
+  # applies cleanly to it.
   #
   # Moving to a newer sample release is not the easier fix it looks like:
-  # upstream fixed this sample in v13.2, but v13.2 also added an unconditional
-  # file(READ /etc/os-release) to vulkanImageCUDA, which fails CMake outright
-  # in the sandbox, and v13.3 onwards reorganise Samples/ into cpp/ and
-  # python/, which nixpkgs' prePatch and installPhase are written against.
+  # v13.2 added an unconditional file(READ /etc/os-release) to
+  # vulkanImageCUDA, which fails CMake outright in the sandbox, and v13.3
+  # onwards reorganise Samples/ into cpp/ and python/, which nixpkgs' prePatch
+  # and installPhase are written against.
   cudaPackages = prev.cudaPackages_13_4.overrideScope (
     _: prevCuda: {
       cuda-samples = prevCuda.cuda-samples.overrideAttrs (oldAttrs: {
-        prePatch = (oldAttrs.prePatch or "") + ''
-          nixLog "removing sample 2_Concepts_and_Techniques/segmentationTreeThrust which uses thrust::tuple, dropped in CCCL 3"
-          substituteInPlace \
-            "$NIX_BUILD_TOP/$sourceRoot/Samples/2_Concepts_and_Techniques/CMakeLists.txt" \
-            --replace-fail \
-              'add_subdirectory(segmentationTreeThrust)' \
-              '# add_subdirectory(segmentationTreeThrust)'
-        '';
+        patches = (oldAttrs.patches or [ ]) ++ [
+          (final.fetchpatch {
+            name = "cuda-samples-cuda-std-tuple.patch";
+            url = "https://github.com/NVIDIA/cuda-samples/commit/6c4d183ba30202520b66e7b524f47780bb1f3c36.patch";
+            hash = "sha256-kV6efwOXZN/hU1pyE28d/zWu6oolxNbiJbK65QdGVkg=";
+          })
+        ];
       });
     }
   );
 
-  _cuda = prev._cuda.extend (
-    _: prevAttrs: {
-      extensions = prevAttrs.extensions ++ [
-        # Disable cuda_compat for linux-sbsa (aarch64 servers)
-        # cuda_compat has src = null for linux-sbsa even though meta.platforms claims support
-        (prev.lib.optionalAttrs (prev.stdenv.hostPlatform.system == "aarch64-linux")
-          (_: _: { cuda_compat = null; }))
-      ];
-    }
-  );
-
-  # Disable CUDA support in OpenCV (not compatible with CUDA 13)
-  opencv4 = prev.opencv4.override {
-    enableCuda = false;
-  };
+  # opencv_contrib's videostab calls thrust::make_tuple without including
+  # <thrust/tuple.h>, which CCCL stopped pulling in transitively as of CUDA
+  # 13.2, so the CUDA build fails. Backport the upstream fix
+  # (opencv/opencv_contrib#4130). Drop this once nixpkgs carries it
+  # (NixOS/nixpkgs#566302).
+  opencv4 = prev.opencv4.overrideAttrs (oldAttrs: {
+    patches = (oldAttrs.patches or [ ]) ++ [
+      (final.fetchpatch {
+        name = "videostab-add-missing-include-to-fix-build-failure";
+        url = "https://github.com/opencv/opencv_contrib/commit/054007b78c8288ef2fd040e77dc0cf2e45f70c15.patch";
+        stripLen = 2;
+        extraPrefix = "opencv_contrib/";
+        hash = "sha256-vDW6kfDmwPB/tTurkDXuvViXrzXYV4njjDN6kLoIvJ4=";
+      })
+    ];
+  });
 
   pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
     (python-final: python-prev: {
-      # compressed-tensors 0.17.1 imports psutil in its offload code but the
-      # nixpkgs derivation doesn't propagate it.
+      # compressed-tensors imports psutil in its offload code, and upstream's
+      # setup.py lists it in install_requires, but the nixpkgs derivation
+      # doesn't propagate it.
       compressed-tensors = python-prev.compressed-tensors.overridePythonAttrs (oldAttrs: {
         dependencies = (oldAttrs.dependencies or [ ]) ++ [ python-final.psutil ];
       });
-      # jupyter-server enters the vLLM closure via einops' test deps. Two
-      # orphaned-kernel FD-leak / timeout tests are flaky under the nix
-      # sandbox's low FD limits.
-      jupyter-server = python-prev.jupyter-server.overridePythonAttrs (oldAttrs: {
-        disabledTests = (oldAttrs.disabledTests or [ ]) ++ [
-          "test_no_fd_leak_on_disconnect_with_orphaned_kernel_info_channel"
-          "test_disconnect_resolves_orphaned_kernel_info_future"
-        ];
-      });
+
       # MAGMA is in torch's closure purely to provide GPU LAPACK, and nixpkgs
       # adds it unconditionally under cudaSupport -- a ~3500-object CUDA build,
       # about half an hour on the Spark. On CUDA 13.4 cuSOLVER covers the paths
@@ -98,12 +91,7 @@ final: prev: {
       # descriptor as void*, and the real header's enum body then expands to
       # "{ 0 = 0, 1 = 1 }". Include the header and test its version instead.
       # cupy 14.2.0 drops the stubs altogether, so this goes when nixpkgs
-      # moves off 14.1.1.
-      #
-      # This replaced an override passing cudaPackages from the final scope to
-      # work around a cuDNN 8.9.7 pin. nixpkgs now calls cupy with no
-      # arguments and its derivation mentions cuDNN nowhere, so that override
-      # produced a byte-identical derivation.
+      # moves off 14.1.1 (NixOS/nixpkgs#566291).
       cupy = python-prev.cupy.overridePythonAttrs (oldAttrs: {
         postPatch = (oldAttrs.postPatch or "") + ''
           substituteInPlace cupy_backends/cuda/libs/cusparse.pxd \
@@ -113,9 +101,9 @@ final: prev: {
         '';
       });
 
-      # Override bitsandbytes to add cuda_crt to build inputs for CUDA 13
-      # CUDA 13 split crt headers into a separate package
-      bitsandbytes = python-prev.bitsandbytes.overridePythonAttrs (oldAttrs: prev.lib.optionalAttrs (final.cudaPackages ? cuda_crt) {
+      # CUDA 13 moved the crt/ headers out of cuda_nvcc into a separate
+      # cuda_crt package, and nixpkgs' bitsandbytes doesn't include it.
+      bitsandbytes = python-prev.bitsandbytes.overridePythonAttrs (oldAttrs: {
         buildInputs = (oldAttrs.buildInputs or [ ]) ++ [ final.cudaPackages.cuda_crt ];
       });
 
@@ -146,8 +134,8 @@ final: prev: {
           # cuda.pathfinder library name -> the _internal/*_linux.pyx that
           # loads it, and where that library actually lives. libcuda and
           # libnvidia-ml come from the driver rather than the toolkit;
-          # cuda_compat is not an alternative here, as this overlay nulls it
-          # for linux-sbsa. cudla_linux.pyx is deliberately left alone --
+          # cuda_compat is not an alternative here, as it is unavailable on
+          # linux-sbsa. cudla_linux.pyx is deliberately left alone --
           # libcudla has no linux-sbsa source, so there is nothing to point
           # it at.
           loaders = {
@@ -205,36 +193,41 @@ final: prev: {
           ];
 
           # doCheck is off upstream (the tests want a GPU), so this list only
-          # affects the passthru.gpuCheck variant.
-          disabledTests = [ ];
+          # affects the passthru.gpuCheck variant. Carried over from 13_3.nix.
+          disabledTests = [
+            # Requires GPU discovery support not available in the test environment
+            "test_discover_gpus"
+
+            # sysfs cpu topology is not available in the sandbox
+            "test_device_get_cpu_affinity_within_scope"
+            "test_device_get_memory_affinity"
+
+            # Requires the nvidia_fs kernel module (GPUDirect Storage)
+            "test_buf_register_already_registered"
+            "test_buf_register_host_memory"
+            "test_buf_register_invalid_flags"
+            "test_buf_register_large_buffer"
+            "test_buf_register_multiple_buffers"
+            "test_buf_register_simple"
+            "test_get_bar_size_in_kb"
+            "test_get_parameter_min_max_value"
+            "test_set_parameter_posix_pool_slab_array"
+            "test_set_stats_level"
+            "test_stats_start_stop"
+          ];
         });
 
-      # gpuTargets is set to just "12.0" (Blackwell/Spark). Originally this
-      # was to avoid compiling SM90 (Hopper) CUTLASS kernels, which take 16+
-      # hours on aarch64 and aren't needed here; that no longer applies now
-      # cudaCapabilities is [ "12.0" "12.1" ]. It still matters because under
-      # CUDA 13 vllm's CUDA_SUPPORTED_ARCHS stops at 12.0 and it compiles the
-      # family target 12.0f -- one cubin covering the whole SM12x family,
-      # including the Spark's sm_121. Passing 12.1 makes
-      # cuda_archs_loose_intersection fall back to a plain 12.1 target and
-      # lose the family-conditional kernels.
+      # Upstream marks vllm broken under CUDA, with no reason given
+      # (NixOS/nixpkgs#553566), pending the bump in NixOS/nixpkgs#549327. The
+      # 0.24.0 build succeeds here with CUDA 13.4, so unbreak it.
       #
-      # MAX_JOBS=8 caps build parallelism: vllm's nvcc/cicc uses ~6 GiB
-      # per job, so unconstrained on Spark (20 cores, 128 GiB) the build
-      # OOM-kills itself (~120 GiB needed). 8 leaves ~48 GiB headroom,
-      # overriding nixpkgs' export MAX_JOBS="$NIX_BUILD_CORES".
+      # It is also marked bad on aarch64-linux, but the reason given there
+      # ("could not find git for clone of arm_compute-populate") belongs to
+      # the CPU backend, which pulls in oneDNN and Arm Compute Library. A CUDA
+      # build never touches either.
       #
-      # Upstream marked vllm broken under CUDA and bad on aarch64-linux
-      # (NixOS/nixpkgs#553566), pending the 0.26.0 bump in
-      # NixOS/nixpkgs#549327. The 0.24.0 build succeeds here with CUDA 13
-      # and gpuTargets = [ "12.0" ], so unbreak it; drop this once the
-      # upstream bump lands.
-      vllm = (python-prev.vllm.override {
-        gpuTargets = [ "12.0" ];
-      }).overrideAttrs (old: {
-        preConfigure = (old.preConfigure or "") + ''
-          export MAX_JOBS=8
-        '';
+      # Drop this once the upstream bump lands.
+      vllm = python-prev.vllm.overrideAttrs (old: {
         meta = old.meta // {
           broken = false;
           badPlatforms = prev.lib.filter (p: p != "aarch64-linux") (old.meta.badPlatforms or [ ]);

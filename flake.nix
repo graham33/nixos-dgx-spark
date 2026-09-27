@@ -66,7 +66,6 @@
         let
           commonConfig = {
             allowUnfree = true;
-            allowUnsupportedSystem = true;
             cudaSupport = true;
             # The Spark's GB10 is SM 12.1, but 12.0 has to stay in the list.
             # PyTorch only emits its arch-specific sm_120a/sm_121a kernels
