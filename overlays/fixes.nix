@@ -227,7 +227,25 @@ final: prev: {
       # build never touches either.
       #
       # Drop this once the upstream bump lands.
-      vllm = python-prev.vllm.overrideAttrs (old: {
+      #
+      # vllm-flash-attn hard-codes FlashAttention-2's arch list as
+      # "8.0+PTX", so on SM12x it ships only sm_80 cubins and compute_80
+      # PTX, and every FA2 kernel is JIT-compiled by the driver. A driver can
+      # only JIT PTX from a toolkit no newer than itself -- CUDA minor-version
+      # compatibility does not cover PTX JIT -- so with CUDA 13.4 PTX (ISA
+      # 9.4) on a CUDA 13.2 driver, vllm dies at engine init with
+      # cudaErrorUnsupportedPtxVersion. Add 12.0 so the Spark gets sm_120
+      # cubins, which run on its sm_121; other arch lists are unaffected.
+      vllm = (python-prev.vllm.override {
+        vllm-flash-attn = python-prev.vllm.vllm-flash-attn.overrideAttrs (old: {
+          postPatch = (old.postPatch or "") + ''
+            substituteInPlace CMakeLists.txt \
+              --replace-fail \
+                'cuda_archs_loose_intersection(FA2_ARCHS "8.0+PTX"' \
+                'cuda_archs_loose_intersection(FA2_ARCHS "8.0+PTX;12.0"'
+          '';
+        });
+      }).overrideAttrs (old: {
         meta = old.meta // {
           broken = false;
           badPlatforms = prev.lib.filter (p: p != "aarch64-linux") (old.meta.badPlatforms or [ ]);
