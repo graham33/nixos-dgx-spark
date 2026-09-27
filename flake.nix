@@ -99,10 +99,11 @@
           pythonForKernelConfig = pkgs.python3.withPackages (ps: [ ps.pytest ]);
 
           # Plain nixpkgs for VM tests: no CUDA, no overlays, so the whole
-          # test closure substitutes from cache.nixos.org.
+          # test closure substitutes from cache.nixos.org. The dashboard is
+          # the only unfree package the tests need.
           testPkgs = import nixpkgs {
             inherit system;
-            config = { };
+            config.allowUnfreePredicate = pkg: nixpkgs.lib.getName pkg == "dgx-dashboard";
           };
 
           nixglhost = nix-gl-host.packages.${system}.default;
