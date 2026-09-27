@@ -121,13 +121,15 @@ jobs:
       # round-tripping through the runner. The nixbuild.net account is
       # configured (caches = cachix://graham33) to substitute from and
       # auto-push all build results to the cachix cache, so no CI-side
-      # cachix push is needed.
+      # cachix push is needed. nixbuild.net schedules remote-store builds
+      # itself, so --max-jobs does not limit them: a full-build run passing
+      # --max-jobs 2 had 12 derivations building at once.
       - name: Build packages and checks on nixbuild.net
         run: |
           nix build -L --no-link --keep-going \
             --store ssh-ng://eu.nixbuild.net \
             --eval-store auto \
-            --builders "" --max-jobs 2 \
+            --builders "" \
             .#perftest .#openshell .#dgx-dashboard .#cuda-debug \
             .#checks.aarch64-linux.kernel-config-tests \
             .#checks.aarch64-linux.pre-commit-check \
@@ -138,7 +140,7 @@ jobs:
       # whose aarch64 KVM support is unconfirmed.
       - name: Run NixOS VM tests (QEMU TCG)
         run: |
-          nix build -L --no-link --max-jobs 1 --builders "" \
+          nix build -L --no-link --builders "" \
             .#checks.aarch64-linux.dgx-dashboard-vm
 
   # Expensive: builds the USB image (including the custom kernel) and the
@@ -192,7 +194,7 @@ jobs:
           nix build -L --no-link \
             --store ssh-ng://eu.nixbuild.net \
             --eval-store auto \
-            --builders "" --max-jobs 2 \
+            --builders "" \
             .#usb-image
 
       # Build the boot test's dependency closure (custom kernel, NVIDIA
@@ -204,14 +206,14 @@ jobs:
           nix build -L --no-link \
             --store ssh-ng://eu.nixbuild.net \
             --eval-store auto \
-            --builders "" --max-jobs 2 \
+            --builders "" \
             .#checks.aarch64-linux.dgx-spark-boot-vm.driver
 
       # Boots the template-based system on the custom NVIDIA kernel.
       # --builders "" keeps the test itself on the runner (QEMU TCG).
       - name: Run dgx-spark boot VM test (QEMU TCG)
         run: |
-          nix build -L --no-link --max-jobs 1 --builders "" \
+          nix build -L --no-link --builders "" \
             .#checks.aarch64-linux.dgx-spark-boot-vm
 
       # devshell-closures aggregates every devShell's .inputDerivation
@@ -224,5 +226,5 @@ jobs:
           nix build -L --no-link --keep-going \
             --store ssh-ng://eu.nixbuild.net \
             --eval-store auto \
-            --builders "" --max-jobs 2 \
+            --builders "" \
             .#devshell-closures
