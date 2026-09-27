@@ -63,7 +63,8 @@ mkShell {
 
       # Copy source to mutable work dir so podman can build containers.
       # Remove stale package-lock.json to avoid npm integrity checksum
-      # errors from upstream canary next.js versions.
+      # errors from upstream canary next.js versions
+      # (NVIDIA/dgx-spark-playbooks#71).
       for d in backend frontend; do
         if [ ! -d "$work_dir/$d" ]; then
           cp -r "$src_dir/$d" "$work_dir/$d"
