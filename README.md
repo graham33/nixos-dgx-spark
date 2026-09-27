@@ -75,7 +75,7 @@ sync
 The image includes two kernel options, selectable from the GRUB boot menu:
 
 - **NixOS** (default) - NVIDIA's specialised kernel for DGX Spark with full GPU support and working Ethernet
-- **NixOS (standard-kernel)** - Standard NixOS 6.17 kernel (Ethernet has problems)
+- **NixOS (standard-kernel)** - Latest standard NixOS kernel (Ethernet has problems)
 
 #### Booting
 
@@ -113,7 +113,7 @@ The module also enables the DGX Dashboard web interface at
 ```nix
 hardware.dgx-spark = {
   enable = true;
-  useNvidiaKernel = false;       # Use standard NixOS 6.17 kernel
+  useNvidiaKernel = false;       # Use the latest standard NixOS kernel
 };
 ```
 
