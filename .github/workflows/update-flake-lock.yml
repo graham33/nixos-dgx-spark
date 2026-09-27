@@ -24,13 +24,16 @@ jobs:
         with:
           token: ${{ secrets.FLAKE_UPDATE_TOKEN }}
           pr-title: "chore: update flake.lock"
-          # full-build makes CI also build usb-image (custom kernel) on
-          # nixbuild.net -- a nixpkgs bump is the change most likely to
-          # break the kernel build, and a green full-build auto-pushes
-          # the new kernel to cachix for local machines to substitute.
+          # Deliberately no 'full-build' label. That job builds usb-image
+          # (custom kernel), the boot VM test and every playbook devShell
+          # (CUDA torch and vllm) on nixbuild.net, which is billed by
+          # cpu-hour and is by far the most expensive thing CI does. A
+          # nixpkgs bump is admittedly the change most likely to break the
+          # kernel, so add the label by hand when the bump looks risky or
+          # when a fresh kernel in cachix is wanted; otherwise the bump
+          # lands verified only by 'check' and 'build'.
           pr-labels: |
             dependencies
-            full-build
 
       # Comment as the PAT user so the Claude workflow triggers (comments
       # from the default GITHUB_TOKEN would not). This drives the agentic
@@ -46,5 +49,5 @@ jobs:
 
           1. **Failures first.** Check this PR's CI. If anything is red, diagnose from the logs and push fixes to this branch. Do not review the nixpkgs commit range up front -- it is far too large; let failures tell you what changed.
           2. **Then audit workarounds.** Go through our local workarounds and TODOs -- overlays/fixes.nix, patches/, version pins and overrides, disabled tests, and TODO/FIXME comments -- and for each one investigate specifically (targeted upstream check of the relevant package or module, e.g. its file history in nixpkgs) whether this bump makes it unnecessary. Remove or simplify what is obsolete.
-          3. **Verify cheaply.** Use 'nix flake check --no-build', targeted 'nix eval', and remote builds of cheap outputs (nix is configured with nixbuild.net as a remote builder). Never build usb-image, the kernel, vllm, or the CUDA devShells -- CI's full-build job covers the kernel.
+          3. **Verify cheaply.** Use 'nix flake check --no-build', targeted 'nix eval', and remote builds of cheap outputs (nix is configured with nixbuild.net as a remote builder). Never build usb-image, the kernel, vllm, or the CUDA devShells -- they are far too expensive for an agent run. Note that the full-build job is no longer labelled on automatically, so nothing verifies the kernel or the devShells unless a human adds the 'full-build' label; say so in your summary if the bump touches the kernel, CUDA or vllm.
           4. **Summarise.** Finish with a comment: failures fixed, workarounds removed/kept and why, anything needing human attention. Note that your pushes do not re-trigger CI, so ask for a close/reopen to get a fresh run."
