@@ -8,9 +8,11 @@ final: prev: {
     _: pyprev: {
       # nixified-ai patches transformers to make the flash_attn lookup in
       # import_utils.py tolerant of a missing distribution, but transformers
-      # 5.15.0 already does exactly that upstream (import_utils.py lines
-      # 1176/1234/1245 all read .get("flash_attn", [])). The patch's
+      # has done exactly that itself since 5.15 (every flash_attn lookup in
+      # import_utils.py reads .get("flash_attn", [])). The patch's
       # --replace-fail therefore aborts the build, breaking comfyui.
+      # nixified-ai doesn't see this itself because its own nixpkgs pin still
+      # has an older transformers; we only hit it through inputs.follows.
       #
       # Relax just that one call to --replace-quiet: a no-op while upstream
       # carries the fix, and still correct if nixified-ai's patch becomes
