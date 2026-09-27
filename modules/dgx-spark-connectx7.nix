@@ -6,11 +6,6 @@
 
 let
   cfg = config.hardware.dgx-spark;
-  kernelSource = import ../kernel-configs/nvidia-kernel-source.nix;
-
-  connectx7HotplugModule = config.boot.kernelPackages.callPackage ../packages/dgx-spark-cx7-hotplug-module {
-    src = kernelSource.mkNvidiaKernelSource pkgs;
-  };
 
   connectx7Hotplug = pkgs.callPackage ../packages/dgx-spark-mlnx-hotplug { };
 in
@@ -20,12 +15,12 @@ in
     default = true;
     description = ''
       Enable ConnectX-7 PCIe hot-plug support using NVIDIA's udev helper
-      and the out-of-tree mtk-pcie-hotplug kernel module.
+      and the mtk-pcie-hotplug kernel module. Only takes effect with the
+      NVIDIA kernel, which is the only one that provides that module.
     '';
   };
 
-  config = lib.mkIf (cfg.enable && cfg.connectx7Hotplug) {
-    boot.extraModulePackages = [ connectx7HotplugModule ];
+  config = lib.mkIf (cfg.enable && cfg.useNvidiaKernel && cfg.connectx7Hotplug) {
     boot.kernelModules = [ "mtk-pcie-hotplug" ];
 
     services.udev.packages = [ connectx7Hotplug ];
