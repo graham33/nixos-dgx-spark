@@ -10,7 +10,6 @@ let
   cfg = config.hardware.dgx-spark;
 
   kernelSource = import ../kernel-configs/nvidia-kernel-source.nix;
-  baseKernel = pkgs.linux_6_17;
 
   dgxKernelConfig = import
     (
@@ -18,31 +17,28 @@ let
     )
     { inherit lib; };
 
-  nvidiaKernelPatches = [
-    {
-      name = "rust-gendwarfksyms-fix";
-      patch = ../patches/rust-gendwarfksyms-fix.patch;
-    }
-  ];
+  # buildLinux directly rather than overriding nixpkgs' linux_6_17, which
+  # throws now that kernel.org has marked 6.17 end-of-life. NVIDIA still
+  # maintains its 6.17 branch, and src, version and config all come from here
+  # anyway.
+  nvidiaKernel = pkgs.linuxPackagesFor (
+    pkgs.buildLinux {
+      src = kernelSource.mkNvidiaKernelSource pkgs;
+      version = "${kernelSource.nvidiaKernelVersion}-nvidia";
+      modDirVersion = kernelSource.nvidiaKernelVersion;
+      # buildLinux takes no default patches; these are the ones nixpkgs applies
+      # to its own kernels, pointing the kernel at NixOS's helper paths.
+      kernelPatches = with pkgs.kernelPatches; [
+        bridge_stp_helper
+        request_key_helper
+      ];
+      extraMeta.branch = lib.versions.majorMinor kernelSource.nvidiaKernelVersion;
 
-  rawNvidiaKernel = pkgs.linuxPackagesFor (
-    baseKernel.override {
-      argsOverride = {
-        src = kernelSource.mkNvidiaKernelSource pkgs;
-        version = "${kernelSource.nvidiaKernelVersion}-nvidia";
-        modDirVersion = kernelSource.nvidiaKernelVersion;
-        kernelPatches = nvidiaKernelPatches;
-      };
-
-      enableCommonConfig = true;
       ignoreConfigErrors = true;
 
       structuredExtraConfig =
         dgxKernelConfig
         // (with lib.kernel; {
-          SECURITY_APPARMOR_BOOTPARAM_VALUE = freeform "1";
-          SECURITY_APPARMOR_RESTRICT_USERNS = lib.mkForce yes;
-
           USB_STORAGE = yes;
           USB_UAS = yes;
           OVERLAY_FS = yes;
@@ -59,21 +55,23 @@ let
   # `allowedReferences = [ ]` on the module derivation, but the .ko files end
   # up with __FILE__-derived header paths in `.rodata.str1.8` that point into
   # the kernel-dev store path, so the closure check fails. Run
-  # remove-references-to as a postFixup to scrub them. Stock x86_64 kernels
-  # don't trigger this — the leak is specific to non-stock (e.g. patched
-  # aarch64) kernels where the build environment leaves these strings around.
+  # remove-references-to as a postFixup to scrub them.
+  #
+  # Every kernel leaves these strings behind, stock nixpkgs ones included.
+  # nixpkgs' common config sets MODULE_COMPRESS_ALL with XZ, though, and
+  # compression hides the store hashes from Nix's reference scanner. NVIDIA's
+  # config picks zstd and leaves MODULE_COMPRESS_ALL off, so these modules
+  # are installed uncompressed and the references become visible.
   scrubKernelDevRefs = drv:
     drv.overrideAttrs (old: {
       postFixup = (old.postFixup or "") + ''
         if [ -d "$out/lib/modules" ]; then
           find $out/lib/modules -name '*.ko' -print0 \
             | xargs -0 -r ${pkgs.removeReferencesTo}/bin/remove-references-to \
-                -t ${rawNvidiaKernel.kernel.dev}
+                -t ${config.boot.kernelPackages.kernel.dev}
         fi
       '';
     });
-
-  nvidiaKernel = rawNvidiaKernel;
 in
 {
   imports = [
@@ -121,18 +119,20 @@ in
       extra-trusted-public-keys = [ "flox-cache-public-1:7F4OyH7ZCnFhcze3fJdfyXYLQw/aV7GEed86nQ7IsOs=" ];
     };
 
-    nixpkgs.overlays = [ (import ../overlays/linux-6.17.nix) ];
-
-    boot.kernelPackages = if cfg.useNvidiaKernel then nvidiaKernel else pkgs.linuxPackages_6_17;
+    boot.kernelPackages = if cfg.useNvidiaKernel then nvidiaKernel else pkgs.linuxPackages_latest;
 
     boot.kernelParams = [
       "console=tty1"
-      # Module-autoload kill switches for kernel vulnerabilities with no
-      # upstream patch at the time of writing:
+      # Module-autoload kill switches for rarely needed attack surface that
+      # has recently produced local privilege escalations:
       #
       #   algif_aead  — CVE-2026-31431 "Copy Fail" (AF_ALG AEAD local privesc)
       #   esp4, esp6  — CVE-2026-43284 / CVE-2026-43500 "Dirty Frag"
       #   rxrpc       — CVE-2026-43284 / CVE-2026-43500 "Dirty Frag"
+      #
+      # The pinned NVIDIA kernel carries the fixes for all three, so this is
+      # defence in depth against the next bug there. The cost is that IPsec
+      # ESP and AF_RXRPC are unavailable.
       #
       # Each of these modules is requested by name from a kernel subsystem
       # (AF_ALG, xfrm_user, AF_RXRPC respectively), bypassing modprobe alias

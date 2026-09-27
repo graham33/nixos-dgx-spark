@@ -33,7 +33,6 @@
     ,
     }@inputs:
     let
-      linux617Overlay = import ./overlays/linux-6.17.nix;
       fixesOverlay = import ./overlays/fixes.nix;
       comfyuiModelsOverlay = import ./overlays/comfyui-models.nix;
       nixifiedAiFixesOverlay = import ./overlays/nixified-ai-fixes.nix;
@@ -83,7 +82,6 @@
             inherit system;
             config = commonConfig;
             overlays = [
-              linux617Overlay
               fixesOverlay
               nixified-ai.overlays.comfyui
               nixified-ai.overlays.models
