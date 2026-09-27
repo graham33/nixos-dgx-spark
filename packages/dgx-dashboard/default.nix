@@ -19,9 +19,15 @@ stdenv.mkDerivation rec {
 
   buildInputs = [ pam ];
 
-  unpackPhase = "dpkg-deb -x $src .";
+  unpackPhase = ''
+    runHook preUnpack
+    dpkg-deb -x $src .
+    runHook postUnpack
+  '';
 
   installPhase = ''
+    runHook preInstall
+
     mkdir -p $out/bin $out/lib/dgx-dashboard $out/share
 
     # Main service binary
@@ -42,17 +48,22 @@ stdenv.mkDerivation rec {
 
     # Desktop entry and icon
     mkdir -p $out/share/applications $out/share/icons
-    cp usr/share/applications/*.desktop $out/share/applications/ || true
-    cp -r usr/share/icons/* $out/share/icons/ || true
+    cp usr/share/applications/*.desktop $out/share/applications/
+    cp -r usr/share/icons/* $out/share/icons/
 
     # License
     mkdir -p $out/share/doc
     cp -r usr/share/doc/dgx-dashboard $out/share/doc/
+
+    runHook postInstall
   '';
 
   meta = {
     description = "NVIDIA DGX Dashboard - web interface for GPU telemetry, system updates, and JupyterLab";
-    license = lib.licenses.bsd3;
+    # usr/share/doc/dgx-dashboard/copyright: "License: Proprietary",
+    # governed by the bundled EULA.txt.
+    license = lib.licenses.unfree;
+    sourceProvenance = [ lib.sourceTypes.binaryNativeCode ];
     platforms = [ "aarch64-linux" ];
   };
 }
