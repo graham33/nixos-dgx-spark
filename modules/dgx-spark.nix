@@ -163,14 +163,21 @@ in
       # bypass boot.kernelPackages.apply (which chains another `.extend` and
       # re-evaluates `nvidiaPackages` through the makeExtensible fixed point,
       # discarding any overrides we'd put on the kernel package set itself).
+      #
+      # `latest` rather than `production`: the driver's CUDA version must be at
+      # least the toolkit's, or the driver cannot JIT the toolkit's PTX (minor
+      # version compatibility does not cover PTX JIT), and any PTX-only kernel
+      # fails with cudaErrorUnsupportedPtxVersion. The overlay builds against
+      # CUDA 13.4, which pairs with the R615 branch; `production` is R595
+      # (CUDA 13.2). NVIDIA only supports its DGX OS driver (R580) on the Spark.
       package =
         let
-          prod = config.boot.kernelPackages.nvidiaPackages.production;
+          driver = config.boot.kernelPackages.nvidiaPackages.latest;
         in
-        prod
+        driver
         // {
-          open = scrubKernelDevRefs prod.open;
-          mod = scrubKernelDevRefs prod.mod;
+          open = scrubKernelDevRefs driver.open;
+          mod = scrubKernelDevRefs driver.mod;
         };
     };
 
