@@ -1,10 +1,10 @@
 # Generated NVIDIA DGX Spark kernel configuration (terse)
 # Kernel Version: 7.0.14
-# Generated: 2026-09-28 10:59:57 UTC
+# Generated: 2026-09-28 15:12:43 UTC
 #
 # This file contains only options that differ from NixOS defaults.
 # Options matching NixOS defaults are omitted for clarity.
-# Total options: 2402
+# Total options: 2405
 
 { lib }: with lib.kernel; {
   "6LOWPAN_GHC_EXT_HDR_DEST" = lib.mkForce no;
@@ -320,6 +320,7 @@
   COMEDI_S526 = lib.mkForce module;
   COMEDI_TEST = lib.mkForce module;
   COMMON_CLK_BM1880 = lib.mkForce yes;
+  COMMON_CLK_C3_PERIPHERALS = lib.mkForce module;
   COMMON_CLK_CS2000_CP = lib.mkForce module;
   COMMON_CLK_FIXED_MMIO = lib.mkForce yes;
   COMMON_CLK_FSL_FLEXSPI = lib.mkForce module;
@@ -1029,6 +1030,7 @@
   MAGIC_SYSRQ_DEFAULT_ENABLE = lib.mkForce (freeform "0x01b6");
   MARVELL_10G_PHY = lib.mkForce module;
   MARVELL_88Q2XXX_PHY = lib.mkForce module;
+  MARVELL_GTI_WDT = lib.mkForce module;
   MAX8925_POWER = lib.mkForce module;
   MCTP = lib.mkForce yes;
   MCTP_FLOWS = lib.mkForce yes;
@@ -2115,6 +2117,7 @@
   TCP_MD5SIG = lib.mkForce yes;
   TEE = lib.mkForce module;
   TEE_DMABUF_HEAPS = lib.mkForce yes;
+  TEE_STMM_EFI = lib.mkForce no;
   TEGRA186_GPC_DMA = lib.mkForce module;
   TEGRA241_CMDQV = lib.mkForce yes;
   TEGRA_SOCTHERM = lib.mkForce no;

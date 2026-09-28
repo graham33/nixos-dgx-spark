@@ -128,6 +128,12 @@ def nvidia_debian_dir(kernel_version: str) -> str:
     return f"debian.nvidia-{major}.{minor}"
 
 
+def config_file_name(kernel_version: str, flavour: str) -> str:
+    """Terse config file name, e.g. nvidia-dgx-spark-7.0.14-64k.nix for nvidia-64k."""
+    suffix = flavour.removeprefix("nvidia")
+    return f"nvidia-dgx-spark-{kernel_version}{suffix}.nix"
+
+
 def get_nvidia_upstream_config(
     kernel_source_dir: Path, kernel_version: str, arch: str, flavour: str
 ) -> Dict[str, str]:
@@ -260,8 +266,8 @@ def main():
     )
     parser.add_argument(
         "--flavour",
-        default="arm64-nvidia",
-        help="Target flavour (default: arm64-nvidia)"
+        default="nvidia",
+        help="Debian flavour, without the arch prefix: nvidia or nvidia-64k (default: nvidia)"
     )
 
     args = parser.parse_args()
@@ -286,7 +292,7 @@ def main():
     if args.output:
         output_path = Path(args.output)
     else:
-        output_path = project_root / "kernel-configs" / f"nvidia-dgx-spark-{kernel_version}.nix"
+        output_path = project_root / "kernel-configs" / config_file_name(kernel_version, args.flavour)
 
     try:
         nixos_config = get_nixos_baseline_config(script_dir)

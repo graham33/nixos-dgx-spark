@@ -74,6 +74,16 @@ class TestNvidiaDebianDir:
         assert gen.nvidia_debian_dir("6.17.13") == "debian.nvidia-6.17"
 
 
+class TestConfigFileName:
+    """Tests for naming the terse config file after the flavour."""
+
+    def test_default_flavour(self):
+        assert gen.config_file_name("7.0.14", "nvidia") == "nvidia-dgx-spark-7.0.14.nix"
+
+    def test_64k_flavour(self):
+        assert gen.config_file_name("7.0.14", "nvidia-64k") == "nvidia-dgx-spark-7.0.14-64k.nix"
+
+
 class TestParseKernelConfig:
     """Tests for parsing kernel .config format."""
 
