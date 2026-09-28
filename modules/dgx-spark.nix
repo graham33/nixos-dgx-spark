@@ -145,6 +145,23 @@ in
       # by name (after dash/underscore normalisation), bypassing it.
       # Requires a reboot to apply.
       "module_blacklist=algif_aead,esp4,esp6,rxrpc"
+
+      # The remaining parameters mirror what DGX OS puts on the Spark's
+      # command line, each shipped as its own nvidia-spark-* package in
+      # NVIDIA's BaseOS apt repository.
+      #
+      # nvidia-spark-grub-pci: clamp every device to the lowest Max Payload
+      # Size supported across the PCIe bus.
+      "pci=pcie_bus_safe"
+      # nvidia-spark-initcall-bl: keep the Tegra CBB (control backbone) error
+      # driver, which binds to the GB10's fabrics over ACPI, from initialising.
+      "initcall_blacklist=tegra234_cbb_init"
+      # nvidia-spark-grub-kho: disable Kexec HandOver. NVIDIA's 7.0 config sets
+      # KEXEC_HANDOVER_ENABLE_DEFAULT with CMA_SIZE_MBYTES=0, which leaves the
+      # KHO scratch area as unaccounted MIGRATE_CMA memory; long-term pins
+      # such as ibv_reg_mr then fail with ENOMEM under memory pressure,
+      # breaking NCCL and RoCE.
+      "kho=off"
     ] ++ lib.optional (cfg.useNvidiaKernel && cfg.cppcAutonomousMode) "cppc_cpufreq.auto_sel_mode=1";
 
     boot.blacklistedKernelModules = [
