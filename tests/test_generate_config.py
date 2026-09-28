@@ -64,6 +64,16 @@ in
             gen.eval_nix_kernel_source(nix_file)
 
 
+class TestNvidiaDebianDir:
+    """Tests for deriving the Debian packaging directory from the kernel version."""
+
+    def test_major_minor(self):
+        assert gen.nvidia_debian_dir("7.0.14") == "debian.nvidia-7.0"
+
+    def test_two_digit_minor(self):
+        assert gen.nvidia_debian_dir("6.17.13") == "debian.nvidia-6.17"
+
+
 class TestParseKernelConfig:
     """Tests for parsing kernel .config format."""
 
