@@ -11,9 +11,14 @@ let
 
   kernelSource = import ../kernel-configs/nvidia-kernel-source.nix;
 
+  # NVIDIA's arm64 kernel comes in two Debian flavours: nvidia (4K pages,
+  # what DGX OS ships on the Spark) and nvidia-64k (what it ships on
+  # GB200/GB300).
+  flavourSuffix = optionalString cfg.use64kKernel "-64k";
+
   dgxKernelConfig = import
     (
-      ../kernel-configs + "/nvidia-dgx-spark-${kernelSource.nvidiaKernelVersion}.nix"
+      ../kernel-configs + "/nvidia-dgx-spark-${kernelSource.nvidiaKernelVersion}${flavourSuffix}.nix"
     )
     { inherit lib; };
 
@@ -24,7 +29,7 @@ let
   nvidiaKernel = pkgs.linuxPackagesFor (
     pkgs.buildLinux {
       src = kernelSource.mkNvidiaKernelSource pkgs;
-      version = "${kernelSource.nvidiaKernelVersion}-nvidia";
+      version = "${kernelSource.nvidiaKernelVersion}-nvidia${flavourSuffix}";
       modDirVersion = kernelSource.nvidiaKernelVersion;
       # buildLinux takes no default patches; these are the ones nixpkgs applies
       # to its own kernels, pointing the kernel at NixOS's helper paths.
@@ -96,6 +101,23 @@ in
       description = "Whether to use the NVIDIA kernel instead of the standard NixOS kernel";
     };
 
+    use64kKernel = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Build the NVIDIA kernel with 64K pages (NVIDIA's `nvidia-64k` flavour)
+        instead of 4K. This can cut TLB pressure for large-memory GPU
+        workloads.
+
+        DGX OS ships the 4K flavour on the Spark and 64K only on GB200/GB300,
+        so this is untested on GB10. 64K pages also disable 32-bit
+        compatibility (no AArch32 binaries); an existing swap area must be
+        re-created with `mkswap`; and prebuilt binaries that assume 4K pages,
+        such as a bundled jemalloc built for 4K or x86 emulators like
+        FEX/box64, may fail.
+      '';
+    };
+
     cppcAutonomousMode = mkOption {
       type = types.bool;
       default = true;
@@ -116,6 +138,13 @@ in
   };
 
   config = mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = cfg.use64kKernel -> cfg.useNvidiaKernel;
+        message = "hardware.dgx-spark.use64kKernel requires hardware.dgx-spark.useNvidiaKernel.";
+      }
+    ];
+
     # Add the Flox binary cache as a substituter for pre-built CUDA packages.
     # Flox is authorized by NVIDIA to redistribute CUDA binaries, so packages
     # like cudatoolkit, nccl, cuDNN, torch, etc. can be fetched as pre-built
