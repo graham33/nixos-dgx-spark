@@ -1,7 +1,9 @@
 let
-  nvidiaKernelRev = "aea4c7df51fd59f7717d7668110a803d95c7a3f1";
-  nvidiaKernelHash = "sha256-195eFIcuND41riRxE342FM5O7c515sG8ioQE5PE74xU=";
-  nvidiaKernelVersion = "6.17.13";
+  # Tag Ubuntu-nvidia-7.0-7.0.0-1019.19_24.04.2. Pin tags, not branch heads:
+  # NVIDIA rewrites the -next branches on every release.
+  nvidiaKernelRev = "ae07646a606b3f18707246b0762464452cb40cbe";
+  nvidiaKernelHash = "sha256-wE7NtppnYtNlMoKhFBBDab0t5MSg46cBEW39duFO2N8=";
+  nvidiaKernelVersion = "7.0.14";
 in
 {
   inherit nvidiaKernelRev nvidiaKernelHash nvidiaKernelVersion;
