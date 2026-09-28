@@ -9,6 +9,9 @@
 # The closure includes the custom kernel, so this check is expensive and
 # runs in CI's full-build lane only (never the per-PR build job).
 { pkgs }:
+let
+  kernelVersion = (import ../kernel-configs/nvidia-kernel-source.nix).nvidiaKernelVersion;
+in
 pkgs.testers.runNixOSTest {
   name = "dgx-spark-boot";
 
@@ -42,7 +45,7 @@ pkgs.testers.runNixOSTest {
     machine.wait_for_unit("multi-user.target")
 
     # The custom NVIDIA kernel is what booted
-    machine.succeed("uname -r | grep -q '^6\\.17\\.13'")
+    machine.succeed('test "$(uname -r)" = ${kernelVersion}')
 
     # Core services from the template and module
     machine.wait_for_unit("sshd.service")
