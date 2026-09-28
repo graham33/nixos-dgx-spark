@@ -13,7 +13,7 @@ pkgs.testers.runNixOSTest {
   name = "dgx-spark-boot";
 
   # The dgx-spark module sets nixpkgs.overlays and nixpkgs.config (the
-  # 6.17 kernel overlay, allowUnfree for the NVIDIA driver), so the node
+  # NVIDIA kernel, allowUnfree for the NVIDIA driver), so the node
   # must evaluate its own pkgs rather than reusing the test's.
   node.pkgsReadOnly = false;
 

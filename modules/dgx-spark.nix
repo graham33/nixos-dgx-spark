@@ -17,9 +17,9 @@ let
     )
     { inherit lib; };
 
-  # buildLinux directly rather than overriding nixpkgs' linux_6_17, which
-  # throws now that kernel.org has marked 6.17 end-of-life. NVIDIA still
-  # maintains its 6.17 branch, and src, version and config all come from here
+  # buildLinux directly rather than overriding nixpkgs' linux_7_0, which
+  # throws now that kernel.org has marked 7.0 end-of-life. NVIDIA still
+  # maintains its 7.0 branch, and src, version and config all come from here
   # anyway.
   nvidiaKernel = pkgs.linuxPackagesFor (
     pkgs.buildLinux {
@@ -46,6 +46,13 @@ let
           UEVENT_HELPER = no;
 
           UBUNTU_HOST = no;
+
+          # NVIDIA wants TCG_CRB=y and TCG_ARM_CRB_FFA=y. The baseline also ends
+          # up with TCG_CRB=y, so the terse config omits it, but only because
+          # IMA selects it later in the Kconfig walk: generate-config.pl first
+          # answers TCG_CRB=m, then cannot answer y to TCG_ARM_CRB_FFA, which
+          # depends on it. Answer TCG_CRB explicitly.
+          TCG_CRB = yes;
         });
     }
   );
