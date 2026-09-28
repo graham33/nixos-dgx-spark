@@ -122,13 +122,21 @@ def get_nvidia_kernel_source(script_dir: Path, local_source: Optional[Path] = No
     return source_path
 
 
-def get_nvidia_upstream_config(kernel_source_dir: Path, arch: str, flavour: str) -> Dict[str, str]:
+def nvidia_debian_dir(kernel_version: str) -> str:
+    """Name of the Debian packaging directory for a kernel version, e.g. debian.nvidia-7.0."""
+    major, minor = kernel_version.split('.')[:2]
+    return f"debian.nvidia-{major}.{minor}"
+
+
+def get_nvidia_upstream_config(
+    kernel_source_dir: Path, kernel_version: str, arch: str, flavour: str
+) -> Dict[str, str]:
     """Export NVIDIA upstream config using Debian annotations."""
     print("\n=== Extracting NVIDIA upstream config ===")
 
     kernel_source_path = kernel_source_dir.resolve()
 
-    nvidia_annotations = kernel_source_path / "debian.nvidia-6.17/config/annotations"
+    nvidia_annotations = kernel_source_path / nvidia_debian_dir(kernel_version) / "config/annotations"
     if not nvidia_annotations.exists():
         raise FileNotFoundError(f"NVIDIA annotations not found: {nvidia_annotations}")
 
@@ -258,8 +266,11 @@ def main():
 
     args = parser.parse_args()
 
-    script_dir = Path(__file__).parent
-    project_root = script_dir.parent
+    # Resolve the checkout from the working directory rather than __file__:
+    # `nix run .#generate-kernel-config` runs a copy of this script from the
+    # Nix store, away from the repo files it reads and writes.
+    project_root = Path.cwd()
+    script_dir = project_root / "scripts"
 
     kernel_source_info = eval_nix_kernel_source(
         project_root / "kernel-configs" / "nvidia-kernel-source.nix"
@@ -286,7 +297,9 @@ def main():
             Path(args.kernel_source) if args.kernel_source else None
         )
 
-        nvidia_config = get_nvidia_upstream_config(kernel_source_path, args.arch, args.flavour)
+        nvidia_config = get_nvidia_upstream_config(
+            kernel_source_path, kernel_version, args.arch, args.flavour
+        )
         print(f"NVIDIA upstream config: {len(nvidia_config)} options")
 
         diff_options, nixos_only = compare_configs(nvidia_config, nixos_config)

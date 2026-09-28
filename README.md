@@ -121,7 +121,7 @@ hardware.dgx-spark = {
 
 The kernel configuration is generated from NVIDIA's Debian annotations and stored in `kernel-configs/nvidia-dgx-spark-<version>.nix`. This terse configuration only contains options that differ from NixOS defaults, reducing verbosity by ~82%.
 
-To regenerate the kernel configuration:
+To regenerate the kernel configuration, from the root of the checkout:
 
 ```bash
 nix run .#generate-kernel-config
