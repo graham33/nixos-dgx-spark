@@ -219,6 +219,18 @@ jobs:
           nix build -L --no-link --max-jobs 1 --builders "" \
             .#checks.aarch64-linux.dgx-spark-boot-vm
 
+      # The dgx-spark system on NVIDIA's 64K-page kernel flavour, which
+      # nothing else builds. It differs from the 4K system only in the
+      # kernel, its NVIDIA modules and the initrd, so this is essentially
+      # one extra kernel build.
+      - name: Build 64K-page kernel variant on nixbuild.net
+        run: |
+          nix build -L --no-link \
+            --store ssh-ng://eu.nixbuild.net \
+            --eval-store auto \
+            --builders "" \
+            .#nixosConfigurations.dgx-spark-64k.config.system.build.toplevel
+
       # devshell-closures aggregates every devShell's .inputDerivation
       # (plus a weights-free comfyui), so this proves the playbooks still
       # build rather than merely still evaluate. Runs last and with

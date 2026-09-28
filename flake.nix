@@ -59,6 +59,13 @@
             ./nixos-anywhere/configuration.nix
           ];
         };
+
+        # The same system on NVIDIA's 64K-page kernel flavour
+        # (hardware.dgx-spark.use64kKernel). CI's full-build job builds it,
+        # since nothing else builds the 64K kernel and its NVIDIA modules.
+        nixosConfigurations.dgx-spark-64k = self.nixosConfigurations.dgx-spark.extendModules {
+          modules = [{ hardware.dgx-spark.use64kKernel = true; }];
+        };
       };
       systems = [ "aarch64-linux" ];
       perSystem =

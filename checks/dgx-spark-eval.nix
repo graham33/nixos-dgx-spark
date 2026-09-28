@@ -1,13 +1,11 @@
 # Forces full evaluation and instantiation of the real dgx-spark
 # configuration (including the custom kernel derivation) without building
 # anything. Catches nixpkgs bumps breaking modules/dgx-spark.nix cheaply.
-# The 64K-page kernel variant is evaluated too, since nothing else builds it.
+# The 64K-page variant (dgx-spark-64k) is evaluated too.
 { pkgs, self }:
 let
   system = self.nixosConfigurations.dgx-spark;
-  system64k = system.extendModules {
-    modules = [{ hardware.dgx-spark.use64kKernel = true; }];
-  };
+  system64k = self.nixosConfigurations.dgx-spark-64k;
 in
 pkgs.runCommand "dgx-spark-eval"
 {
