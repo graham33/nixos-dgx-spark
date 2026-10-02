@@ -416,7 +416,10 @@ vllm serve <model> --safetensors-load-strategy eager
 
 For the `services.vllm` module, add the flag to an instance's `extraArgs`.
 Other tools that load safetensors files through a memory map and then move the
-weights to the GPU may be affected in the same way.
+weights to the GPU may be affected in the same way. ComfyUI with DynamicVRAM,
+its default on NVIDIA, is not: a cold render takes the same time as before the
+driver change. Its legacy loader is affected, so if you disable DynamicVRAM
+(for example with `--highvram`), add `--disable-mmap` as well.
 
 ### Reverting to NUMA mode
 
