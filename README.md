@@ -376,6 +376,60 @@ nix run github:nix-community/nixos-anywhere -- --flake .#dgx-spark --vm-test
 See the [nixos-anywhere documentation](https://github.com/nix-community/nixos-anywhere/blob/main/docs/quickstart.md)
 for full details and requirements.
 
+## NVIDIA driver memory mode (CDMM)
+
+The module uses NVIDIA's latest driver branch, currently R615, because the
+CUDA 13.4 toolkit needs it: a driver older than the toolkit cannot JIT the
+toolkit's PTX. NVIDIA itself only supports its DGX OS driver (R580) on the
+Spark, so this is ahead of NVIDIA's supported configuration.
+
+R615 changes how the driver manages memory on coherent (Grace) systems. Earlier
+branches, R580 and R595 included, default to **NUMA mode**, where Linux manages
+GPU-accessible memory as part of system memory. R615 defaults to **CDMM**
+(Coherent Driver-based Memory Management), where the driver manages it instead.
+NVIDIA announces the change for GH200, GB200, GB300 and Vera Rubin, but it
+applies to the Spark's GB10 too. Check the current mode with:
+
+```bash
+grep Coherent /proc/driver/nvidia/params   # "driver" = CDMM, "numa" = NUMA
+```
+
+We stay on CDMM, the new default, on the assumption that the Spark will move to
+it once its supported driver catches up. NUMA mode's main benefit, migrating
+pages into separate GPU memory, does not apply on the Spark, whose CPU and GPU
+share a single memory pool.
+
+### Known effect: slow copies from memory-mapped safetensors
+
+Under CDMM on the Spark, copying a tensor that safetensors has memory-mapped
+from its file to the GPU runs at about 5 MB/s, while the same bytes copy at
+tens of GB/s from ordinary memory. The cause is not yet understood; NUMA mode
+makes it about 30 times faster, but it is still slow there.
+
+The visible symptom is vLLM apparently hanging at
+`Loading safetensors checkpoint shards: 0%`, with one CPU core at 100%. The
+workaround is to have vLLM read each shard into memory before copying it:
+
+```bash
+vllm serve <model> --safetensors-load-strategy eager
+```
+
+For the `services.vllm` module, add the flag to an instance's `extraArgs`.
+Other tools that load safetensors files through a memory map and then move the
+weights to the GPU may be affected in the same way.
+
+### Reverting to NUMA mode
+
+To get the pre-R615 behaviour back, set the driver options NVIDIA documents
+and reboot:
+
+```nix
+boot.extraModprobeConfig = ''
+  options nvidia NVreg_CoherentGPUMemoryMode=numa
+  options nvidia-uvm uvm_disable_sam_migration=false
+'';
+```
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
