@@ -46,6 +46,19 @@ final: prev: {
     ];
   });
 
+  # V8's SimdMemCopy, compiled only on arm64 with NEON, uses CHAR_BIT without
+  # including <climits>. GCC 15's libstdc++ pulled it in transitively; GCC 16's
+  # does not, so nodejs_26 fails to build on aarch64 (x86_64 never compiles
+  # that path). llama-cpp builds its web UI with nodejs_latest, so this takes
+  # the llama-cpp playbook down with it. V8 main still has the bare CHAR_BIT,
+  # so there is no upstream patch to fetch yet.
+  nodejs-slim_26 = prev.nodejs-slim_26.overrideAttrs (oldAttrs: {
+    postPatch = (oldAttrs.postPatch or "") + ''
+      substituteInPlace deps/v8/src/base/memcopy.h \
+        --replace-fail '#include <stdlib.h>' $'#include <stdlib.h>\n\n#include <climits>'
+    '';
+  });
+
   pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
     (python-final: python-prev: {
       # compressed-tensors imports psutil in its offload code, and upstream's
