@@ -96,6 +96,16 @@ final: prev: {
           oldAttrs.buildInputs;
       });
 
+      # torchaudio's suite runs ~2,200 CPU tests, taking anywhere from 3 to 59
+      # minutes on the Spark depending on load, and is flaky:
+      # test_decoder_inference_torchscript_consistency (Tacotron2) failed once
+      # and passed on retry for the same derivation, its decoder stopping after
+      # 1 frame instead of 300. vllm depends on torchaudio, so a flaky failure
+      # here takes vllm and the system closure down with it.
+      torchaudio = python-prev.torchaudio.overridePythonAttrs {
+        doCheck = false;
+      };
+
       # cupy 14.1.1 wraps its SpGEAM stub declarations in
       # "#ifndef CUSPARSE_SPGEAM_ALG_DEFAULT", assuming a cuSPARSE that
       # provides SpGEAM would define that name as a macro. cuSPARSE 12.8 (CUDA
