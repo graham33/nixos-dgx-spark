@@ -131,6 +131,7 @@ jobs:
             --eval-store auto \
             --builders "" \
             .#perftest .#openshell .#dgx-dashboard .#cuda-debug \
+            .#dgx-spark-fan-control \
             .#checks.aarch64-linux.kernel-config-tests \
             .#checks.aarch64-linux.pre-commit-check \
             .#checks.aarch64-linux.vllm-units
@@ -191,13 +192,15 @@ jobs:
         with:
           name: graham33
 
+      # The fan-control kernel module is built here too, as it needs the same
+      # NVIDIA kernel (and is off by default, so usb-image does not include it).
       - name: Build usb-image on nixbuild.net
         run: |
           nix build -L --no-link \
             --store ssh-ng://eu.nixbuild.net \
             --eval-store auto \
             --builders "" \
-            .#usb-image
+            .#usb-image .#dgx-spark-fan-control-kmod
 
       # Build the boot test's dependency closure (custom kernel, NVIDIA
       # driver userspace, system toplevel) remotely first, so the local
