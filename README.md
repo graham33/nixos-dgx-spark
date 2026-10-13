@@ -95,6 +95,8 @@ hardware.dgx-spark = {
   useNvidiaKernel = true;        # Use NVIDIA kernel (default: true)
   connectx7Hotplug = true;       # Enable ConnectX-7 hot-plug (default: true)
   gpuClockCap = null;            # Cap the GPU clock in MHz (default: null, uncapped)
+  fanControl.enable = false;     # Fan-floor driver and CLI (default: false)
+  fanControl.curve.enable = false; # Temperature-curve fan service (default: false)
 };
 ```
 
@@ -126,6 +128,56 @@ The `gpu-clock-cap` service applies the cap at boot with
 `nvidia-smi --lock-gpu-clocks`. The GB10 does not support power limits
 (`nvidia-smi -pl`), so the clock is the only lever there is.
 `systemctl stop gpu-clock-cap` lifts the cap until the next boot.
+
+#### Fan control
+
+```nix
+hardware.dgx-spark.fanControl = {
+  enable = true;        # driver and the dgx-fan-control command
+  curve.enable = true;  # optional: run the temperature curve as a service
+};
+```
+
+This packages Christopher Owen's
+[dgx-spark-fan-control](https://github.com/christopherowen/dgx-spark-fan-control),
+a small out-of-tree kernel driver and a Python command that let Linux raise
+the minimum speed of the Spark's fans. The embedded controller keeps applying
+NVIDIA's fan curve throughout and runs the fans at whichever is higher, so this
+can only add cooling, never take it away. The driver has no PWM, upper-limit
+or raw firmware interface.
+
+With `enable` alone, the driver loads at boot in state 0, which leaves the
+fans to NVIDIA's curve, and you raise the floor by hand, for example to
+pre-cool before a long job:
+
+```bash
+sudo dgx-fan-control set-state 12   # floor of 2,700 (1) to 13,500 (12) RPM
+dgx-fan-control status              # state=12/12 hottest=…C
+sudo dgx-fan-control automatic      # back to NVIDIA's curve
+```
+
+The driver also exposes both fans' RPM through hwmon (`sensors`, under
+`dgx_ec_fan`).
+
+`curve.enable` runs upstream's temperature curve as the `dgx-fan-control`
+service. Every 2 seconds it sets the floor from the hottest thermal zone: none
+below 50 °C, rising to both fans at full speed from 70 °C. It is the only
+writer it expects, so stop it (`systemctl stop dgx-fan-control`) before setting
+a floor by hand, or it will override yours within seconds. Stopping it returns
+the fans to NVIDIA's curve.
+
+It is experimental and off by default. Upstream validated it on DGX OS's 6.17
+kernel with EC firmware 3.5.8, and the EC firmware has a known race that can
+leave its mailbox stuck. The driver recovers from the observed case. If it
+cannot, the service exits with status 69 and is not restarted. In that case,
+follow upstream's
+[troubleshooting guide](https://github.com/christopherowen/dgx-spark-fan-control/blob/main/docs/troubleshooting.md#persistent-pending-and-service-exit-69)
+before restarting it. A floor set by hand has no expiry, and a hard crash can
+leave one in place; that only leaves the fans faster than necessary.
+
+None of upstream's Secure Boot signing or DKMS steps apply: NixOS builds the
+module for the configured kernel. With Secure Boot on, the unsigned module
+will not load.
 
 #### Using standard NixOS kernel (has some issues with networking)
 

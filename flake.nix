@@ -252,6 +252,12 @@
           packages.cuda-debug = pkgs.callPackage ./packages/cuda-debug { };
           packages.dgx-dashboard = pkgs.callPackage ./packages/dgx-dashboard { };
           packages.dgx-spark-mlnx-hotplug = pkgs.callPackage ./packages/dgx-spark-mlnx-hotplug { };
+          packages.dgx-spark-fan-control = pkgs.callPackage ./packages/dgx-spark-fan-control { };
+          # Built against the NVIDIA kernel, so only CI's full-build job builds it.
+          packages.dgx-spark-fan-control-kmod =
+            self.nixosConfigurations.dgx-spark.config.boot.kernelPackages.callPackage
+              ./packages/dgx-spark-fan-control/kmod.nix
+              { };
           packages.openshell = pkgs.callPackage ./packages/openshell { };
           packages.perftest = pkgs.callPackage ./packages/perftest { };
 
