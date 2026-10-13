@@ -135,6 +135,28 @@ in
         driver carries the autonomous-mode series.
       '';
     };
+
+    gpuClockCap = mkOption {
+      type = types.nullOr types.ints.positive;
+      default = null;
+      example = 2300;
+      description = ''
+        Cap the GPU clock at this many MHz, with
+        `nvidia-smi --lock-gpu-clocks=0,<cap>`, applied at boot by the
+        `gpu-clock-cap` service. `null` (the default) leaves the clock alone;
+        the GB10 boosts to about 3000 MHz.
+
+        Under long sustained loads some Sparks overheat until the embedded
+        controller cuts the power with no warning, below the kernel's own
+        thermal trip. Owners report that a cap of 2200-2300 MHz stops it, and
+        it costs less than it might seem: a heat-soaked GPU throttles to about
+        that clock anyway. Locking the clock is the only lever there is, as
+        the GB10 does not support power limits (`nvidia-smi -pl`).
+
+        `systemctl stop gpu-clock-cap` lifts the cap until the next start or
+        boot.
+      '';
+    };
   };
 
   config = mkIf cfg.enable {
@@ -280,6 +302,30 @@ in
       ethtool
       rdma-core
     ];
+
+    # The clock lock lives in the driver's per-GPU state, which is lost if the
+    # driver lets the GPU go: nvidia-persistenced keeps it initialised, and
+    # partOf re-applies the lock whenever that restarts (e.g. on a driver
+    # update).
+    systemd.services.gpu-clock-cap = mkIf (cfg.gpuClockCap != null) (
+      let
+        nvidia-smi = "${config.hardware.nvidia.package.bin}/bin/nvidia-smi";
+        persistenced = optional config.hardware.nvidia.nvidiaPersistenced "nvidia-persistenced.service";
+      in
+      {
+        description = "Cap the GPU clock at ${toString cfg.gpuClockCap} MHz";
+        wantedBy = [ "multi-user.target" ];
+        after = persistenced;
+        requires = persistenced;
+        partOf = persistenced;
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          ExecStart = "${nvidia-smi} --lock-gpu-clocks=0,${toString cfg.gpuClockCap}";
+          ExecStop = "${nvidia-smi} --reset-gpu-clocks";
+        };
+      }
+    );
 
     services.dgx-dashboard.enable = true;
     services.fwupd.enable = true;
