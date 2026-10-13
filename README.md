@@ -94,6 +94,7 @@ hardware.dgx-spark = {
   enable = true;                 # Enable DGX Spark hardware support
   useNvidiaKernel = true;        # Use NVIDIA kernel (default: true)
   connectx7Hotplug = true;       # Enable ConnectX-7 hot-plug (default: true)
+  gpuClockCap = null;            # Cap the GPU clock in MHz (default: null, uncapped)
 };
 ```
 
@@ -107,6 +108,24 @@ The NVIDIA kernel is a custom build optimised for NVIDIA DGX Spark systems. The 
 
 The module also enables the DGX Dashboard web interface at
 <http://localhost:11000>, providing GPU telemetry and system monitoring.
+
+#### Capping the GPU clock
+
+```nix
+hardware.dgx-spark.gpuClockCap = 2300;  # MHz
+```
+
+Under long sustained GPU loads some Sparks overheat until the embedded
+controller switches the power off with no warning, below the kernel's own
+thermal trip. Owners report that capping the GPU clock at 2200--2300 MHz stops
+it. The cap costs less than you might expect: once a GPU has heat-soaked, it
+throttles to about that clock anyway. On one Spark, a 2300 MHz cap made short
+renders about 11% slower, left long ones no slower, and cut about 15 W.
+
+The `gpu-clock-cap` service applies the cap at boot with
+`nvidia-smi --lock-gpu-clocks`. The GB10 does not support power limits
+(`nvidia-smi -pl`), so the clock is the only lever there is.
+`systemctl stop gpu-clock-cap` lifts the cap until the next boot.
 
 #### Using standard NixOS kernel (has some issues with networking)
 
