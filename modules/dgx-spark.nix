@@ -27,7 +27,15 @@ let
   # maintains its 7.0 branch, and src, version and config all come from here
   # anyway.
   nvidiaKernel = pkgs.linuxPackagesFor (
-    pkgs.buildLinux {
+    # Scrub references to the `dev` output from the kernel image. Since
+    # nixpkgs builds the kernel out of tree with the source unpacked into
+    # `$dev/lib/modules/<version>/source`, kbuild passes compilers absolute
+    # source paths. `-fmacro-prefix-map` remaps `__FILE__`, but GCC does not
+    # apply any prefix map to the source locations it emits for UBSAN checks,
+    # and NVIDIA's config enables UBSAN. Those strings land in the uncompressed
+    # arm64 `Image`, making `out` reference `dev` while `dev` references `out`:
+    # Nix rejects the cycle. Only UBSAN report file names are affected.
+    (pkgs.buildLinux {
       src = kernelSource.mkNvidiaKernelSource pkgs;
       version = "${kernelSource.nvidiaKernelVersion}-nvidia${flavourSuffix}";
       modDirVersion = kernelSource.nvidiaKernelVersion;
@@ -59,7 +67,12 @@ let
           # depends on it. Answer TCG_CRB explicitly.
           TCG_CRB = yes;
         });
-    }
+    }).overrideAttrs (old: {
+      postFixup = (old.postFixup or "") + ''
+        find "$out" -type f -print0 \
+          | xargs -0 -r ${pkgs.removeReferencesTo}/bin/remove-references-to -t "$dev"
+      '';
+    })
   );
 
   # Strip embedded references to the kernel `-dev` output from .ko files. The
