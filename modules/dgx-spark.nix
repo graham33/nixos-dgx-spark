@@ -35,6 +35,13 @@ let
     # and NVIDIA's config enables UBSAN. Those strings land in the uncompressed
     # arm64 `Image`, making `out` reference `dev` while `dev` references `out`:
     # Nix rejects the cycle. Only UBSAN report file names are affected.
+    #
+    # The in-tree modules carry the same strings. They live in the separate
+    # `modules` output, so there is no cycle, but every NixOS system would
+    # pull the ~835 MB `dev` output into its closure. Those have to be
+    # scrubbed before `modules_install`, which signs each module with
+    # kmodigest: rewriting a signed module invalidates its signature. See
+    # `keepModuleSignatures` for the other half.
     (pkgs.buildLinux {
       src = kernelSource.mkNvidiaKernelSource pkgs;
       version = "${kernelSource.nvidiaKernelVersion}-nvidia${flavourSuffix}";
@@ -67,7 +74,11 @@ let
           # depends on it. Answer TCG_CRB explicitly.
           TCG_CRB = yes;
         });
-    }).overrideAttrs (old: {
+    }).overrideAttrs (old: keepModuleSignatures old // {
+      preInstall = (old.preInstall or "") + ''
+        find "$buildRoot" -name '*.ko' -print0 \
+          | xargs -0 -r ${pkgs.removeReferencesTo}/bin/remove-references-to -t "$dev"
+      '';
       postFixup = (old.postFixup or "") + ''
         find "$out" -type f -print0 \
           | xargs -0 -r ${pkgs.removeReferencesTo}/bin/remove-references-to -t "$dev"
@@ -75,12 +86,26 @@ let
     })
   );
 
+  # `modules_install` strips each module and then signs it, appending a
+  # kmodigest signature. stdenv's fixupPhase then strips `lib/` again, and
+  # strip rewrites the ELF file and drops the appended signature, so every
+  # module ends up unsigned. That would make lockdown or `module.sig_enforce`
+  # reject them. Stock nixpkgs kernels escape this only because they compress
+  # their modules (MODULE_COMPRESS_ALL), and strip skips compressed files;
+  # NVIDIA's config leaves them uncompressed. The modules are already
+  # stripped, so excluding them from the second pass loses nothing.
+  keepModuleSignatures = old: {
+    stripExclude = (old.stripExclude or [ ]) ++ [ "*.ko" ];
+  };
+
   # Strip embedded references to the kernel `-dev` output from .ko files. The
   # nvidia kernel-modules build (nixpkgs PR #498612) declares
   # `allowedReferences = [ ]` on the module derivation, but the .ko files end
   # up with __FILE__-derived header paths in `.rodata.str1.8` that point into
   # the kernel-dev store path, so the closure check fails. Run
-  # remove-references-to as a postFixup to scrub them.
+  # remove-references-to over the built modules to scrub them, before
+  # `modules_install` signs them, for the same reason as the kernel's own
+  # modules above.
   #
   # Every kernel leaves these strings behind, stock nixpkgs ones included.
   # nixpkgs' common config sets MODULE_COMPRESS_ALL with XZ, though, and
@@ -88,13 +113,11 @@ let
   # config picks zstd and leaves MODULE_COMPRESS_ALL off, so these modules
   # are installed uncompressed and the references become visible.
   scrubKernelDevRefs = drv:
-    drv.overrideAttrs (old: {
-      postFixup = (old.postFixup or "") + ''
-        if [ -d "$out/lib/modules" ]; then
-          find $out/lib/modules -name '*.ko' -print0 \
-            | xargs -0 -r ${pkgs.removeReferencesTo}/bin/remove-references-to \
-                -t ${config.boot.kernelPackages.kernel.dev}
-        fi
+    drv.overrideAttrs (old: keepModuleSignatures old // {
+      preInstall = (old.preInstall or "") + ''
+        find . -name '*.ko' -print0 \
+          | xargs -0 -r ${pkgs.removeReferencesTo}/bin/remove-references-to \
+              -t ${config.boot.kernelPackages.kernel.dev}
       '';
     });
 in
