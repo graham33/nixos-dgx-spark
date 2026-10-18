@@ -124,8 +124,21 @@ final: prev: {
       # 9.4) on a CUDA 13.2 driver, vllm dies at engine init with
       # cudaErrorUnsupportedPtxVersion. Add 12.0 so the Spark gets sm_120
       # cubins, which run on its sm_121; other arch lists are unaffected.
+      #
+      # nixpkgs backports Dao-AILab/flash-attention#1719 to fix the Hopper
+      # (FA3) build, but that change wrote `select<0, 1>(TileShape_MNK_PV{})()`
+      # -- calling the tuple -- and every sm90 instantiation fails to compile.
+      # Upstream fixed it five days later in #1723; apply that too. Drop it
+      # once nixpkgs carries both, or its flash-attention pin includes them.
       vllm = (python-prev.vllm.override {
         vllm-flash-attn = python-prev.vllm.vllm-flash-attn.overrideAttrs (old: {
+          patches = (old.patches or [ ]) ++ [
+            (final.fetchpatch {
+              name = "hopper-correct-cxx-syntax-in-epilogue-fwd";
+              url = "https://github.com/Dao-AILab/flash-attention/commit/3ba6f826b199ff68aa9e9139a46280160defa5cd.patch";
+              hash = "sha256-NkCEowXSi+tiWu74Qt+VPKKavx0H9JeteovSJKToK9A=";
+            })
+          ];
           postPatch = (old.postPatch or "") + ''
             substituteInPlace CMakeLists.txt \
               --replace-fail \
