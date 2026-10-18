@@ -21,6 +21,14 @@ let
   # That file #includes <curand.h> even though it never calls into it, so
   # libcurand's headers must be on the include path even though nothing links
   # against it.
+  #
+  # Since 2.21, MPI=1 also builds the device-API GIN tests, which link the
+  # driver library with -lcuda. There is no driver in the sandbox, so point
+  # the linker at the toolkit's libcuda stub. NVLDFLAGS can't go in makeFlags,
+  # as a command-line assignment would replace the Makefile's own flags; from
+  # the environment, the Makefile appends to it instead. cuda_cudart's
+  # removeStubsFromRunpathHook keeps the stubs directory out of the RUNPATH,
+  # so the binaries still load the real driver at runtime.
   nccl-tests-mpi = (cudaPackages.nccl-tests.override {
     mpiSupport = true;
     mpi = openmpi;
@@ -28,6 +36,9 @@ let
     pname = "nccl-tests-mpi";
     buildInputs = old.buildInputs ++ [ cudaPackages.libcurand ];
     makeFlags = old.makeFlags ++ [ "MPI_HOME=${openmpi}" ];
+    env = (old.env or { }) // {
+      NVLDFLAGS = "-L${lib.getLib cudaPackages.cuda_cudart}/lib/stubs";
+    };
   });
 
   # Store paths that must exist on *both* nodes: mpirun spawns `prted` from the
