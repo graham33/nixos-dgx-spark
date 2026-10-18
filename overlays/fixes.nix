@@ -89,6 +89,22 @@ final: prev: {
         doCheck = false;
       };
 
+      # nixpkgs moved cython to 3.3.0 (NixOS/nixpkgs#554025), but cupy 14.2.0,
+      # cuda-bindings 13.4.3 and cuda-core 1.0.1 cap their build requirement
+      # at <3.3 -- on their main branches too, as of 2026-10-18 -- so the pypa
+      # build aborts with "Unmet dependencies". nixpkgs keeps cython_3_2, so
+      # build them with that rather than relaxing a pin upstream hasn't
+      # lifted. nccl4py, flashinfer and the cutlass-dsl chain up to vllm all
+      # depend on cuda-bindings. Drop these once nixpkgs builds them against
+      # 3.3.
+      cupy = python-prev.cupy.override { cython = python-final.cython_3_2; };
+      cuda-bindings = python-prev.cuda-bindings.override {
+        cython = python-final.cython_3_2;
+      };
+      cuda-core = python-prev.cuda-core.override {
+        cython = python-final.cython_3_2;
+      };
+
       # Upstream marks vllm broken under CUDA, with no reason given
       # (NixOS/nixpkgs#553566), pending the bump in NixOS/nixpkgs#549327. The
       # 0.24.0 build succeeds here with CUDA 13.4, so unbreak it.
