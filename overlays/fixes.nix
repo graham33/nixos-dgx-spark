@@ -106,15 +106,19 @@ final: prev: {
       };
 
       # Upstream marks vllm broken under CUDA, with no reason given
-      # (NixOS/nixpkgs#553566), pending the bump in NixOS/nixpkgs#549327. The
-      # 0.24.0 build succeeds here with CUDA 13.4, so unbreak it.
+      # (NixOS/nixpkgs#553566), and still does after the bump to 0.29.0. With
+      # the fixes below, 0.29.0 builds here with CUDA 13.4, so unbreak it.
       #
       # It is also marked bad on aarch64-linux, but the reason given there
       # ("could not find git for clone of arm_compute-populate") belongs to
       # the CPU backend, which pulls in oneDNN and Arm Compute Library. A CUDA
       # build never touches either.
       #
-      # Drop this once the upstream bump lands.
+      # vllm 0.29.0 also requires PyNvVideoCodec and nvtx, neither packaged in
+      # nixpkgs, so the runtime-deps check fails. Both are imported lazily:
+      # PyNvVideoCodec only for the opt-in "pynvvideocodec" video backend, and
+      # nvtx only under VLLM_NVTX_SCOPES_FOR_PROFILING. Drop them, as nixpkgs
+      # does for vllm's other unpackaged dependencies.
       #
       # vllm-flash-attn hard-codes FlashAttention-2's arch list as
       # "8.0+PTX", so on SM12x it ships only sm_80 cubins and compute_80
@@ -147,6 +151,10 @@ final: prev: {
           '';
         });
       }).overrideAttrs (old: {
+        pythonRemoveDeps = (old.pythonRemoveDeps or [ ]) ++ [
+          "PyNvVideoCodec"
+          "nvtx"
+        ];
         meta = old.meta // {
           broken = false;
           badPlatforms = prev.lib.filter (p: p != "aarch64-linux") (old.meta.badPlatforms or [ ]);
