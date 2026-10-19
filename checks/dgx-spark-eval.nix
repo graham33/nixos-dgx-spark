@@ -4,7 +4,8 @@
 # The 64K-page variant (dgx-spark-64k) is evaluated too, and so is a config
 # with the optional features on: gpuClockCap, checking the service locks the
 # clock to the cap, and fanControl with its curve, checking the driver is
-# installed and loaded and the curve service runs.
+# installed and loaded and the curve service runs. COSMIC must trip the
+# system76-power assertion (#145) unless power-profiles-daemon is enabled.
 { pkgs, self }:
 let
   system = self.nixosConfigurations.dgx-spark;
@@ -21,6 +22,14 @@ let
   inherit (systemOptional.config.systemd) services;
   capService = services.gpu-clock-cap;
   fanService = services.dgx-fan-control;
+  cosmic = system.extendModules {
+    modules = [{ services.desktopManager.cosmic.enable = true; }];
+  };
+  cosmicPpd = cosmic.extendModules {
+    modules = [{ services.power-profiles-daemon.enable = true; }];
+  };
+  trips76 = sys: builtins.any (a: !a.assertion && pkgs.lib.hasInfix "system76" a.message)
+    sys.config.assertions;
 in
 assert !(system.config.systemd.services ? gpu-clock-cap);
 assert !(system.config.systemd.services ? dgx-fan-control);
@@ -30,6 +39,9 @@ assert builtins.elem "dgx_ec_fan_control" systemOptional.config.boot.kernelModul
 assert builtins.any (p: p.pname or "" == "dgx-spark-fan-control-kmod")
   systemOptional.config.boot.extraModulePackages;
 assert pkgs.lib.hasSuffix "/bin/dgx-fan-control daemon" fanService.serviceConfig.ExecStart;
+assert !(trips76 system);
+assert trips76 cosmic;
+assert !(trips76 cosmicPpd);
 pkgs.runCommand "dgx-spark-eval"
 {
   drvPath = builtins.unsafeDiscardStringContext
