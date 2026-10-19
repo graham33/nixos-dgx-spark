@@ -24,6 +24,13 @@ pkgs.testers.runNixOSTest {
 
   testScript = ''
     machine.wait_for_unit("dgx-dashboard-admin.service")
+    # wait_for_unit alone can catch a crash-looping unit (Restart=always)
+    # in one of its brief active windows, so also require that it has not
+    # restarted -- a dashboard-admin that segfaulted at startup once passed
+    # this test that way.
+    machine.sleep(5)
+    machine.succeed("test \"$(systemctl show -P NRestarts dgx-dashboard-admin.service)\" = 0")
+    machine.succeed("systemctl is-active dgx-dashboard-admin.service")
     machine.wait_for_unit("dgx-dashboard.service")
     machine.wait_for_open_port(11000)
     machine.succeed("curl -fsS http://localhost:11000/ >/dev/null")
