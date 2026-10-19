@@ -1,7 +1,7 @@
 { lib
 , stdenv
 , fetchurl
-, autoPatchelfHook
+, patchelf
 , dpkg
 , pam
 }:
@@ -15,9 +15,15 @@ stdenv.mkDerivation rec {
     sha256 = "1c02b4d8f763cdfe4a19fcefaa20417b953dba7c060740037876e980ce4770f5";
   };
 
-  nativeBuildInputs = [ dpkg autoPatchelfHook ];
-
-  buildInputs = [ pam ];
+  # Not autoPatchelfHook: patchelf 0.19.2 mis-rewrites dashboard-admin when
+  # --set-interpreter is followed by --set-rpath, which is the order
+  # auto-patchelf uses. The first LOAD segment shrinks to 0x300 bytes and
+  # stops covering the program headers (readelf: "the PHDR segment is not
+  # covered by a LOAD segment"), and the binary segfaults in ld.so before
+  # main. The same two edits in the opposite order produce a working binary,
+  # as does patchelf 0.15.2. dashboard-service, a Go binary, is unaffected
+  # either way. Patch both by hand, rpath first.
+  nativeBuildInputs = [ dpkg patchelf ];
 
   unpackPhase = ''
     runHook preUnpack
@@ -56,6 +62,13 @@ stdenv.mkDerivation rec {
     cp -r usr/share/doc/dgx-dashboard $out/share/doc/
 
     runHook postInstall
+  '';
+
+  postFixup = ''
+    patchelf --set-rpath ${lib.makeLibraryPath [ pam ]} $out/bin/dashboard-admin
+    for bin in $out/bin/dashboard-admin $out/bin/dashboard-service; do
+      patchelf --set-interpreter ${stdenv.cc.bintools.dynamicLinker} "$bin"
+    done
   '';
 
   meta = {
