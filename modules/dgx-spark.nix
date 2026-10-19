@@ -202,6 +202,18 @@ in
         assertion = cfg.use64kKernel -> cfg.useNvidiaKernel;
         message = "hardware.dgx-spark.use64kKernel requires hardware.dgx-spark.useNvidiaKernel.";
       }
+      {
+        # The system76-power daemon resets the Spark during boot on the NVIDIA
+        # 7.0 kernel (#145). The COSMIC module enables it by default unless
+        # power-profiles-daemon or tuned is enabled.
+        assertion = cfg.useNvidiaKernel -> !config.hardware.system76.power-daemon.enable;
+        message = ''
+          hardware.system76.power-daemon breaks boot on the DGX Spark NVIDIA kernel
+          (https://github.com/graham33/nixos-dgx-spark/issues/145). With COSMIC, set
+          services.power-profiles-daemon.enable = true; otherwise set
+          hardware.system76.power-daemon.enable = false.
+        '';
+      }
     ];
 
     # Add the Flox binary cache as a substituter for pre-built CUDA packages.
