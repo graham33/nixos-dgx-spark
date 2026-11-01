@@ -5,9 +5,6 @@
 }:
 
 {
-  # Enable systemd in the initial ramdisk
-  boot.initrd.systemd.enable = true;
-
   # Enable specific hardware modules for USB boot and emergency access
   # Based on hardware.enableAllHardware but excluding missing modules like pata_pcmcia
   boot.initrd.kernelModules = [
