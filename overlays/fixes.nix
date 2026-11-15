@@ -121,6 +121,14 @@ final: prev: {
       # vllm does instead: against its own submodule (cutlass v3.9), with no
       # patches -- #1719 is wrong for v3.9's API. Drop this once nixpkgs
       # does the same, or flash-attn moves to cutlass 4.x.
+      #
+      # vllm 0.33 builds DeepGEMM with tools/build_deepgemm_C.py, which runs
+      # `setup.py build_ext --inplace` inside DEEPGEMM_SRC_DIR. nixpkgs points
+      # that at the read-only store path, so setuptools can't create its build
+      # directory. Hand it a writable copy; the environment variable takes
+      # precedence over nixpkgs' cmake flag. DeepGEMM's bundled deep_jit also
+      # includes <elfutils/libdwfl.h> (it dlopens libdw for backtraces), so
+      # add elfutils for the headers. Drop both once nixpkgs does them.
       vllm = (python-prev.vllm.override {
         vllm-flash-attn = python-prev.vllm.vllm-flash-attn.overrideAttrs (old: {
           patches = [ ];
@@ -143,6 +151,16 @@ final: prev: {
           '';
         });
       }).overrideAttrs (old: {
+        preConfigure = (old.preConfigure or "") + ''
+          cp -r --no-preserve=mode ${
+            prev.lib.removePrefix "-DDEEPGEMM_SRC_DIR:STRING="
+              (prev.lib.findFirst (prev.lib.hasPrefix "-DDEEPGEMM_SRC_DIR:STRING=")
+                (throw "vllm no longer sets DEEPGEMM_SRC_DIR")
+                old.cmakeFlags)
+          } "$NIX_BUILD_TOP/deepgemm-src"
+          export DEEPGEMM_SRC_DIR="$NIX_BUILD_TOP/deepgemm-src"
+        '';
+        buildInputs = (old.buildInputs or [ ]) ++ [ final.elfutils ];
         pythonRemoveDeps = (old.pythonRemoveDeps or [ ]) ++ [
           "PyNvVideoCodec"
           "nvtx"
