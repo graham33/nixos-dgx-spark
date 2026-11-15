@@ -22,16 +22,20 @@
     },
     "enable-container-tests": {
       "locked": {
-        "path": "./flags/container-tests/disabled",
-        "type": "path"
+        "dir": "flags/container-tests/disabled",
+        "lastModified": 1794684951,
+        "narHash": "sha256-+9ICRMati+NF+QP1R/QX57Fo4b27s0e7KIKpYzGa3+Q=",
+        "owner": "nixified-ai",
+        "repo": "flake",
+        "rev": "c2838485c5e7a3a810e593f95b019a8eccb4e121",
+        "type": "github"
       },
       "original": {
-        "path": "./flags/container-tests/disabled",
-        "type": "path"
-      },
-      "parent": [
-        "nixified-ai"
-      ]
+        "dir": "flags/container-tests/disabled",
+        "owner": "nixified-ai",
+        "repo": "flake",
+        "type": "github"
+      }
     },
     "flake-compat": {
       "flake": false,

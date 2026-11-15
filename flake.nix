@@ -15,6 +15,11 @@
     nixified-ai = {
       url = "github:nixified-ai/flake";
       inputs.nixpkgs.follows = "nixpkgs";
+      # nixified-ai declares this flag as a relative path input. Nix resolves
+      # such an input against the wrong source tree once it is nested two
+      # levels deep (NixOS/nix#14762), so any flake taking this one as an input
+      # fails to lock. Point it at the same flag by absolute URL instead.
+      inputs.enable-container-tests.url = "github:nixified-ai/flake?dir=flags/container-tests/disabled";
     };
     disko = {
       url = "github:nix-community/disko";
