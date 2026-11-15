@@ -47,10 +47,14 @@ let
       version = "${kernelSource.nvidiaKernelVersion}-nvidia${flavourSuffix}";
       modDirVersion = kernelSource.nvidiaKernelVersion;
       # buildLinux takes no default patches; these are the ones nixpkgs applies
-      # to its own kernels, pointing the kernel at NixOS's helper paths.
+      # to its own kernels. The first two point the kernel at NixOS's helper
+      # paths. tools_128bit_types defines __u128 in tools/include: glibc's arm64
+      # uapi headers (from linux-headers 7.3) use it, and without it the
+      # resolve_btfids host build fails.
       kernelPatches = with pkgs.kernelPatches; [
         bridge_stp_helper
         request_key_helper
+        tools_128bit_types
       ];
       extraMeta.branch = lib.versions.majorMinor kernelSource.nvidiaKernelVersion;
 
