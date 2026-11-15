@@ -113,25 +113,33 @@ final: prev: {
       # cudaErrorUnsupportedPtxVersion. Add 12.0 so the Spark gets sm_120
       # cubins, which run on its sm_121; other arch lists are unaffected.
       #
-      # nixpkgs backports Dao-AILab/flash-attention#1719 to fix the Hopper
-      # (FA3) build, but that change wrote `select<0, 1>(TileShape_MNK_PV{})()`
-      # -- calling the tuple -- and every sm90 instantiation fails to compile.
-      # Upstream fixed it five days later in #1723; apply that too. Drop it
-      # once nixpkgs carries both, or its flash-attention pin includes them.
+      # nixpkgs swaps vllm-flash-attn's csrc/cutlass submodule for vllm's own
+      # cutlass, and backports Dao-AILab/flash-attention#1719 to port the
+      # Hopper (FA3) epilogue to that cutlass's API. Since vllm 0.33 it is
+      # cutlass v4.7.1, which also makes SM100_MMA_F8F6F4_SS a class template,
+      # so flash-attn's hopper/utils.h no longer compiles. Build it as upstream
+      # vllm does instead: against its own submodule (cutlass v3.9), with no
+      # patches -- #1719 is wrong for v3.9's API. Drop this once nixpkgs
+      # does the same, or flash-attn moves to cutlass 4.x.
       vllm = (python-prev.vllm.override {
         vllm-flash-attn = python-prev.vllm.vllm-flash-attn.overrideAttrs (old: {
-          patches = (old.patches or [ ]) ++ [
-            (final.fetchpatch {
-              name = "hopper-correct-cxx-syntax-in-epilogue-fwd";
-              url = "https://github.com/Dao-AILab/flash-attention/commit/3ba6f826b199ff68aa9e9139a46280160defa5cd.patch";
-              hash = "sha256-NkCEowXSi+tiWu74Qt+VPKKavx0H9JeteovSJKToK9A=";
-            })
-          ];
+          patches = [ ];
           postPatch = (old.postPatch or "") + ''
             substituteInPlace CMakeLists.txt \
               --replace-fail \
                 'cuda_archs_loose_intersection(FA2_ARCHS "8.0+PTX"' \
                 'cuda_archs_loose_intersection(FA2_ARCHS "8.0+PTX;12.0"'
+          '';
+          buildPhase = old.buildPhase + ''
+            rm csrc/cutlass
+            ln -s ${final.fetchFromGitHub {
+              name = "cutlass-source";
+              owner = "NVIDIA";
+              repo = "cutlass";
+              # flash-attention's csrc/cutlass submodule pin (v3.9)
+              rev = "62750a2b75c802660e4894434dc55e839f322277";
+              hash = "sha256-eL64JYiFAqrn6OJDzijpMR4DbEB4El/8yT7++iCZBlE=";
+            }} csrc/cutlass
           '';
         });
       }).overrideAttrs (old: {
