@@ -449,14 +449,14 @@ for full details and requirements.
 
 ## NVIDIA driver memory mode (CDMM)
 
-The module uses NVIDIA's latest driver branch, currently R615, because the
-CUDA 13.4 toolkit needs it: a driver older than the toolkit cannot JIT the
+The module uses NVIDIA's latest driver branch, currently R620, because the
+CUDA 13.5 toolkit needs it: a driver older than the toolkit cannot JIT the
 toolkit's PTX. NVIDIA itself only supports its DGX OS driver (R580) on the
 Spark, so this is ahead of NVIDIA's supported configuration.
 
-R615 changes how the driver manages memory on coherent (Grace) systems. Earlier
+R615 changed how the driver manages memory on coherent (Grace) systems. Earlier
 branches, R580 and R595 included, default to **NUMA mode**, where Linux manages
-GPU-accessible memory as part of system memory. R615 defaults to **CDMM**
+GPU-accessible memory as part of system memory. R615 and later default to **CDMM**
 (Coherent Driver-based Memory Management), where the driver manages it instead.
 NVIDIA announces the change for GH200, GB200, GB300 and Vera Rubin, but it
 applies to the Spark's GB10 too. Check the current mode with:

@@ -1,12 +1,13 @@
 # Nixpkgs fixes overlay
 # Workarounds for packages that are broken or need adjustments on aarch64-linux / CUDA 13
 final: prev: {
-  # Switch to CUDA 13.4.
+  # nixpkgs' default CUDA (13.5), which needs an R620 or later driver; the
+  # dgx-spark module pins one.
   #
   # nixpkgs builds cuda-samples from the v13.0 tag for every CUDA 13.x, and
   # three of that release's samples (segmentationTreeThrust, particles and
   # smokeParticles) no longer compile against the CCCL 3.x shipped with CUDA
-  # 13.4. Apply NVIDIA's fix, which moves them off thrust::make_tuple and
+  # 13.4 and later. Apply NVIDIA's fix, which moves them off thrust::make_tuple and
   # thrust::tuple onto the cuda::std equivalents. It landed after v13.0 but
   # applies cleanly to it.
   #
@@ -15,7 +16,7 @@ final: prev: {
   # vulkanImageCUDA, which fails CMake outright in the sandbox, and v13.3
   # onwards reorganise Samples/ into cpp/ and python/, which nixpkgs' prePatch
   # and installPhase are written against.
-  cudaPackages = prev.cudaPackages_13_4.overrideScope (
+  cudaPackages = prev.cudaPackages.overrideScope (
     _: prevCuda: {
       cuda-samples = prevCuda.cuda-samples.overrideAttrs (oldAttrs: {
         patches = (oldAttrs.patches or [ ]) ++ [
@@ -53,7 +54,7 @@ final: prev: {
 
       # MAGMA is in torch's closure purely to provide GPU LAPACK, and nixpkgs
       # adds it unconditionally under cudaSupport -- a ~3500-object CUDA build,
-      # about half an hour on the Spark. On CUDA 13.4 cuSOLVER covers the paths
+      # about half an hour on the Spark. On CUDA 13 cuSOLVER covers the paths
       # that matter: torch compiles its MAGMA torch.linalg.eig path only when
       # CUSOLVER_VERSION < 11702, its MAGMA triangular_solve path is ROCm-only,
       # and lu_factor's default backend falls through to cuSOLVER/cuBLAS when
