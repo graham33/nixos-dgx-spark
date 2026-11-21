@@ -130,6 +130,13 @@ final: prev: {
       # precedence over nixpkgs' cmake flag. DeepGEMM's bundled deep_jit also
       # includes <elfutils/libdwfl.h> (it dlopens libdw for backtraces), so
       # add elfutils for the headers. Drop both once nixpkgs does them.
+      #
+      # vllm 0.33 also warms up a CuTe DSL router GEMM at engine start for MoE
+      # models on any GPU from sm_90 up, and builds its fake tensors with
+      # quack-kernels, which nixpkgs' vllm does not propagate. Its
+      # availability check imports only cutlass, which is there, so nothing
+      # skips the warm-up and the engine dies with "No module named 'quack'"
+      # (seen serving Qwen3.6-35B-A3B). Propagate it; drop once nixpkgs does.
       vllm = (python-prev.vllm.override {
         vllm-flash-attn = python-prev.vllm.vllm-flash-attn.overrideAttrs (old: {
           patches = [ ];
@@ -162,6 +169,7 @@ final: prev: {
           export DEEPGEMM_SRC_DIR="$NIX_BUILD_TOP/deepgemm-src"
         '';
         buildInputs = (old.buildInputs or [ ]) ++ [ final.elfutils ];
+        propagatedBuildInputs = (old.propagatedBuildInputs or [ ]) ++ [ python-final.quack-kernels ];
         pythonRemoveDeps = (old.pythonRemoveDeps or [ ]) ++ [
           "PyNvVideoCodec"
           "nvtx"
